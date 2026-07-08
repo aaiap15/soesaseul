@@ -31,8 +31,8 @@ create or replace function admin_delete_all(pw text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
   if pw is distinct from 'CHANGE_ME_바꾸세요' then raise exception 'unauthorized'; end if;
-  delete from applications;
-  delete from posts;
+  delete from applications where true;  -- WHERE 없으면 sql_safe_updates가 막음
+  delete from posts where true;
 end; $$;
 
 -- 권한: public 회수 후 anon 에게만 실행 허용 (실제 삭제는 함수 내부 비번 검증을 통과해야 함)

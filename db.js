@@ -96,8 +96,13 @@
   async function deleteAll(pw) {
     await ready;
     if (sb) {
-      const { error } = await sb.rpc("admin_delete_all", { pw });
-      if (error) throw error;
+      // WHERE 없는 전체 DELETE는 Supabase(sql_safe_updates)가 막으므로,
+      // 글 단위로 삭제(각 글은 WHERE 있음, 신청은 FK cascade로 함께 제거).
+      const all = await listPosts();
+      for (const p of all) {
+        const { error } = await sb.rpc("admin_delete_post", { pw, target_id: p.id });
+        if (error) throw error;
+      }
     } else {
       setLS(LS.posts, []); setLS(LS.apps, []);
     }
