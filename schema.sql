@@ -26,10 +26,14 @@ create table if not exists applications (
 alter table posts        enable row level security;
 alter table applications enable row level security;
 
--- 누구나 읽기
+-- 누구나 읽기 (drop-if-exists → 여러 번 실행해도 에러 없이 안전)
+drop policy if exists "public read posts" on posts;
+drop policy if exists "public read apps"  on applications;
 create policy "public read posts" on posts        for select using (true);
 create policy "public read apps"  on applications for select using (true);
--- 누구나 등록 (수정/삭제는 불가 → 스팸 시 대시보드에서 운영자가 삭제)
+-- 누구나 등록 (수정/삭제는 불가 → 삭제는 admin.sql의 비번 검증 함수로만)
+drop policy if exists "public insert posts" on posts;
+drop policy if exists "public insert apps"  on applications;
 create policy "public insert posts" on posts        for insert with check (true);
 create policy "public insert apps"  on applications for insert with check (true);
 
