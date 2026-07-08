@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>쇠친 · 같이 운동할 사람 찾기</title>
+<meta name="description" content="대학생 운동메이트 매칭. 이름·나이·성별·운동부위만 올리면 같이 운동할 사람이 신청해요." />
+<meta property="og:title" content="쇠친 · 같이 운동할 사람 찾기" />
+<meta property="og:description" content="헬스장 혼자 다니기 심심할 때. 이름·나이·성별·운동부위만 올리면 끝." />
+<style>
+  :root{
+    --bg:#f5f5f8; --card:#ffffff; --line:#e8e8ef; --txt:#17171c; --sub:#6b6b78; --dim:#a0a0ad;
+    --accent:#6d5efc; --accent2:#8b7dff; --pink:#ff5c8a; --ok:#1fbf7a;
+    --radius:18px; --maxw:500px;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{--bg:#101015;--card:#1a1a22;--line:#2a2a34;--txt:#f2f2f6;--sub:#9a9aa8;--dim:#6a6a78}
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--txt);line-height:1.5;padding-bottom:96px}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 16px}
+
+  header{position:sticky;top:0;z-index:10;background:var(--bg);padding:16px 0 12px;border-bottom:1px solid var(--line)}
+  header .wrap{display:flex;align-items:center;justify-content:space-between}
+  .logo{font-size:22px;font-weight:900;letter-spacing:-.02em}
+  .logo b{color:var(--accent)}
+  .logo .em{font-size:20px}
+  .sub{color:var(--sub);font-size:12.5px;margin-top:2px}
+  .mode{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;background:var(--card);
+    border:1px solid var(--line);color:var(--dim)}
+  .mode.live{color:var(--ok);border-color:rgba(31,191,122,.4)}
+
+  .hero{padding:20px 0 8px}
+  .hero h1{font-size:22px;font-weight:900;letter-spacing:-.02em;line-height:1.35}
+  .hero h1 .hl{background:linear-gradient(120deg,var(--accent),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{color:var(--sub);font-size:14px;margin-top:8px}
+
+  .toolbar{display:flex;gap:8px;padding:14px 0 6px;overflow-x:auto;scrollbar-width:none}
+  .toolbar::-webkit-scrollbar{display:none}
+  .filter{flex:none;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;
+    background:var(--card);border:1px solid var(--line);color:var(--sub);cursor:pointer}
+  .filter.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  .count{color:var(--dim);font-size:12.5px;padding:6px 2px 12px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;margin-bottom:12px}
+  .card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .avatar{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:20px;
+    background:linear-gradient(135deg,rgba(109,94,252,.15),rgba(255,92,138,.15));flex:none}
+  .who{flex:1;min-width:0}
+  .who .nm{font-weight:850;font-size:16px}
+  .who .meta{color:var(--sub);font-size:13px;margin-top:1px}
+  .ago{color:var(--dim);font-size:11.5px;white-space:nowrap}
+  .parts{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .part{font-size:12.5px;font-weight:800;padding:5px 11px;border-radius:999px;
+    background:rgba(109,94,252,.1);color:var(--accent)}
+  .note{color:var(--sub);font-size:13.5px;margin-top:10px;line-height:1.5}
+  .card .foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:10px}
+  .applies{font-size:12.5px;color:var(--sub);font-weight:700}
+  .applies b{color:var(--pink)}
+  .btn-apply{background:var(--accent);color:#fff;border:none;font-weight:800;font-size:14px;
+    padding:11px 20px;border-radius:12px;cursor:pointer}
+  .btn-apply:active{transform:translateY(1px)}
+  .btn-apply.mine{background:var(--card);color:var(--dim);border:1px solid var(--line)}
+
+  .empty{text-align:center;color:var(--dim);padding:60px 20px}
+  .empty .ic{font-size:44px}
+  .empty p{margin-top:12px;font-size:14px}
+
+  /* FAB */
+  .fab{position:fixed;bottom:0;left:0;right:0;z-index:40;padding:14px 16px 20px;
+    background:linear-gradient(to top,var(--bg) 65%,transparent)}
+  .fab .wrap{padding:0 16px}
+  .fab button{width:100%;max-width:calc(var(--maxw) - 32px);margin:0 auto;display:block;
+    background:linear-gradient(120deg,var(--accent),var(--pink));color:#fff;font-weight:850;font-size:16px;
+    padding:16px;border:none;border-radius:15px;cursor:pointer;box-shadow:0 10px 26px rgba(109,94,252,.35)}
+
+  /* MODAL */
+  .modal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);
+    display:none;align-items:flex-end}
+  .modal.open{display:flex}
+  .sheet{background:var(--bg);width:100%;max-width:var(--maxw);margin:0 auto;border-radius:22px 22px 0 0;
+    max-height:92vh;overflow-y:auto;padding:8px 20px 32px;animation:up .28s cubic-bezier(.2,.9,.3,1)}
+  @keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+  .grip{width:40px;height:5px;border-radius:99px;background:var(--line);margin:8px auto 6px}
+  .sheet h2{font-size:19px;font-weight:900;margin:8px 0 2px}
+  .sheet .desc{color:var(--sub);font-size:13px;margin-bottom:4px}
+  .field{margin-top:18px}
+  .field label{display:block;font-weight:800;font-size:14px;margin-bottom:8px}
+  .field .req{color:var(--pink)}
+  .field .opt{color:var(--dim);font-weight:600;font-size:12px}
+  input,textarea{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;
+    padding:13px;color:var(--txt);font-size:16px;font-family:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  textarea{min-height:64px;resize:vertical}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{cursor:pointer}
+  .chip input{position:absolute;opacity:0;pointer-events:none}
+  .chip span{display:block;font-size:14px;font-weight:700;padding:10px 14px;border-radius:12px;
+    background:var(--card);border:1.5px solid var(--line);color:var(--sub)}
+  .chip input:checked + span{background:rgba(109,94,252,.12);border-color:var(--accent);color:var(--accent)}
+  .submit{width:100%;background:linear-gradient(120deg,var(--accent),var(--pink));color:#fff;font-weight:850;
+    font-size:16px;padding:16px;border:none;border-radius:14px;cursor:pointer;margin-top:24px}
+  .submit:disabled{opacity:.5}
+
+  .done{text-align:center;padding:30px 0 10px}
+  .done .ic{font-size:52px}
+  .done h2{margin-top:10px}
+  .done p{color:var(--sub);font-size:14px;margin-top:10px}
+  .revealed{background:var(--card);border:1px dashed var(--accent);border-radius:12px;padding:14px;margin-top:16px}
+  .revealed .k{font-size:12px;color:var(--dim);font-weight:700}
+  .revealed .v{font-size:17px;font-weight:850;color:var(--accent);margin-top:3px}
+  .ghost{background:transparent;border:none;color:var(--dim);font-size:14px;margin-top:18px;cursor:pointer;width:100%}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div>
+      <div class="logo"><span class="em">🏋️</span> <b>쇠친</b></div>
+      <div class="sub" id="subtitle">같이 운동할 사람, 여기서 찾자</div>
+    </div>
+    <span class="mode" id="modeBadge">…</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>혼자 운동하기 심심할 때,<br><span class="hl">같이 칠 사람</span> 구해요 💪</h1>
+    <p>이름·나이·성별·운동부위만 올리면 끝. 관심 있는 사람이 신청해요.</p>
+  </div>
+
+  <div class="toolbar" id="filters"></div>
+  <div class="count" id="count"></div>
+  <div id="board"></div>
+</div>
+
+<div class="fab">
+  <div class="wrap"><button id="openPost">＋ 운동메이트 구하는 글 올리기</button></div>
+</div>
+
+<!-- 글 올리기 -->
+<div class="modal" id="postModal">
+  <div class="sheet">
+    <div class="grip"></div>
+    <form id="postForm">
+      <h2>운동메이트 구하기 ✍️</h2>
+      <p class="desc">30초면 끝나요. 관심 있는 사람이 신청하면 알려드릴게요.</p>
+
+      <div class="row2">
+        <div class="field"><label>이름/닉네임 <span class="req">*</span></label>
+          <input name="name" required placeholder="예: 민준" autocomplete="off"></div>
+        <div class="field"><label>나이 <span class="req">*</span></label>
+          <input name="age" type="number" inputmode="numeric" required placeholder="예: 22"></div>
+      </div>
+
+      <div class="field"><label>성별 <span class="req">*</span></label>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="gender" value="남" required><span>🙋‍♂️ 남</span></label>
+          <label class="chip"><input type="radio" name="gender" value="여"><span>🙋‍♀️ 여</span></label>
+          <label class="chip"><input type="radio" name="gender" value="상관없음"><span>🤝 상관없음</span></label>
+        </div>
+      </div>
+
+      <div class="field"><label>운동부위 <span class="req">*</span> <span class="opt">여러 개 선택 가능</span></label>
+        <div class="chips" id="partChips"></div>
+      </div>
+
+      <div class="field"><label>연락처 <span class="opt">(카톡/인스타 ID · 선택)</span></label>
+        <input name="contact" placeholder="예: insta @minjun_gym" autocomplete="off"></div>
+
+      <div class="field"><label>한마디 <span class="opt">(선택)</span></label>
+        <textarea name="note" placeholder="예: 헬린이라 같이 배우면서 할 사람! 주 3회 저녁"></textarea></div>
+
+      <button class="submit" type="submit" id="postBtn">글 올리기</button>
+      <button type="button" class="ghost" data-close>닫기</button>
+    </form>
+
+    <div class="done" id="postDone" style="display:none">
+      <div class="ic">🎉</div>
+      <h2>글이 올라갔어요!</h2>
+      <p>이제 같이 운동할 사람이 신청할 수 있어요.<br>신청이 들어오면 남겨주신 연락처로 이어드릴게요.</p>
+      <button class="submit" data-close style="margin-top:22px">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 신청하기 -->
+<div class="modal" id="applyModal">
+  <div class="sheet">
+    <div class="grip"></div>
+    <form id="applyForm">
+      <h2 id="applyTitle">같이 운동 신청 🙌</h2>
+      <p class="desc" id="applyDesc"></p>
+
+      <div class="field"><label>내 이름/닉네임 <span class="req">*</span></label>
+        <input name="name" required placeholder="예: 서연" autocomplete="off"></div>
+      <div class="field"><label>내 연락처 <span class="req">*</span> <span class="opt">(카톡/인스타 · 여기로 이어줘요)</span></label>
+        <input name="contact" required placeholder="예: 카톡 seoyeon02" autocomplete="off"></div>
+
+      <button class="submit" type="submit" id="applyBtn">신청 보내기</button>
+      <button type="button" class="ghost" data-close>닫기</button>
+    </form>
+
+    <div class="done" id="applyDone" style="display:none">
+      <div class="ic">✅</div>
+      <h2>신청 완료!</h2>
+      <p id="applyDoneMsg"></p>
+      <div class="revealed" id="revealBox" style="display:none">
+        <div class="k">상대방 연락처</div>
+        <div class="v" id="revealVal"></div>
+      </div>
+      <button class="submit" data-close style="margin-top:22px">확인</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="db.js"></script>
+<script>
+const PARTS = ["가슴","등","어깨","팔","하체","복근","유산소","전신"];
+const EMOJI = {"가슴":"🎽","등":"🔙","어깨":"🏔️","팔":"💪","하체":"🦵","복근":"🧊","유산소":"🏃","전신":"🔥"};
+let posts = [], applications = [], activeFilter = "전체", currentPost = null;
+const myPosts = JSON.parse(localStorage.getItem("soechin_mine") || "[]");     // 내가 올린 글 id
+const myApplied = JSON.parse(localStorage.getItem("soechin_applied") || "[]"); // 내가 신청한 글 id
+
+// 부위 칩(폼) 생성
+document.getElementById("partChips").innerHTML = PARTS.map(p =>
+  `<label class="chip"><input type="checkbox" name="part" value="${p}"><span>${EMOJI[p]} ${p}</span></label>`).join("");
+
+// 필터
+function renderFilters(){
+  const cats = ["전체", ...PARTS];
+  document.getElementById("filters").innerHTML = cats.map(c =>
+    `<button class="filter ${c===activeFilter?'on':''}" data-f="${c}">${c==="전체"?"전체":EMOJI[c]+" "+c}</button>`).join("");
+  document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { activeFilter = b.dataset.f; renderFilters(); renderBoard(); });
+}
+
+function ago(iso){
+  if(!iso) return "";
+  const s = (Date.now() - new Date(iso).getTime())/1000;
+  if(s<60) return "방금";
+  if(s<3600) return Math.floor(s/60)+"분 전";
+  if(s<86400) return Math.floor(s/3600)+"시간 전";
+  return Math.floor(s/86400)+"일 전";
+}
+const countApplies = id => applications.filter(a => String(a.post_id)===String(id)).length;
+const esc = s => (""+(s??"")).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function renderBoard(){
+  let list = posts;
+  if(activeFilter!=="전체") list = posts.filter(p => (p.part||"").split(",").includes(activeFilter));
+  document.getElementById("count").textContent = `지금 ${list.length}명이 운동메이트를 찾고 있어요`;
+
+  if(!list.length){
+    document.getElementById("board").innerHTML =
+      `<div class="empty"><div class="ic">🏃‍♂️</div><p>아직 글이 없어요.<br>첫 번째로 운동메이트를 구해보세요!</p></div>`;
+    return;
+  }
+  document.getElementById("board").innerHTML = list.map(p => {
+    const parts = (p.part||"").split(",").filter(Boolean);
+    const n = countApplies(p.id);
+    const mine = myPosts.includes(String(p.id));
+    const applied = myApplied.includes(String(p.id));
+    return `<div class="card">
+      <div class="top">
+        <div class="avatar">${p.gender==="여"?"🙋‍♀️":p.gender==="남"?"🙋‍♂️":"🏋️"}</div>
+        <div class="who">
+          <div class="nm">${esc(p.name)}</div>
+          <div class="meta">${esc(p.age)}살 · ${esc(p.gender)}</div>
+        </div>
+        <div class="ago">${ago(p.created_at)}</div>
+      </div>
+      <div class="parts">${parts.map(x=>`<span class="part">${EMOJI[x]||""} ${esc(x)}</span>`).join("")}</div>
+      ${p.note?`<div class="note">${esc(p.note)}</div>`:""}
+      <div class="foot">
+        <div class="applies">🙋 <b>${n}</b>명 신청${mine?" · 내 글":""}</div>
+        ${mine
+          ? `<button class="btn-apply mine" disabled>내가 올린 글</button>`
+          : applied
+            ? `<button class="btn-apply mine" disabled>신청함 ✓</button>`
+            : `<button class="btn-apply" data-apply="${p.id}">같이 운동 신청</button>`}
+      </div>
+    </div>`;
+  }).join("");
+
+  document.querySelectorAll("[data-apply]").forEach(b => b.onclick = () => openApply(b.dataset.apply));
+}
+
+// ---- 모달 제어 ----
+const openModal = id => { document.getElementById(id).classList.add("open"); document.body.style.overflow="hidden"; };
+const closeModals = () => { document.querySelectorAll(".modal").forEach(m=>m.classList.remove("open")); document.body.style.overflow=""; };
+document.querySelectorAll("[data-close]").forEach(el => el.onclick = closeModals);
+document.querySelectorAll(".modal").forEach(m => m.onclick = e => { if(e.target===m) closeModals(); });
+
+document.getElementById("openPost").onclick = () => {
+  document.getElementById("postForm").style.display=""; document.getElementById("postDone").style.display="none";
+  document.getElementById("postForm").reset(); openModal("postModal");
+};
+
+// ---- 글 올리기 ----
+document.getElementById("postForm").onsubmit = async e => {
+  e.preventDefault();
+  const btn = document.getElementById("postBtn"); btn.disabled=true; btn.textContent="올리는 중…";
+  const fd = new FormData(e.target);
+  const parts = fd.getAll("part");
+  if(!parts.length){ alert("운동부위를 하나 이상 선택해주세요"); btn.disabled=false; btn.textContent="글 올리기"; return; }
+  try{
+    const saved = await DB.addPost({
+      name: fd.get("name").trim(), age: Number(fd.get("age")), gender: fd.get("gender"),
+      part: parts.join(","), contact: fd.get("contact").trim(), note: fd.get("note").trim(),
+    });
+    myPosts.push(String(saved.id)); localStorage.setItem("soechin_mine", JSON.stringify(myPosts));
+    document.getElementById("postForm").style.display="none"; document.getElementById("postDone").style.display="";
+    await refresh();
+  }catch(err){ alert("저장 실패: "+(err.message||err)); }
+  finally{ btn.disabled=false; btn.textContent="글 올리기"; }
+};
+
+// ---- 신청하기 ----
+function openApply(postId){
+  currentPost = posts.find(p => String(p.id)===String(postId));
+  if(!currentPost) return;
+  document.getElementById("applyForm").style.display=""; document.getElementById("applyDone").style.display="none";
+  document.getElementById("applyForm").reset();
+  document.getElementById("applyTitle").textContent = `${currentPost.name}님한테 신청 🙌`;
+  document.getElementById("applyDesc").textContent =
+    `${currentPost.gender} · ${currentPost.age}살 · ${(currentPost.part||"").split(",").join("/")}`;
+  openModal("applyModal");
+}
+
+document.getElementById("applyForm").onsubmit = async e => {
+  e.preventDefault();
+  const btn = document.getElementById("applyBtn"); btn.disabled=true; btn.textContent="보내는 중…";
+  const fd = new FormData(e.target);
+  try{
+    await DB.addApplication({ post_id: currentPost.id, name: fd.get("name").trim(), contact: fd.get("contact").trim() });
+    myApplied.push(String(currentPost.id)); localStorage.setItem("soechin_applied", JSON.stringify(myApplied));
+    document.getElementById("applyForm").style.display="none"; document.getElementById("applyDone").style.display="";
+    document.getElementById("applyDoneMsg").textContent =
+      `${currentPost.name}님에게 신청이 전달됐어요.` + (currentPost.contact ? " 아래 연락처로 먼저 연락해봐도 좋아요!" : " 운영자가 매칭해서 연결해드릴게요!");
+    if(currentPost.contact){
+      document.getElementById("revealBox").style.display="";
+      document.getElementById("revealVal").textContent = currentPost.contact;
+    } else {
+      document.getElementById("revealBox").style.display="none";
+    }
+    await refresh();
+  }catch(err){ alert("신청 실패: "+(err.message||err)); }
+  finally{ btn.disabled=false; btn.textContent="신청 보내기"; }
+};
+
+// ---- 데이터 로드 ----
+async function refresh(){
+  [posts, applications] = await Promise.all([DB.listPosts(), DB.listApplications()]);
+  renderBoard();
+}
+(async function init(){
+  document.getElementById("subtitle").textContent = (window.SOECHIN_CONFIG?.SUBTITLE) || "같이 운동할 사람, 여기서 찾자";
+  const m = await DB.mode();
+  const badge = document.getElementById("modeBadge");
+  if(m==="supabase"){ badge.textContent="● 실시간"; badge.classList.add("live"); }
+  else { badge.textContent="로컬 테스트"; }
+  renderFilters();
+  await refresh();
+})();
+</script>
+</body>
+</html>

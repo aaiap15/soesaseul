@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>쇠친 · 운영자 화면</title>
+<style>
+  :root{--bg:#0f0f14;--card:#1a1a22;--line:#2a2a34;--txt:#f2f2f6;--sub:#9a9aa8;--dim:#6a6a78;
+    --accent:#6d5efc;--pink:#ff5c8a;--ok:#1fbf7a;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);padding:18px;line-height:1.5}
+  .wrap{max-width:1000px;margin:0 auto}
+  h1{font-size:21px;font-weight:900}
+  .sub{color:var(--sub);font-size:13px;margin-top:3px}
+  .mode{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;margin-left:8px}
+  .mode.live{background:rgba(31,191,122,.15);color:var(--ok)}
+  .mode.local{background:rgba(255,92,138,.15);color:var(--pink)}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:96px}
+  .stat b{font-size:24px;font-weight:900;color:var(--accent)}
+  .stat.p b{color:var(--pink)}
+  .stat span{color:var(--sub);font-size:12px;display:block}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;
+    padding:9px 14px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  .post{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .post .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .post .nm{font-size:17px;font-weight:850}
+  .post .meta{color:var(--sub);font-size:13px;margin-top:2px}
+  .parts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .part{font-size:12px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(109,94,252,.15);color:#a99bff}
+  .note{color:var(--sub);font-size:13px;margin-top:8px}
+  .contact{font-size:13px;margin-top:6px}
+  .contact b{color:var(--ok)}
+  .grp{display:flex;align-items:center;gap:6px}
+  .grp input{width:70px;background:#0d0d12;border:1px solid var(--line);color:var(--ok);border-radius:8px;
+    padding:6px 8px;text-align:center;font-weight:800;font-family:inherit}
+  .apps{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .apps .lbl{font-size:12px;color:var(--dim);font-weight:800;margin-bottom:8px}
+  .app{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;
+    background:#0d0d12;border-radius:10px;margin-bottom:6px}
+  .app .an{font-weight:700;font-size:14px}
+  .app .ac{color:var(--ok);font-size:13px}
+  .none{color:var(--dim);font-size:13px}
+  .copy{background:#0d0d12;border:1px solid var(--line);padding:6px 10px;font-size:12px}
+  .empty{text-align:center;color:var(--dim);padding:70px 20px}
+  code{background:var(--card);padding:2px 7px;border-radius:6px;color:#a99bff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🛠️ 쇠친 운영자 화면 <span class="mode" id="modeBadge">…</span></h1>
+  <p class="sub">신청자를 보고 수동으로 조를 짜세요. (같은 부위·성별·신청 매칭 → 조번호 부여 → 카톡 초대)</p>
+
+  <div class="stats">
+    <div class="stat"><b id="sPosts">0</b><span>모집글</span></div>
+    <div class="stat p"><b id="sApps">0</b><span>신청 수</span></div>
+    <div class="stat"><b id="sMatched">0</b><span>편성된 조</span></div>
+    <div class="stat"><b id="sRate">0%</b><span>글당 평균 신청</span></div>
+  </div>
+
+  <div class="bar">
+    <button class="primary" onclick="load()">🔄 새로고침</button>
+    <button onclick="exportCSV('posts')">📥 모집글 CSV</button>
+    <button onclick="exportCSV('apps')">📥 신청 CSV</button>
+    <button onclick="sample()">🧪 샘플 데이터</button>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<script src="config.js"></script>
+<script src="db.js"></script>
+<script>
+let posts=[], apps=[];
+const G_KEY="soechin_groups"; // 조번호는 운영자 기기에만 로컬 저장(수동 편성 메모)
+const groups = JSON.parse(localStorage.getItem(G_KEY)||"{}");
+const EMOJI = {"가슴":"🎽","등":"🔙","어깨":"🏔️","팔":"💪","하체":"🦵","복근":"🧊","유산소":"🏃","전신":"🔥"};
+const esc = s => (""+(s??"")).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const appsFor = id => apps.filter(a => String(a.post_id)===String(id));
+
+function setGroup(id,v){ groups[id]=v.trim(); localStorage.setItem(G_KEY, JSON.stringify(groups)); renderStats(); }
+
+function renderStats(){
+  document.getElementById("sPosts").textContent = posts.length;
+  document.getElementById("sApps").textContent = apps.length;
+  const gset = new Set(posts.map(p=>groups[p.id]).filter(Boolean));
+  document.getElementById("sMatched").textContent = gset.size;
+  document.getElementById("sRate").textContent = posts.length? (apps.length/posts.length).toFixed(1) : "0";
+}
+
+function render(){
+  renderStats();
+  if(!posts.length){
+    document.getElementById("list").innerHTML =
+      `<div class="empty">아직 모집글이 없어요.<br><br><code>index.html</code>에서 글이 올라오면 여기 신청자와 함께 보입니다.<br><br>
+       <button class="primary" onclick="sample()">🧪 샘플로 먼저 보기</button></div>`;
+    return;
+  }
+  document.getElementById("list").innerHTML = posts.map(p=>{
+    const parts=(p.part||"").split(",").filter(Boolean);
+    const list=appsFor(p.id);
+    return `<div class="post">
+      <div class="head">
+        <div>
+          <div class="nm">${esc(p.name)} <span style="color:var(--sub);font-size:13px">${esc(p.age)}살·${esc(p.gender)}</span></div>
+          <div class="parts">${parts.map(x=>`<span class="part">${EMOJI[x]||""} ${esc(x)}</span>`).join("")}</div>
+          ${p.note?`<div class="note">💬 ${esc(p.note)}</div>`:""}
+          ${p.contact?`<div class="contact">📇 작성자 연락: <b>${esc(p.contact)}</b></div>`:`<div class="contact" style="color:var(--dim)">📇 작성자 연락처 미입력</div>`}
+        </div>
+        <div class="grp">조#<input value="${esc(groups[p.id]||"")}" placeholder="-" onchange="setGroup('${p.id}',this.value)"></div>
+      </div>
+      <div class="apps">
+        <div class="lbl">🙋 신청자 ${list.length}명</div>
+        ${list.length? list.map(a=>`<div class="app"><span class="an">${esc(a.name)}</span><span class="ac">${esc(a.contact||"연락처 없음")}</span></div>`).join("")
+          : `<div class="none">아직 신청 없음</div>`}
+        ${list.length? `<button class="copy" onclick='kakao(${JSON.stringify(p).replace(/'/g,"&#39;")})'>📋 조 초대문구 복사</button>`:""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function kakao(p){
+  const list=appsFor(p.id);
+  const g=groups[p.id]||"";
+  const txt=`[쇠친 ${g?g+"조":"운동메이트"}] 안녕하세요! 매칭됐어요 💪\n`+
+    `📌 모집: ${p.name}(${p.age}·${p.gender}) — ${(p.part||"").split(",").join("/")}\n`+
+    (p.contact?`   연락: ${p.contact}\n`:"")+
+    `🙋 신청자:\n`+ list.map(a=>`  · ${a.name} (${a.contact||"연락처 없음"})`).join("\n")+
+    `\n\n첫 운동 시간 정해볼까요? 편한 요일/시간 남겨주세요!`;
+  navigator.clipboard.writeText(txt).then(()=>alert("복사됐어요! 카톡방에 붙여넣기 하세요.\n\n"+txt));
+}
+
+function exportCSV(which){
+  let cols,rows,fname;
+  if(which==="posts"){ cols=["id","created_at","name","age","gender","part","contact","note"]; rows=posts;
+    rows=rows.map(r=>({...r,조:groups[r.id]||""})); cols.push("조"); fname="쇠친_모집글"; }
+  else { cols=["id","created_at","post_id","name","contact"]; rows=apps; fname="쇠친_신청"; }
+  const head=cols.join(",");
+  const body=rows.map(r=>cols.map(c=>`"${(""+(r[c]??"")).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob=new Blob(["﻿"+head+"\n"+body],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=fname+"_"+new Date().toISOString().slice(0,10)+".csv"; a.click();
+}
+
+async function sample(){
+  const S=[
+    {name:"민준",age:22,gender:"남",part:"가슴,팔",contact:"insta @minjun_gym",note:"헬린이라 같이 배우면서! 주3회 저녁"},
+    {name:"서연",age:21,gender:"여",part:"하체,복근",contact:"카톡 seoyeon02",note:"오전에 같이 운동하실 분"},
+    {name:"도윤",age:24,gender:"남",part:"등,어깨",contact:"",note:"3대 400 목표, 스팟 서로 봐줄 사람"},
+  ];
+  for(const s of S){ const saved=await DB.addPost(s);
+    if(s.name==="민준"){ await DB.addApplication({post_id:saved.id,name:"지호",contact:"카톡 jiho_99"});
+      await DB.addApplication({post_id:saved.id,name:"태윤",contact:"insta @tyoon"}); }
+    if(s.name==="서연"){ await DB.addApplication({post_id:saved.id,name:"수빈",contact:"카톡 subin"}); }
+  }
+  load();
+}
+
+async function load(){
+  [posts,apps]=await Promise.all([DB.listPosts(),DB.listApplications()]);
+  render();
+}
+(async function(){
+  const m=await DB.mode(); const b=document.getElementById("modeBadge");
+  if(m==="supabase"){ b.textContent="● 실시간 공용 DB"; b.className="mode live"; }
+  else { b.textContent="로컬(이 기기)"; b.className="mode local"; }
+  load();
+})();
+</script>
+</body>
+</html>
