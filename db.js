@@ -72,7 +72,39 @@
     return getLS(LS.apps).sort((a, b) => b.id - a.id);
   }
 
+  // ---- 삭제 (운영자 전용) ----
+  // Supabase 모드: 서버측 비번 검증 RPC 호출 (admin.sql). 로컬 모드: 그냥 localStorage에서 제거.
+  async function deletePost(id, pw) {
+    await ready;
+    if (sb) {
+      const { error } = await sb.rpc("admin_delete_post", { pw, target_id: id });
+      if (error) throw error;
+    } else {
+      setLS(LS.posts, getLS(LS.posts).filter(p => String(p.id) !== String(id)));
+      setLS(LS.apps,  getLS(LS.apps).filter(a => String(a.post_id) !== String(id)));
+    }
+  }
+  async function deleteApplication(id, pw) {
+    await ready;
+    if (sb) {
+      const { error } = await sb.rpc("admin_delete_application", { pw, target_id: id });
+      if (error) throw error;
+    } else {
+      setLS(LS.apps, getLS(LS.apps).filter(a => String(a.id) !== String(id)));
+    }
+  }
+  async function deleteAll(pw) {
+    await ready;
+    if (sb) {
+      const { error } = await sb.rpc("admin_delete_all", { pw });
+      if (error) throw error;
+    } else {
+      setLS(LS.posts, []); setLS(LS.apps, []);
+    }
+  }
+
   async function mode() { await ready; return sb ? "supabase" : "local"; }
 
-  window.DB = { ready, addPost, listPosts, addApplication, listApplications, mode };
+  window.DB = { ready, addPost, listPosts, addApplication, listApplications,
+                deletePost, deleteApplication, deleteAll, mode };
 })();

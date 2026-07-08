@@ -48,6 +48,11 @@
   .copy{background:#0d0d12;border:1px solid var(--line);padding:6px 10px;font-size:12px}
   .empty{text-align:center;color:var(--dim);padding:70px 20px}
   code{background:var(--card);padding:2px 7px;border-radius:6px;color:#a99bff}
+  .del{background:transparent;border:1px solid #5a2630;color:#ff6b81;padding:6px 10px;font-size:12px;border-radius:8px}
+  .del:hover{background:rgba(255,92,138,.1)}
+  .app .axr{display:flex;align-items:center;gap:8px}
+  .app .delx{background:transparent;border:none;color:#ff6b81;font-size:16px;cursor:pointer;padding:0 4px;line-height:1}
+  .head-right{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
 </style>
 </head>
 <body>
@@ -67,6 +72,8 @@
     <button onclick="exportCSV('posts')">📥 모집글 CSV</button>
     <button onclick="exportCSV('apps')">📥 신청 CSV</button>
     <button onclick="sample()">🧪 샘플 데이터</button>
+    <button class="del" onclick="delAll()">🗑 전체 삭제</button>
+    <button onclick="resetPw()">🔑 비번 재설정</button>
   </div>
 
   <div id="list"></div>
@@ -83,6 +90,38 @@ const esc = s => (""+(s??"")).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":
 const appsFor = id => apps.filter(a => String(a.post_id)===String(id));
 
 function setGroup(id,v){ groups[id]=v.trim(); localStorage.setItem(G_KEY, JSON.stringify(groups)); renderStats(); }
+
+// ---- 삭제 (비밀번호는 이 기기 localStorage에만 저장, admin.sql에서 설정한 값) ----
+const PW_KEY="soechin_admin_pw";
+async function localMode(){ return (await DB.mode())==="local"; }
+async function adminPw(){
+  if(await localMode()) return "";               // 로컬 모드는 비번 불필요(내 기기)
+  let pw=localStorage.getItem(PW_KEY);
+  if(!pw){ pw=prompt("운영자 비밀번호 (admin.sql에서 설정한 값)"); if(pw) localStorage.setItem(PW_KEY,pw); }
+  return pw;
+}
+function resetPw(){ localStorage.removeItem(PW_KEY); alert("비밀번호가 초기화됐어요. 다음 삭제 때 다시 물어봅니다."); }
+function onDelErr(e){
+  const msg=(e&&e.message)||String(e);
+  if(/unauthorized/i.test(msg)){ localStorage.removeItem(PW_KEY); alert("비밀번호가 틀렸어요. 다시 시도하세요."); }
+  else alert("삭제 실패: "+msg+"\n\n(admin.sql을 아직 실행 안 했다면 먼저 Supabase에서 실행하세요.)");
+}
+async function delPost(id){
+  if(!confirm("이 모집글과 신청을 모두 삭제할까요?")) return;
+  const pw=await adminPw(); if(pw===null) return;
+  try{ await DB.deletePost(Number(id),pw); await load(); }catch(e){ onDelErr(e); }
+}
+async function delApp(id){
+  if(!confirm("이 신청을 삭제할까요?")) return;
+  const pw=await adminPw(); if(pw===null) return;
+  try{ await DB.deleteApplication(Number(id),pw); await load(); }catch(e){ onDelErr(e); }
+}
+async function delAll(){
+  if(!posts.length && !apps.length){ alert("삭제할 데이터가 없어요."); return; }
+  if(!confirm("모든 모집글과 신청을 삭제할까요? 되돌릴 수 없어요.")) return;
+  const pw=await adminPw(); if(pw===null) return;
+  try{ await DB.deleteAll(pw); await load(); }catch(e){ onDelErr(e); }
+}
 
 function renderStats(){
   document.getElementById("sPosts").textContent = posts.length;
@@ -111,11 +150,14 @@ function render(){
           ${p.note?`<div class="note">💬 ${esc(p.note)}</div>`:""}
           ${p.contact?`<div class="contact">📇 작성자 연락: <b>${esc(p.contact)}</b></div>`:`<div class="contact" style="color:var(--dim)">📇 작성자 연락처 미입력</div>`}
         </div>
-        <div class="grp">조#<input value="${esc(groups[p.id]||"")}" placeholder="-" onchange="setGroup('${p.id}',this.value)"></div>
+        <div class="head-right">
+          <div class="grp">조#<input value="${esc(groups[p.id]||"")}" placeholder="-" onchange="setGroup('${p.id}',this.value)"></div>
+          <button class="del" onclick="delPost('${p.id}')">🗑 글 삭제</button>
+        </div>
       </div>
       <div class="apps">
         <div class="lbl">🙋 신청자 ${list.length}명</div>
-        ${list.length? list.map(a=>`<div class="app"><span class="an">${esc(a.name)}</span><span class="ac">${esc(a.contact||"연락처 없음")}</span></div>`).join("")
+        ${list.length? list.map(a=>`<div class="app"><span class="an">${esc(a.name)}</span><span class="axr"><span class="ac">${esc(a.contact||"연락처 없음")}</span><button class="delx" title="신청 삭제" onclick="delApp('${a.id}')">✕</button></span></div>`).join("")
           : `<div class="none">아직 신청 없음</div>`}
         ${list.length? `<button class="copy" onclick='kakao(${JSON.stringify(p).replace(/'/g,"&#39;")})'>📋 조 초대문구 복사</button>`:""}
       </div>
