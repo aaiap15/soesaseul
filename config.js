@@ -4,8 +4,8 @@
 //
 // 세팅 방법은 README.md 참고 (무료, 5분).
 window.SOECHIN_CONFIG = {
-  SUPABASE_URL: "",       // 예: "https://abcd1234.supabase.co"
-  SUPABASE_ANON_KEY: "",  // 예: "eyJhbGciOiJIUzI1Ni...."  (anon public key — 공개돼도 안전)
+  SUPABASE_URL: "https://pxdnmrfmdlcgvznywehg.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4ZG5tcmZtZGxjZ3Z6bnl3ZWhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1MDE1OTEsImV4cCI6MjA5OTA3NzU5MX0.j3AB9Ifq5MRcc8Y0jwK-EVXoezb8J5BzE2GvmHWSz6U",
   APP_NAME: "쇠친",
   SUBTITLE: "같이 운동할 사람, 여기서 찾자",
 };
