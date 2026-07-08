@@ -18,7 +18,7 @@
   })();
 
   // ---- localStorage 헬퍼 ----
-  const LS = { posts: "soechin_posts", apps: "soechin_apps" };
+  const LS = { posts: "soechin_posts", apps: "soechin_apps", fb: "soechin_fb" };
   const getLS = (k) => { try { return JSON.parse(localStorage.getItem(k) || "[]"); } catch { return []; } };
   const setLS = (k, v) => localStorage.setItem(k, JSON.stringify(v));
   const uid = () => Date.now() * 1000 + Math.floor(Math.random() * 1000);
@@ -108,8 +108,33 @@
     }
   }
 
+  // ---- 의견/기능 요청 ----
+  async function addFeedback(f) {
+    await ready;
+    const row = { features: f.features || "", etc: f.etc || "" };
+    if (sb) {
+      const { data, error } = await sb.from("feedback").insert(row).select().single();
+      if (error) throw error;
+      return data;
+    }
+    const rows = getLS(LS.fb);
+    row.id = uid(); row.created_at = new Date().toISOString();
+    rows.push(row); setLS(LS.fb, rows);
+    return row;
+  }
+  async function listFeedback() {
+    await ready;
+    if (sb) {
+      const { data, error } = await sb.from("feedback").select("*").order("id", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    }
+    return getLS(LS.fb).sort((a, b) => b.id - a.id);
+  }
+
   async function mode() { await ready; return sb ? "supabase" : "local"; }
 
   window.DB = { ready, addPost, listPosts, addApplication, listApplications,
-                deletePost, deleteApplication, deleteAll, mode };
+                deletePost, deleteApplication, deleteAll,
+                addFeedback, listFeedback, mode };
 })();

@@ -37,6 +37,19 @@ drop policy if exists "public insert apps"  on applications;
 create policy "public insert posts" on posts        for insert with check (true);
 create policy "public insert apps"  on applications for insert with check (true);
 
+-- 4) 의견/기능 요청: 어떤 기능이 개선되면 좋을지 (수요 데이터)
+create table if not exists feedback (
+  id          bigint generated always as identity primary key,
+  features    text,               -- 콤마로 선택된 기능들
+  etc         text,               -- 자유 의견(선택)
+  created_at  timestamptz default now()
+);
+alter table feedback enable row level security;
+drop policy if exists "public read fb"   on feedback;
+drop policy if exists "public insert fb" on feedback;
+create policy "public read fb"   on feedback for select using (true);
+create policy "public insert fb" on feedback for insert with check (true);
+
 -- 최신순 조회 최적화
 create index if not exists posts_created_idx on posts (created_at desc);
 create index if not exists apps_post_idx     on applications (post_id);

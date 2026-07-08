@@ -114,6 +114,16 @@
   .revealed .k{font-size:12px;color:var(--dim);font-weight:700}
   .revealed .v{font-size:17px;font-weight:850;color:var(--accent);margin-top:3px}
   .ghost{background:transparent;border:none;color:var(--dim);font-size:14px;margin-top:18px;cursor:pointer;width:100%}
+
+  .thanks{background:linear-gradient(120deg,rgba(109,94,252,.12),rgba(255,92,138,.1));
+    border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:14px 0 2px;
+    display:flex;align-items:center;gap:12px}
+  .thanks .t{flex:1;font-size:12.5px;color:var(--sub);line-height:1.45}
+  .thanks .t b{color:var(--txt)}
+  .thanks button{flex:none;background:var(--accent);color:#fff;border:none;font-weight:800;font-size:13px;
+    padding:10px 13px;border-radius:10px;cursor:pointer;white-space:nowrap}
+  .fb-link{background:transparent;border:1px solid var(--line);color:var(--accent);font-weight:800;
+    font-size:14px;padding:12px;border-radius:12px;cursor:pointer;width:100%;margin-top:12px}
 </style>
 </head>
 <body>
@@ -129,6 +139,11 @@
 </header>
 
 <div class="wrap">
+  <div class="thanks">
+    <div class="t">🧪 <b>지금 테스트 중인 서비스예요.</b> 써보고 개선됐으면 하는 기능을 골라주시면 큰 힘이 됩니다. 도와주셔서 감사해요! 💜</div>
+    <button id="openFb">의견 주기</button>
+  </div>
+
   <div class="hero">
     <h1>혼자 운동하기 심심할 때,<br><span class="hl">같이 칠 사람</span> 구해요 💪</h1>
     <p>이름·나이·성별·운동부위만 올리면 끝. 관심 있는 사람이 신청해요.</p>
@@ -185,6 +200,7 @@
       <h2>글이 올라갔어요!</h2>
       <p>이제 같이 운동할 사람이 신청할 수 있어요.<br>신청이 들어오면 남겨주신 연락처로 이어드릴게요.</p>
       <button class="submit" data-close style="margin-top:22px">확인</button>
+      <button type="button" class="fb-link" data-fb>💬 개선됐으면 하는 기능 알려주기</button>
     </div>
   </div>
 </div>
@@ -214,6 +230,29 @@
         <div class="k">상대방 연락처</div>
         <div class="v" id="revealVal"></div>
       </div>
+      <button class="submit" data-close style="margin-top:22px">확인</button>
+      <button type="button" class="fb-link" data-fb>💬 개선됐으면 하는 기능 알려주기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 의견/기능 요청 -->
+<div class="modal" id="fbModal">
+  <div class="sheet">
+    <div class="grip"></div>
+    <form id="fbForm">
+      <h2>어떤 기능이 있으면 좋을까요? 🙌</h2>
+      <p class="desc">테스트 중이라 여러분 의견으로 만들어가요. 원하는 걸 골라주세요 (여러 개 가능). 참여해줘서 감사해요! 💜</p>
+      <div class="field"><div class="chips" id="fbChips"></div></div>
+      <div class="field"><label>이런 것도 있으면 좋겠어요 <span class="opt">(선택)</span></label>
+        <textarea name="etc" placeholder="자유롭게 적어주세요"></textarea></div>
+      <button class="submit" type="submit" id="fbBtn">보내기</button>
+      <button type="button" class="ghost" data-close>닫기</button>
+    </form>
+    <div class="done" id="fbDone" style="display:none">
+      <div class="ic">💜</div>
+      <h2>고마워요!</h2>
+      <p>의견 잘 받았어요. 여러분 덕분에 더 좋아집니다.<br>테스트에 참여해줘서 감사해요! 🙏</p>
       <button class="submit" data-close style="margin-top:22px">확인</button>
     </div>
   </div>
@@ -352,6 +391,42 @@ document.getElementById("applyForm").onsubmit = async e => {
     await refresh();
   }catch(err){ alert("신청 실패: "+(err.message||err)); }
   finally{ btn.disabled=false; btn.textContent="신청 보내기"; }
+};
+
+// ---- 의견/기능 요청 ----
+const FEATURES = [
+  {k:"채팅",       label:"💬 앱 안에서 바로 채팅"},
+  {k:"알림",       label:"🔔 신청 오면 알림"},
+  {k:"프로필사진", label:"🪞 프로필/사진"},
+  {k:"헬스장필터", label:"🏫 우리 학교·헬스장만"},
+  {k:"시간표매칭", label:"🗓️ 운동 시간표 자동 매칭"},
+  {k:"실력표시",   label:"🏋️ 실력/경력 표시"},
+  {k:"후기평점",   label:"⭐ 매칭 후 후기·평점"},
+  {k:"익명",       label:"🕶️ 익명으로 이용"},
+];
+document.getElementById("fbChips").innerHTML = FEATURES.map(f=>
+  `<label class="chip"><input type="checkbox" name="feat" value="${f.k}"><span>${f.label}</span></label>`).join("");
+
+function openFb(){
+  closeModals();
+  document.getElementById("fbForm").style.display=""; document.getElementById("fbDone").style.display="none";
+  document.getElementById("fbForm").reset(); openModal("fbModal");
+}
+document.getElementById("openFb").onclick = openFb;
+document.querySelectorAll("[data-fb]").forEach(b => b.onclick = openFb);
+
+document.getElementById("fbForm").onsubmit = async e => {
+  e.preventDefault();
+  const btn=document.getElementById("fbBtn"); btn.disabled=true; btn.textContent="보내는 중…";
+  const fd=new FormData(e.target);
+  const feats=fd.getAll("feat");
+  const etc=(fd.get("etc")||"").trim();
+  if(!feats.length && !etc){ alert("기능을 하나 이상 고르거나 의견을 적어주세요"); btn.disabled=false; btn.textContent="보내기"; return; }
+  try{
+    await DB.addFeedback({ features: feats.join(","), etc });
+    document.getElementById("fbForm").style.display="none"; document.getElementById("fbDone").style.display="";
+  }catch(err){ alert("전송 실패: "+(err.message||err)); }
+  finally{ btn.disabled=false; btn.textContent="보내기"; }
 };
 
 // ---- 데이터 로드 ----

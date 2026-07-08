@@ -53,6 +53,18 @@
   .app .axr{display:flex;align-items:center;gap:8px}
   .app .delx{background:transparent;border:none;color:#ff6b81;font-size:16px;cursor:pointer;padding:0 4px;line-height:1}
   .head-right{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .fbbars{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+  .fbrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .fbrow:last-child{margin-bottom:0}
+  .fblabel{width:160px;font-size:13px;font-weight:700;flex:none}
+  .fbbar{flex:1;height:16px;background:#0d0d12;border-radius:99px;overflow:hidden}
+  .fbbar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--pink));border-radius:99px}
+  .fbn{width:30px;text-align:right;font-weight:800;color:#a99bff;font-size:14px}
+  .fbetc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+  .fbetc .lbl{font-size:12px;color:var(--dim);font-weight:800;margin-bottom:10px}
+  .etcitem{color:var(--sub);font-size:13.5px;padding:8px 0;border-bottom:1px solid var(--line)}
+  .etcitem:last-child{border:none}
+  @media(max-width:520px){.fblabel{width:110px;font-size:12px}}
 </style>
 </head>
 <body>
@@ -65,25 +77,29 @@
     <div class="stat p"><b id="sApps">0</b><span>신청 수</span></div>
     <div class="stat"><b id="sMatched">0</b><span>편성된 조</span></div>
     <div class="stat"><b id="sRate">0%</b><span>글당 평균 신청</span></div>
+    <div class="stat p"><b id="sFb">0</b><span>의견 수</span></div>
   </div>
 
   <div class="bar">
     <button class="primary" onclick="load()">🔄 새로고침</button>
     <button onclick="exportCSV('posts')">📥 모집글 CSV</button>
     <button onclick="exportCSV('apps')">📥 신청 CSV</button>
+    <button onclick="exportCSV('fb')">📥 의견 CSV</button>
     <button onclick="sample()">🧪 샘플 데이터</button>
     <button class="del" onclick="delAll()">🗑 전체 삭제</button>
     <button onclick="resetPw()">🔑 비번 재설정</button>
   </div>
 
+  <div id="fbWrap"></div>
   <div id="list"></div>
 </div>
 
 <script src="config.js"></script>
 <script src="db.js"></script>
 <script>
-let posts=[], apps=[];
+let posts=[], apps=[], fb=[];
 const G_KEY="soechin_groups"; // 조번호는 운영자 기기에만 로컬 저장(수동 편성 메모)
+const FB_LABELS={채팅:"💬 앱 내 채팅",알림:"🔔 신청 알림",프로필사진:"🪞 프로필/사진",헬스장필터:"🏫 학교·헬스장 필터",시간표매칭:"🗓️ 시간표 자동 매칭",실력표시:"🏋️ 실력/경력 표시",후기평점:"⭐ 후기·평점",익명:"🕶️ 익명 이용"};
 const groups = JSON.parse(localStorage.getItem(G_KEY)||"{}");
 const EMOJI = {"가슴":"🎽","등":"🔙","어깨":"🏔️","팔":"💪","하체":"🦵","복근":"🧊","유산소":"🏃","전신":"🔥"};
 const esc = s => (""+(s??"")).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -129,6 +145,28 @@ function renderStats(){
   const gset = new Set(posts.map(p=>groups[p.id]).filter(Boolean));
   document.getElementById("sMatched").textContent = gset.size;
   document.getElementById("sRate").textContent = posts.length? (apps.length/posts.length).toFixed(1) : "0";
+  document.getElementById("sFb").textContent = fb.length;
+}
+
+function renderFb(){
+  const wrap=document.getElementById("fbWrap");
+  if(!fb.length){ wrap.innerHTML=""; return; }
+  const counts={};
+  fb.forEach(f=>(f.features||"").split(",").filter(Boolean).forEach(k=>counts[k]=(counts[k]||0)+1));
+  const max=Math.max(1,...Object.values(counts));
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const etcs=fb.filter(f=>(f.etc||"").trim());
+  let h=`<h2 style="font-size:18px;font-weight:850;margin:6px 0 0">💬 원하는 기능 (의견 ${fb.length}개)</h2>`;
+  if(sorted.length){
+    h+=`<div class="fbbars">`+sorted.map(([k,n])=>`
+      <div class="fbrow"><div class="fblabel">${FB_LABELS[k]||esc(k)}</div>
+        <div class="fbbar"><i style="width:${Math.round(n/max*100)}%"></i></div><div class="fbn">${n}</div></div>`).join("")+`</div>`;
+  }
+  if(etcs.length){
+    h+=`<div class="fbetc"><div class="lbl">✍️ 자유 의견 ${etcs.length}개</div>`+
+       etcs.map(f=>`<div class="etcitem">"${esc(f.etc)}"</div>`).join("")+`</div>`;
+  }
+  wrap.innerHTML=h;
 }
 
 function render(){
@@ -180,6 +218,7 @@ function exportCSV(which){
   let cols,rows,fname;
   if(which==="posts"){ cols=["id","created_at","name","age","gender","part","contact","note"]; rows=posts;
     rows=rows.map(r=>({...r,조:groups[r.id]||""})); cols.push("조"); fname="쇠친_모집글"; }
+  else if(which==="fb"){ cols=["id","created_at","features","etc"]; rows=fb; fname="쇠친_의견"; }
   else { cols=["id","created_at","post_id","name","contact"]; rows=apps; fname="쇠친_신청"; }
   const head=cols.join(",");
   const body=rows.map(r=>cols.map(c=>`"${(""+(r[c]??"")).replace(/"/g,'""')}"`).join(",")).join("\n");
@@ -203,8 +242,9 @@ async function sample(){
 }
 
 async function load(){
-  [posts,apps]=await Promise.all([DB.listPosts(),DB.listApplications()]);
+  [posts,apps,fb]=await Promise.all([DB.listPosts(),DB.listApplications(),DB.listFeedback()]);
   render();
+  renderFb();
 }
 (async function(){
   const m=await DB.mode(); const b=document.getElementById("modeBadge");
