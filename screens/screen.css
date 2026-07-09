@@ -116,3 +116,8 @@ h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
 .done{text-align:center;padding:14px 0 4px}
 .done .ic{font-size:50px}
 .timerbar{background:rgba(255,90,31,.1);border:1px solid rgba(255,90,31,.3);border-radius:12px;padding:11px;margin-top:12px;text-align:center;font-weight:800;color:var(--accent2);font-size:13px}
+.photobtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed #f2c99a;background:#fff8f0;color:var(--accent);font-weight:800;font-size:14px;padding:14px;border-radius:12px}
+.gallery{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.gthumb{flex:none;width:82px;height:82px;border-radius:14px;overflow:hidden;border:1px solid var(--line);position:relative;display:grid;place-items:center;font-size:26px}
+.gthumb .gn{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.6));color:#fff;font-size:10px;font-weight:800;padding:10px 6px 4px}
+.fphoto{margin-top:8px;border-radius:12px;overflow:hidden;border:1px solid var(--line);max-width:210px;height:120px;display:grid;place-items:center;font-size:32px}

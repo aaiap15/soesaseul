@@ -175,6 +175,24 @@
   .done p{color:var(--sub);font-size:14px;margin-top:10px}
   .codebox{font-size:40px;font-weight:900;letter-spacing:.2em;color:var(--gold);margin:18px 0 6px}
   .timerbar{background:rgba(255,90,31,.1);border:1px solid rgba(255,90,31,.3);border-radius:12px;padding:12px;margin-top:14px;text-align:center;font-weight:800;color:var(--accent2)}
+
+  /* ── 인증샷 ── */
+  .photobtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed #f2c99a;
+    background:#fff8f0;color:var(--accent);font-weight:800;font-size:14px;padding:16px;border-radius:12px;cursor:pointer}
+  .photoprev{position:relative;margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+  .photoprev img{width:100%;display:block;max-height:240px;object-fit:cover}
+  .photoprev .rm{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer}
+  .feed .fphoto{margin-top:8px;border-radius:12px;overflow:hidden;border:1px solid var(--line);cursor:pointer;max-width:240px}
+  .feed .fphoto img{width:100%;display:block;max-height:220px;object-fit:cover}
+  .gallery{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  .gallery::-webkit-scrollbar{display:none}
+  .gthumb{flex:none;width:86px;height:86px;border-radius:14px;overflow:hidden;border:1px solid var(--line);cursor:pointer;position:relative}
+  .gthumb img{width:100%;height:100%;object-fit:cover}
+  .gthumb .gn{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:10px;font-weight:800;padding:10px 6px 4px}
+  .lightbox{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:18px}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:100%;max-height:84%;border-radius:14px}
+  .lightbox .cap{position:absolute;bottom:26px;left:0;right:0;text-align:center;color:#fff;font-weight:800;font-size:14px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
   .linkbox{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px;
     color:var(--sub);font-size:13px;text-align:center;margin:4px 0 14px;font-family:inherit}
   .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(16px);
@@ -200,6 +218,12 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- 인증샷 전체보기 -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" alt="인증샷">
+  <div class="cap" id="lightboxCap"></div>
+</div>
 
 <!-- 크루 만들기 -->
 <div class="modal" id="createModal">
@@ -264,6 +288,13 @@
         <div class="chips" id="partChips"></div></div>
       <div class="field"><label>오늘 느낌 <span class="opt">(선택)</span></label>
         <div class="chips" id="moodChips"></div></div>
+      <div class="field"><label>인증샷 <span class="opt">(선택 · 카메라/갤러리 · 크루에게 공유)</span></label>
+        <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+        <button type="button" class="photobtn" id="photoBtn">📷 인증샷 찍기 / 올리기</button>
+        <div class="photoprev" id="photoPrev" style="display:none">
+          <img id="photoImg" alt="인증샷 미리보기">
+          <button type="button" class="rm" id="photoRm">✕</button>
+        </div></div>
       <div class="field"><label>한마디 <span class="opt">(선택)</span></label>
         <textarea name="note" placeholder="예: 데드 신기록! / 죽을뻔"></textarea></div>
       <button class="submit" type="submit" id="checkBtn">인증하고 고리 +1</button>
@@ -513,6 +544,12 @@ async function renderCrew(cid){
       </div>
     </div>
 
+    ${(()=>{ const ph=checkins.filter(c=>(c.type||"workout")==="workout"&&c.photo).slice(0,15);
+      return ph.length ? `<div class="card">
+        <div class="sec-t">📸 우리 크루 인증샷 <span class="r">${ph.length}장</span></div>
+        <div class="gallery">${ph.map(c=>`<div class="gthumb" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"><div class="gn">${esc(c.name)}</div></div>`).join("")}</div>
+      </div>` : ""; })()}
+
     <div class="card">
       <div class="sec-t">크루 보드 <span class="r">최근 인증·응원</span></div>
       <div class="feed">
@@ -526,7 +563,8 @@ async function renderCrew(cid){
           return `<div class="item">
             <div class="fic">${PART_EMOJI[parts[0]]||"⛓️"}</div>
             <div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">인증 ⛓️</span></div>
-              <div class="ft">${parts.map(p=>`<span class="ftag">${esc(p)}</span>`).join("")}${esc(c.note||"")}</div></div>
+              <div class="ft">${parts.map(p=>`<span class="ftag">${esc(p)}</span>`).join("")}${esc(c.note||"")}</div>
+              ${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy" alt="인증샷"></div>`:""}</div>
             <div class="fago">${ago(c.created_at)}</div></div>`;
         }).join("") || `<div class="empty">아직 인증이 없어요. 첫 고리를 채워보세요!</div>`}
       </div>
@@ -646,7 +684,7 @@ document.getElementById("moodChips").innerHTML=MOODS.map((m,i)=>
   `<label class="chip"><input type="radio" name="mood" value="${m}"><span>${m}</span></label>`).join("");
 function openCheck(){
   document.getElementById("checkForm").style.display=""; document.getElementById("checkDone").style.display="none";
-  document.getElementById("checkForm").reset();
+  document.getElementById("checkForm").reset(); clearPhoto();
   const live=activeWorkouts().find(a=>String(a.m.id)===String(myMember(VIEW).memberId));
   document.getElementById("checkTimer").innerHTML = live?`<div class="timerbar">⏱ 운동 시작한 지 ${live.mins}분 — 인증하면 마무리돼요</div>`:"";
   openModal("checkModal");
@@ -658,7 +696,7 @@ document.getElementById("checkForm").onsubmit=async e=>{
   if(!parts.length){ alert("부위를 하나 이상 골라주세요"); btn.disabled=false; btn.textContent="인증하고 고리 +1"; return; }
   const mood=fd.get("mood")||""; const note=[mood,(fd.get("note")||"").trim()].filter(Boolean).join(" ");
   try{
-    await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"workout", part:parts.join("/"), note});
+    await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"workout", part:parts.join("/"), note, photo:pendingPhoto});
     const [crew,members,checkins]=await Promise.all([DB.getCrew(VIEW),DB.getMembers(VIEW),DB.getCheckins(VIEW)]);
     cache={crew,members,checkins};
     const r=DB.computeChain(crew,members,checkins);
@@ -673,6 +711,42 @@ document.getElementById("checkForm").onsubmit=async e=>{
 };
 // 인증 완료 → 닫으면서 크루 화면에서 새 고리가 튕겨 붙는 애니메이션 재생
 document.getElementById("checkDoneOk").onclick=()=>{ closeModals(); if(VIEW) renderCrew(VIEW); };
+
+// ---- 인증샷: 촬영/업로드 + 클라이언트 압축 ----
+let pendingPhoto="";
+function clearPhoto(){ pendingPhoto=""; document.getElementById("photoInput").value="";
+  document.getElementById("photoPrev").style.display="none"; document.getElementById("photoBtn").style.display=""; }
+document.getElementById("photoBtn").onclick=()=>document.getElementById("photoInput").click();
+document.getElementById("photoRm").onclick=clearPhoto;
+document.getElementById("photoInput").onchange=async e=>{
+  const file=e.target.files&&e.target.files[0]; if(!file) return;
+  const btn=document.getElementById("photoBtn"); btn.textContent="사진 처리 중…";
+  try{
+    pendingPhoto=await downscaleImage(file, 900, 0.62);
+    document.getElementById("photoImg").src=pendingPhoto;
+    document.getElementById("photoPrev").style.display=""; btn.style.display="none";
+  }catch(err){ alert("사진 처리 실패: "+(err.message||err)); }
+  finally{ btn.textContent="📷 인증샷 찍기 / 올리기"; }
+};
+// 캔버스로 리사이즈·JPEG 압축 → data URL (별도 저장소 없이 DB에 저장)
+function downscaleImage(file, maxDim, quality){
+  return new Promise((res,rej)=>{
+    const img=new Image(), url=URL.createObjectURL(file);
+    img.onload=()=>{ let w=img.naturalWidth,h=img.naturalHeight; const s=Math.min(1,maxDim/Math.max(w,h));
+      w=Math.round(w*s); h=Math.round(h*s);
+      const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
+      cv.getContext("2d").drawImage(img,0,0,w,h); URL.revokeObjectURL(url);
+      try{ res(cv.toDataURL("image/jpeg",quality)); }catch(e){ rej(e); } };
+    img.onerror=()=>{ URL.revokeObjectURL(url); rej(new Error("이미지를 읽을 수 없어요")); };
+    img.src=url;
+  });
+}
+// 라이트박스(전체보기)
+function openLightbox(id){ const c=cache.checkins.find(x=>String(x.id)===String(id)); if(!c||!c.photo) return;
+  document.getElementById("lightboxImg").src=c.photo;
+  document.getElementById("lightboxCap").textContent=`${c.name} · ${(c.part||"").split("/").join(" ")} · ${ago(c.created_at)}`;
+  document.getElementById("lightbox").classList.add("open"); document.body.style.overflow="hidden"; }
+function closeLightbox(){ document.getElementById("lightbox").classList.remove("open"); document.body.style.overflow=""; }
 
 /* ---- 가디언 응원 ---- */
 document.getElementById("stickerChips").innerHTML=STICKERS.map((s,i)=>

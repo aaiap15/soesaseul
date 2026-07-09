@@ -275,9 +275,9 @@
     return getLS(LS.checkins).filter(c => String(c.crew_id) === String(crewId)).sort((a, b) => b.id - a.id);
   }
 
-  async function addCheckin({ crewId, memberId, name, type, part, note }) {
+  async function addCheckin({ crewId, memberId, name, type, part, note, photo }) {
     await ready;
-    const row = { crew_id: crewId, member_id: memberId, name, type: type || "workout", part: part || "", note: note || "" };
+    const row = { crew_id: crewId, member_id: memberId, name, type: type || "workout", part: part || "", note: note || "", photo: photo || "" };
     if (sb) {
       const { data, error } = await sb.from("checkins").insert(row).select().single();
       if (error) throw error;
