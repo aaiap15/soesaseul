@@ -28,8 +28,11 @@ create table if not exists checkins (
   type        text not null default 'workout', -- 'workout' | 'start' | 'cheer'
   part        text,      -- 운동 부위 / 응원 스티커
   note        text,      -- 감정·한마디
+  photo       text,      -- 인증샷 (압축된 data URL)
   created_at  timestamptz default now()
 );
+-- 기존 테이블이 있으면 photo 컬럼만 추가 (재실행 안전)
+alter table checkins add column if not exists photo text;
 
 -- RLS: 익명 사용자가 읽기 + 등록(insert)만. 수정/삭제 불가.
 alter table crews    enable row level security;
