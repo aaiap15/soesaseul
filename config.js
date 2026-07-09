@@ -6,6 +6,6 @@
 window.SOECHIN_CONFIG = {
   SUPABASE_URL: "https://pxdnmrfmdlcgvznywehg.supabase.co",
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4ZG5tcmZtZGxjZ3Z6bnl3ZWhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1MDE1OTEsImV4cCI6MjA5OTA3NzU5MX0.j3AB9Ifq5MRcc8Y0jwK-EVXoezb8J5BzE2GvmHWSz6U",
-  APP_NAME: "쇠친",
-  SUBTITLE: "같이 운동할 사람, 여기서 찾자",
+  APP_NAME: "쇠사슬",
+  SUBTITLE: "크루로 운동 지속 — 우리가 얼마나 쌓았나",
 };

@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>쇠친 · 운영자 화면</title>
+<title>쇠사슬 · 운영자 화면</title>
 <style>
-  :root{--bg:#0f0f14;--card:#1a1a22;--line:#2a2a34;--txt:#f2f2f6;--sub:#9a9aa8;--dim:#6a6a78;
-    --accent:#6d5efc;--pink:#ff5c8a;--ok:#1fbf7a;
+  :root{--bg:#0d0f12;--card:#161a20;--card2:#1b2028;--line:#242b33;--txt:#f0f3f7;--sub:#97a2b0;--dim:#69727e;
+    --accent:#ff5a1f;--gold:#ffc94d;--ok:#35d0a5;--danger:#ff5d6c;--chick:#ff9a3c;
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif}
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--txt);padding:18px;line-height:1.5}
@@ -14,242 +14,169 @@
   h1{font-size:21px;font-weight:900}
   .sub{color:var(--sub);font-size:13px;margin-top:3px}
   .mode{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;margin-left:8px}
-  .mode.live{background:rgba(31,191,122,.15);color:var(--ok)}
-  .mode.local{background:rgba(255,92,138,.15);color:var(--pink)}
-  .stats{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:96px}
-  .stat b{font-size:24px;font-weight:900;color:var(--accent)}
-  .stat.p b{color:var(--pink)}
-  .stat span{color:var(--sub);font-size:12px;display:block}
+  .mode.live{background:rgba(53,208,165,.15);color:var(--ok)}
+  .mode.local{background:rgba(255,93,108,.15);color:var(--danger)}
+
+  .signals{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+  .sig{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:18px}
+  .sig .k{color:var(--sub);font-size:12.5px;font-weight:700}
+  .sig .v{font-size:34px;font-weight:900;margin-top:6px}
+  .sig .v.ok{color:var(--ok)} .sig .v.bad{color:var(--danger)} .sig .v.gold{color:var(--gold)}
+  .sig .d{color:var(--dim);font-size:11.5px;margin-top:6px}
+
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 15px}
+  .stat b{font-size:20px;font-weight:900;color:var(--accent)}
+  .stat span{color:var(--sub);font-size:11.5px;display:block}
   .bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-  button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;
-    padding:9px 14px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
+  button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:9px 14px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
   button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 
-  .post{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
-  .post .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-  .post .nm{font-size:17px;font-weight:850}
-  .post .meta{color:var(--sub);font-size:13px;margin-top:2px}
-  .parts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-  .part{font-size:12px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(109,94,252,.15);color:#a99bff}
-  .note{color:var(--sub);font-size:13px;margin-top:8px}
-  .contact{font-size:13px;margin-top:6px}
-  .contact b{color:var(--ok)}
-  .grp{display:flex;align-items:center;gap:6px}
-  .grp input{width:70px;background:#0d0d12;border:1px solid var(--line);color:var(--ok);border-radius:8px;
-    padding:6px 8px;text-align:center;font-weight:800;font-family:inherit}
-  .apps{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
-  .apps .lbl{font-size:12px;color:var(--dim);font-weight:800;margin-bottom:8px}
-  .app{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;
-    background:#0d0d12;border-radius:10px;margin-bottom:6px}
-  .app .an{font-weight:700;font-size:14px}
-  .app .ac{color:var(--ok);font-size:13px}
-  .none{color:var(--dim);font-size:13px}
-  .copy{background:#0d0d12;border:1px solid var(--line);padding:6px 10px;font-size:12px}
-  .empty{text-align:center;color:var(--dim);padding:70px 20px}
-  code{background:var(--card);padding:2px 7px;border-radius:6px;color:#a99bff}
-  .del{background:transparent;border:1px solid #5a2630;color:#ff6b81;padding:6px 10px;font-size:12px;border-radius:8px}
-  .del:hover{background:rgba(255,92,138,.1)}
-  .app .axr{display:flex;align-items:center;gap:8px}
-  .app .delx{background:transparent;border:none;color:#ff6b81;font-size:16px;cursor:pointer;padding:0 4px;line-height:1}
-  .head-right{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-  .fbbars{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
-  .fbrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-  .fbrow:last-child{margin-bottom:0}
-  .fblabel{width:160px;font-size:13px;font-weight:700;flex:none}
-  .fbbar{flex:1;height:16px;background:#0d0d12;border-radius:99px;overflow:hidden}
-  .fbbar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--pink));border-radius:99px}
-  .fbn{width:30px;text-align:right;font-weight:800;color:#a99bff;font-size:14px}
-  .fbetc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
-  .fbetc .lbl{font-size:12px;color:var(--dim);font-weight:800;margin-bottom:10px}
-  .etcitem{color:var(--sub);font-size:13.5px;padding:8px 0;border-bottom:1px solid var(--line)}
-  .etcitem:last-child{border:none}
-  @media(max-width:520px){.fblabel{width:110px;font-size:12px}}
+  table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden;font-size:13.5px}
+  th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{background:var(--card2);color:var(--sub);font-size:12px;font-weight:800}
+  tr:last-child td{border-bottom:none}
+  .pill{display:inline-block;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px}
+  .pill.live{background:rgba(53,208,165,.15);color:var(--ok)}
+  .pill.dead{background:rgba(105,114,126,.15);color:var(--dim)}
+  .pill.s4{background:rgba(255,201,77,.15);color:var(--gold)}
+  .chain{color:var(--gold);font-weight:800}
+  .chick{color:var(--chick);font-weight:800}
+  .scroll{overflow-x:auto}
+  .empty{text-align:center;color:var(--dim);padding:60px 20px}
+  code{background:var(--card);padding:2px 7px;border-radius:6px;color:#ffb27a}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>🛠️ 쇠친 운영자 화면 <span class="mode" id="modeBadge">…</span></h1>
-  <p class="sub">신청자를 보고 수동으로 조를 짜세요. (같은 부위·성별·신청 매칭 → 조번호 부여 → 카톡 초대)</p>
+  <h1>⛓️ 쇠사슬 운영자 화면 <span class="mode" id="modeBadge">…</span></h1>
+  <p class="sub">핵심 신호 2개(4주 생존율 · 2차 크루 생성)로 수요를 판단하세요.</p>
+
+  <div class="signals">
+    <div class="sig"><div class="k">🎯 크루 4주 생존율</div><div class="v" id="sigSurv">–</div>
+      <div class="d" id="sigSurvD">4주 이상 된 크루 중, 4주차에도 인증이 있는 비율 · 목표 50%+</div></div>
+    <div class="sig"><div class="k">🌱 2차 크루 생성</div><div class="v gold" id="sig2nd">–</div>
+      <div class="d">한 사람이 두 번째 크루를 또 만든 수 · 바이럴 신호(15%+ go)</div></div>
+  </div>
 
   <div class="stats">
-    <div class="stat"><b id="sPosts">0</b><span>모집글</span></div>
-    <div class="stat p"><b id="sApps">0</b><span>신청 수</span></div>
-    <div class="stat"><b id="sMatched">0</b><span>편성된 조</span></div>
-    <div class="stat"><b id="sRate">0%</b><span>글당 평균 신청</span></div>
-    <div class="stat p"><b id="sFb">0</b><span>의견 수</span></div>
+    <div class="stat"><b id="sCrews">0</b><span>크루</span></div>
+    <div class="stat"><b id="sMembers">0</b><span>크루원</span></div>
+    <div class="stat"><b id="sGuard">0</b><span>가디언</span></div>
+    <div class="stat"><b id="sChecks">0</b><span>총 인증</span></div>
+    <div class="stat"><b id="sActive">0</b><span>이번주 활성 크루</span></div>
   </div>
 
   <div class="bar">
     <button class="primary" onclick="load()">🔄 새로고침</button>
-    <button onclick="exportCSV('posts')">📥 모집글 CSV</button>
-    <button onclick="exportCSV('apps')">📥 신청 CSV</button>
-    <button onclick="exportCSV('fb')">📥 의견 CSV</button>
+    <button onclick="exportCSV()">📥 크루 CSV</button>
     <button onclick="sample()">🧪 샘플 데이터</button>
-    <button class="del" onclick="delAll()">🗑 전체 삭제</button>
-    <button onclick="resetPw()">🔑 비번 재설정</button>
   </div>
 
-  <div id="fbWrap"></div>
-  <div id="list"></div>
+  <div class="scroll" id="tableWrap"></div>
 </div>
 
 <script src="config.js"></script>
 <script src="db.js"></script>
 <script>
-let posts=[], apps=[], fb=[];
-const G_KEY="soechin_groups"; // 조번호는 운영자 기기에만 로컬 저장(수동 편성 메모)
-const FB_LABELS={채팅:"💬 앱 내 채팅",알림:"🔔 신청 알림",프로필사진:"🪞 프로필/사진",헬스장필터:"🏫 학교·헬스장 필터",시간표매칭:"🗓️ 시간표 자동 매칭",실력표시:"🏋️ 실력/경력 표시",후기평점:"⭐ 후기·평점",익명:"🕶️ 익명 이용"};
-const groups = JSON.parse(localStorage.getItem(G_KEY)||"{}");
-const EMOJI = {"가슴":"🎽","등":"🔙","어깨":"🏔️","팔":"💪","하체":"🦵","복근":"🧊","유산소":"🏃","전신":"🔥"};
+const WEEK=7*24*3600*1000;
+let crews=[], members=[], checkins=[];
 const esc = s => (""+(s??"")).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const appsFor = id => apps.filter(a => String(a.post_id)===String(id));
+const mOf = cid => members.filter(m=>String(m.crew_id)===String(cid));
+const cOf = cid => checkins.filter(c=>String(c.crew_id)===String(cid));
+const curWk = () => DB.weekStartTs(Date.now());
 
-function setGroup(id,v){ groups[id]=v.trim(); localStorage.setItem(G_KEY, JSON.stringify(groups)); renderStats(); }
-
-// ---- 삭제 (비밀번호는 이 기기 localStorage에만 저장, admin.sql에서 설정한 값) ----
-const PW_KEY="soechin_admin_pw";
-async function localMode(){ return (await DB.mode())==="local"; }
-async function adminPw(){
-  if(await localMode()) return "";               // 로컬 모드는 비번 불필요(내 기기)
-  let pw=localStorage.getItem(PW_KEY);
-  if(!pw){ pw=prompt("운영자 비밀번호 (admin.sql에서 설정한 값)"); if(pw) localStorage.setItem(PW_KEY,pw); }
-  return pw;
+function survived4w(crew){
+  const start=DB.weekStartTs(crew.created_at);
+  const w4=start+3*WEEK;                       // 4주차 시작
+  if(Date.now()<w4) return null;               // 아직 4주 안 됨 → 판정 제외
+  const has=cOf(crew.id).some(c=>(c.type||"workout")==="workout" && DB.weekStartTs(c.created_at)>=w4 && DB.weekStartTs(c.created_at)<w4+WEEK);
+  return has;
 }
-function resetPw(){ localStorage.removeItem(PW_KEY); alert("비밀번호가 초기화됐어요. 다음 삭제 때 다시 물어봅니다."); }
-function onDelErr(e){
-  const msg=(e&&e.message)||String(e);
-  if(/unauthorized/i.test(msg)){ localStorage.removeItem(PW_KEY); alert("비밀번호가 틀렸어요. 다시 시도하세요."); }
-  else alert("삭제 실패: "+msg+"\n\n(admin.sql을 아직 실행 안 했다면 먼저 Supabase에서 실행하세요.)");
-}
-async function delPost(id){
-  if(!confirm("이 모집글과 신청을 모두 삭제할까요?")) return;
-  const pw=await adminPw(); if(pw===null) return;
-  try{ await DB.deletePost(Number(id),pw); await load(); }catch(e){ onDelErr(e); }
-}
-async function delApp(id){
-  if(!confirm("이 신청을 삭제할까요?")) return;
-  const pw=await adminPw(); if(pw===null) return;
-  try{ await DB.deleteApplication(Number(id),pw); await load(); }catch(e){ onDelErr(e); }
-}
-async function delAll(){
-  if(!posts.length && !apps.length){ alert("삭제할 데이터가 없어요."); return; }
-  if(!confirm("모든 모집글과 신청을 삭제할까요? 되돌릴 수 없어요.")) return;
-  const pw=await adminPw(); if(pw===null) return;
-  try{ await DB.deleteAll(pw); await load(); }catch(e){ onDelErr(e); }
-}
-
-function renderStats(){
-  document.getElementById("sPosts").textContent = posts.length;
-  document.getElementById("sApps").textContent = apps.length;
-  const gset = new Set(posts.map(p=>groups[p.id]).filter(Boolean));
-  document.getElementById("sMatched").textContent = gset.size;
-  document.getElementById("sRate").textContent = posts.length? (apps.length/posts.length).toFixed(1) : "0";
-  document.getElementById("sFb").textContent = fb.length;
-}
-
-function renderFb(){
-  const wrap=document.getElementById("fbWrap");
-  if(!fb.length){ wrap.innerHTML=""; return; }
-  const counts={};
-  fb.forEach(f=>(f.features||"").split(",").filter(Boolean).forEach(k=>counts[k]=(counts[k]||0)+1));
-  const max=Math.max(1,...Object.values(counts));
-  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-  const etcs=fb.filter(f=>(f.etc||"").trim());
-  let h=`<h2 style="font-size:18px;font-weight:850;margin:6px 0 0">💬 원하는 기능 (의견 ${fb.length}개)</h2>`;
-  if(sorted.length){
-    h+=`<div class="fbbars">`+sorted.map(([k,n])=>`
-      <div class="fbrow"><div class="fblabel">${FB_LABELS[k]||esc(k)}</div>
-        <div class="fbbar"><i style="width:${Math.round(n/max*100)}%"></i></div><div class="fbn">${n}</div></div>`).join("")+`</div>`;
-  }
-  if(etcs.length){
-    h+=`<div class="fbetc"><div class="lbl">✍️ 자유 의견 ${etcs.length}개</div>`+
-       etcs.map(f=>`<div class="etcitem">"${esc(f.etc)}"</div>`).join("")+`</div>`;
-  }
-  wrap.innerHTML=h;
-}
+function activeThisWeek(crew){ return cOf(crew.id).some(c=>(c.type||"workout")==="workout" && DB.weekStartTs(c.created_at)===curWk()); }
+function ownerName(crew){ const ms=mOf(crew.id).slice().sort((a,b)=>a.id-b.id); return ms.length?ms[0].name:""; }
 
 function render(){
-  renderStats();
-  if(!posts.length){
-    document.getElementById("list").innerHTML =
-      `<div class="empty">아직 모집글이 없어요.<br><br><code>index.html</code>에서 글이 올라오면 여기 신청자와 함께 보입니다.<br><br>
-       <button class="primary" onclick="sample()">🧪 샘플로 먼저 보기</button></div>`;
+  const workoutMembers=members.filter(m=>m.role!=="guardian");
+  document.getElementById("sCrews").textContent=crews.length;
+  document.getElementById("sMembers").textContent=workoutMembers.length;
+  document.getElementById("sGuard").textContent=members.filter(m=>m.role==="guardian").length;
+  document.getElementById("sChecks").textContent=checkins.filter(c=>(c.type||"workout")==="workout").length;
+  document.getElementById("sActive").textContent=crews.filter(activeThisWeek).length;
+
+  // 4주 생존율
+  const judged=crews.map(survived4w).filter(v=>v!==null);
+  const surv=judged.filter(Boolean).length;
+  const survEl=document.getElementById("sigSurv");
+  if(judged.length){ const pct=Math.round(surv/judged.length*100);
+    survEl.textContent=pct+"%"; survEl.className="v "+(pct>=50?"ok":"bad");
+    document.getElementById("sigSurvD").textContent=`4주 이상 된 크루 ${judged.length}개 중 ${surv}개 생존 · 목표 50%+`;
+  } else { survEl.textContent="–"; survEl.className="v"; document.getElementById("sigSurvD").textContent="아직 4주 넘은 크루가 없어요"; }
+
+  // 2차 크루 생성: 같은 owner 이름이 만든 2번째+ 크루 수
+  const byOwner={}; crews.slice().sort((a,b)=>a.id-b.id).forEach(c=>{ const o=ownerName(c); if(!o)return; (byOwner[o]=byOwner[o]||0)+0; byOwner[o]++; });
+  const second=Object.values(byOwner).reduce((s,n)=>s+Math.max(0,n-1),0);
+  const rate=crews.length?Math.round(second/crews.length*100):0;
+  document.getElementById("sig2nd").textContent=`${second}건`;
+  document.querySelector("#sig2nd").nextElementSibling.textContent=`전체 ${crews.length}크루 중 ${rate}% · 15%+면 강한 go`;
+
+  if(!crews.length){
+    document.getElementById("tableWrap").innerHTML=`<div class="empty">아직 크루가 없어요.<br><br><code>index.html</code>에서 크루가 생기면 여기 지표가 채워집니다.<br><br><button class="primary" onclick="sample()">🧪 샘플로 먼저 보기</button></div>`;
     return;
   }
-  document.getElementById("list").innerHTML = posts.map(p=>{
-    const parts=(p.part||"").split(",").filter(Boolean);
-    const list=appsFor(p.id);
-    return `<div class="post">
-      <div class="head">
-        <div>
-          <div class="nm">${esc(p.name)} <span style="color:var(--sub);font-size:13px">${esc(p.age)}살·${esc(p.gender)}</span></div>
-          <div class="parts">${parts.map(x=>`<span class="part">${EMOJI[x]||""} ${esc(x)}</span>`).join("")}</div>
-          ${p.note?`<div class="note">💬 ${esc(p.note)}</div>`:""}
-          ${p.contact?`<div class="contact">📇 작성자 연락: <b>${esc(p.contact)}</b></div>`:`<div class="contact" style="color:var(--dim)">📇 작성자 연락처 미입력</div>`}
-        </div>
-        <div class="head-right">
-          <div class="grp">조#<input value="${esc(groups[p.id]||"")}" placeholder="-" onchange="setGroup('${p.id}',this.value)"></div>
-          <button class="del" onclick="delPost('${p.id}')">🗑 글 삭제</button>
-        </div>
-      </div>
-      <div class="apps">
-        <div class="lbl">🙋 신청자 ${list.length}명</div>
-        ${list.length? list.map(a=>`<div class="app"><span class="an">${esc(a.name)}</span><span class="axr"><span class="ac">${esc(a.contact||"연락처 없음")}</span><button class="delx" title="신청 삭제" onclick="delApp('${a.id}')">✕</button></span></div>`).join("")
-          : `<div class="none">아직 신청 없음</div>`}
-        ${list.length? `<button class="copy" onclick='kakao(${JSON.stringify(p).replace(/'/g,"&#39;")})'>📋 조 초대문구 복사</button>`:""}
-      </div>
-    </div>`;
+  const rows=crews.map(c=>{
+    const ms=mOf(c.id); const wm=ms.filter(m=>m.role!=="guardian");
+    const r=DB.computeChain(c,ms,cOf(c.id));
+    const s4=survived4w(c); const act=activeThisWeek(c);
+    const wk=(Date.now()-new Date(c.created_at).getTime())/WEEK;
+    return `<tr>
+      <td><b>${esc(c.name)}</b><div style="color:var(--dim);font-size:11px">코드 ${esc(c.code)} · 주${c.goal}회</div></td>
+      <td>${esc(ownerName(c))}</td>
+      <td>${wm.length}${ms.length-wm.length?` <span style="color:var(--gold)">+${ms.length-wm.length}🙌</span>`:""}</td>
+      <td class="chain">${r.chain}<span style="color:var(--dim)"> / 최고 ${r.best}</span></td>
+      <td class="chick">🍗 ${r.chicken}</td>
+      <td>${act?`<span class="pill live">활성</span>`:`<span class="pill dead">휴면</span>`}</td>
+      <td>${s4===null?`<span style="color:var(--dim)">${wk.toFixed(1)}주</span>`:s4?`<span class="pill s4">4주 생존</span>`:`<span class="pill dead">이탈</span>`}</td>
+    </tr>`;
   }).join("");
+  document.getElementById("tableWrap").innerHTML=`<table><thead><tr>
+    <th>크루</th><th>개설자</th><th>인원</th><th>고리</th><th>치킨</th><th>이번주</th><th>4주</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-function kakao(p){
-  const list=appsFor(p.id);
-  const g=groups[p.id]||"";
-  const txt=`[쇠친 ${g?g+"조":"운동메이트"}] 안녕하세요! 매칭됐어요 💪\n`+
-    `📌 모집: ${p.name}(${p.age}·${p.gender}) — ${(p.part||"").split(",").join("/")}\n`+
-    (p.contact?`   연락: ${p.contact}\n`:"")+
-    `🙋 신청자:\n`+ list.map(a=>`  · ${a.name} (${a.contact||"연락처 없음"})`).join("\n")+
-    `\n\n첫 운동 시간 정해볼까요? 편한 요일/시간 남겨주세요!`;
-  navigator.clipboard.writeText(txt).then(()=>alert("복사됐어요! 카톡방에 붙여넣기 하세요.\n\n"+txt));
-}
-
-function exportCSV(which){
-  let cols,rows,fname;
-  if(which==="posts"){ cols=["id","created_at","name","age","gender","part","contact","note"]; rows=posts;
-    rows=rows.map(r=>({...r,조:groups[r.id]||""})); cols.push("조"); fname="쇠친_모집글"; }
-  else if(which==="fb"){ cols=["id","created_at","features","etc"]; rows=fb; fname="쇠친_의견"; }
-  else { cols=["id","created_at","post_id","name","contact"]; rows=apps; fname="쇠친_신청"; }
+function exportCSV(){
+  const cols=["id","created_at","name","code","goal","개설자","크루원","가디언","현재고리","최고고리","치킨","이번주활성","4주생존"];
+  const rows=crews.map(c=>{ const ms=mOf(c.id); const r=DB.computeChain(c,ms,cOf(c.id)); const s4=survived4w(c);
+    return {id:c.id,created_at:c.created_at,name:c.name,code:c.code,goal:c.goal,개설자:ownerName(c),
+      크루원:ms.filter(m=>m.role!=="guardian").length,가디언:ms.filter(m=>m.role==="guardian").length,
+      현재고리:r.chain,최고고리:r.best,치킨:r.chicken,이번주활성:activeThisWeek(c)?"Y":"N",
+      "4주생존":s4===null?"미판정":s4?"생존":"이탈"};});
   const head=cols.join(",");
-  const body=rows.map(r=>cols.map(c=>`"${(""+(r[c]??"")).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const body=rows.map(r=>cols.map(k=>`"${(""+(r[k]??"")).replace(/"/g,'""')}"`).join(",")).join("\n");
   const blob=new Blob(["﻿"+head+"\n"+body],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-  a.download=fname+"_"+new Date().toISOString().slice(0,10)+".csv"; a.click();
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="쇠사슬_크루_"+new Date().toISOString().slice(0,10)+".csv"; a.click();
 }
 
 async function sample(){
-  const S=[
-    {name:"민준",age:22,gender:"남",part:"가슴,팔",contact:"insta @minjun_gym",note:"헬린이라 같이 배우면서! 주3회 저녁"},
-    {name:"서연",age:21,gender:"여",part:"하체,복근",contact:"카톡 seoyeon02",note:"오전에 같이 운동하실 분"},
-    {name:"도윤",age:24,gender:"남",part:"등,어깨",contact:"",note:"3대 400 목표, 스팟 서로 봐줄 사람"},
-  ];
-  for(const s of S){ const saved=await DB.addPost(s);
-    if(s.name==="민준"){ await DB.addApplication({post_id:saved.id,name:"지호",contact:"카톡 jiho_99"});
-      await DB.addApplication({post_id:saved.id,name:"태윤",contact:"insta @tyoon"}); }
-    if(s.name==="서연"){ await DB.addApplication({post_id:saved.id,name:"수빈",contact:"카톡 subin"}); }
-  }
+  // 2주 전 개설 크루 1개(전원 성공) + 이번주 개설 1개 + 2차 크루(같은 개설자)
+  const now=Date.now();
+  const c1=await DB.createCrew({name:"새벽 여섯시 클럽",goal:2,ownerName:"민준"});
+  const j1=await DB.joinCrew({code:c1.crew.code,name:"서연",role:"member"});
+  const g1=await DB.joinCrew({code:c1.crew.code,name:"삼촌",role:"guardian"});
+  for(const mid of [c1.member.id,j1.member.id]){ await DB.addCheckin({crewId:c1.crew.id,memberId:mid,name:"x",type:"workout",part:"가슴/등",note:"굿"}); await DB.addCheckin({crewId:c1.crew.id,memberId:mid,name:"x",type:"workout",part:"하체",note:""}); }
+  await DB.addCheckin({crewId:c1.crew.id,memberId:g1.member.id,name:"삼촌",type:"cheer",part:"🔥",note:"화이팅!"});
+  const c2=await DB.createCrew({name:"헬창 3인방",goal:3,ownerName:"민준"}); // 같은 개설자 → 2차 크루
+  await DB.joinCrew({code:c2.crew.code,name:"도윤",role:"member"});
+  await DB.addCheckin({crewId:c2.crew.id,memberId:c2.member.id,name:"x",type:"workout",part:"팔",note:""});
   load();
 }
 
 async function load(){
-  [posts,apps,fb]=await Promise.all([DB.listPosts(),DB.listApplications(),DB.listFeedback()]);
+  [crews,members,checkins]=await Promise.all([DB.listAllCrews(),DB.listAllMembers(),DB.listAllCheckins()]);
   render();
-  renderFb();
 }
 (async function(){
   const m=await DB.mode(); const b=document.getElementById("modeBadge");
-  if(m==="supabase"){ b.textContent="● 실시간 공용 DB"; b.className="mode live"; }
-  else { b.textContent="로컬(이 기기)"; b.className="mode local"; }
+  if(m==="supabase"){ b.textContent="● 실시간 공용 DB"; b.className="mode live"; } else { b.textContent="로컬(이 기기)"; b.className="mode local"; }
   load();
 })();
 </script>
