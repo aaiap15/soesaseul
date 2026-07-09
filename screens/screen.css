@@ -1,0 +1,101 @@
+/* 쇠사슬 쇼케이스용 공용 스타일 (실제 앱 index.html에서 발췌) */
+:root{
+  --bg:#0d0f12; --card:#161a20; --card2:#1b2028; --line:#242b33; --txt:#f0f3f7; --sub:#97a2b0; --dim:#69727e;
+  --accent:#ff5a1f; --accent2:#ff8a4c; --gold:#ffc94d; --chick:#ff9a3c; --ok:#35d0a5; --danger:#ff5d6c;
+  --radius:18px;
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);line-height:1.5}
+.scr{min-height:100%;padding-bottom:96px;position:relative}
+.wrap{padding:0 16px}
+.accent{color:var(--accent)}
+
+header{position:sticky;top:0;z-index:5;background:rgba(13,15,18,.92);backdrop-filter:blur(8px);
+  padding:14px 16px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:20px;font-weight:900;letter-spacing:-.02em;display:flex;align-items:center;gap:6px}
+.logo b{color:var(--accent)}
+.mode{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ok);border-color:rgba(53,208,165,.4)}
+
+h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
+.lead{color:var(--sub);font-size:14px;margin-top:12px}
+
+.btn{display:block;width:100%;text-align:center;border:none;font-weight:850;font-size:16px;padding:16px;border-radius:14px}
+.btn.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 10px 26px rgba(255,90,31,.32)}
+.btn.ghost{background:var(--card);color:var(--txt);border:1px solid var(--line)}
+.btn+.btn{margin-top:10px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.card+.card{margin-top:12px}
+
+.chainhero{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:22px;padding:22px 20px;text-align:center}
+.chainhero .lbl{color:var(--sub);font-size:13px;font-weight:700}
+.chainbig{font-size:60px;font-weight:900;letter-spacing:-.03em;line-height:1;margin:6px 0 2px;
+  background:linear-gradient(120deg,var(--gold),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.chainbig .u{font-size:22px;color:var(--sub);-webkit-text-fill-color:var(--sub)}
+.links{font-size:18px;letter-spacing:1px;margin:10px 0 4px;line-height:1.4;word-break:break-all}
+.chainmeta{display:flex;justify-content:center;gap:18px;margin-top:10px}
+.chainmeta div{font-size:12.5px;color:var(--sub)} .chainmeta b{color:var(--txt);font-weight:800}
+.status{margin-top:13px;font-size:13px;font-weight:800;padding:10px;border-radius:12px}
+.status.safe{background:rgba(53,208,165,.12);color:var(--ok)}
+.status.risk{background:rgba(255,93,108,.12);color:var(--danger)}
+
+.sec-t{font-size:14px;font-weight:850;margin:0 2px 10px;display:flex;align-items:center;justify-content:space-between}
+.sec-t .r{color:var(--dim);font-size:12px;font-weight:700}
+
+.mrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.mrow:last-child{border:none}
+.mrow .av{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:16px;flex:none;background:var(--card2)}
+.mrow .nm{font-weight:750;font-size:14.5px;flex:none}
+.mrow .prog{flex:1;height:9px;background:var(--card2);border-radius:99px;overflow:hidden;margin:0 4px}
+.mrow .prog i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.mrow .prog i.done{background:linear-gradient(90deg,var(--ok),#5fe6c0)}
+.mrow .cnt{font-size:12.5px;font-weight:800;width:34px;text-align:right}
+.mrow .cnt.miss{color:var(--danger)} .mrow .cnt.done{color:var(--ok)}
+.mrow .live{font-size:11px;font-weight:800;color:var(--accent);background:rgba(255,90,31,.12);padding:3px 8px;border-radius:999px}
+
+.chick{display:flex;align-items:center;gap:14px}
+.chick .big{font-size:40px} .chick .n{font-size:26px;font-weight:900;color:var(--chick)} .chick .d{color:var(--sub);font-size:12px}
+
+.feed .item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.feed .item:last-child{border:none}
+.feed .fic{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:19px;flex:none;background:var(--card2)}
+.feed .fic.cheer{background:rgba(255,201,77,.14)}
+.feed .fb{flex:1;min-width:0}
+.feed .fn{font-weight:800;font-size:14px}
+.feed .ft{color:var(--sub);font-size:13px;margin-top:2px}
+.feed .ftag{display:inline-block;font-size:11.5px;font-weight:800;color:var(--accent2);background:rgba(255,90,31,.1);padding:2px 8px;border-radius:999px;margin-right:5px}
+.feed .fago{color:var(--dim);font-size:11px;white-space:nowrap}
+.tagok{color:var(--ok);font-size:11px;font-weight:800}
+.taggd{color:var(--gold);font-size:11px;font-weight:800}
+
+.codechip{display:inline-flex;align-items:center;gap:8px;background:var(--card2);border:1px dashed var(--line);border-radius:12px;padding:9px 14px;font-weight:850;letter-spacing:.12em;font-size:16px}
+.codechip small{font-size:10px;color:var(--dim);letter-spacing:0;font-weight:700}
+
+.actions{position:fixed;bottom:0;left:0;right:0;padding:12px 16px 18px;background:linear-gradient(to top,var(--bg) 62%,transparent);display:flex;gap:10px}
+.actions button{flex:1;border:none;font-weight:850;font-size:15px;padding:15px;border-radius:14px}
+.a-start{background:var(--card);color:var(--txt);border:1px solid var(--line)}
+.a-check{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 8px 22px rgba(255,90,31,.3)}
+.a-cheer{background:linear-gradient(120deg,var(--gold),#ffb43c);color:#241a00}
+
+/* 모달형 화면 */
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:22px 22px 0 0;padding:8px 20px 26px;max-height:94%;overflow:auto}
+.grip{width:40px;height:5px;border-radius:99px;background:var(--line);margin:8px auto 8px}
+.sheet h2{font-size:20px;font-weight:900;margin:6px 0 2px}
+.sheet .desc{color:var(--sub);font-size:13px}
+.field{margin-top:16px}
+.field label{display:block;font-weight:800;font-size:14px;margin-bottom:8px}
+.field .opt{color:var(--dim);font-weight:600;font-size:12px}
+.inp{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:13px;color:var(--txt);font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:14px;font-weight:700;padding:10px 13px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);color:var(--sub)}
+.chip.on{background:rgba(255,90,31,.12);border-color:var(--accent);color:var(--accent2)}
+.chip.big{font-size:24px;padding:10px 15px}
+.submit{width:100%;background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;font-weight:850;font-size:16px;padding:16px;border:none;border-radius:14px;margin-top:22px}
+.ghost-btn{background:transparent;border:none;color:var(--dim);font-size:14px;margin-top:16px;width:100%;text-align:center}
+.codebox{font-size:40px;font-weight:900;letter-spacing:.2em;color:var(--gold);text-align:center;margin:16px 0 6px}
+.linkbox{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px;color:var(--sub);font-size:12.5px;text-align:center;margin:4px 0 14px}
+.done{text-align:center;padding:14px 0 4px}
+.done .ic{font-size:50px}
+.timerbar{background:rgba(255,90,31,.1);border:1px solid rgba(255,90,31,.3);border-radius:12px;padding:11px;margin-top:12px;text-align:center;font-weight:800;color:var(--accent2);font-size:13px}
