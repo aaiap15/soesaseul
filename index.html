@@ -146,6 +146,12 @@
   .done p{color:var(--sub);font-size:14px;margin-top:10px}
   .codebox{font-size:40px;font-weight:900;letter-spacing:.2em;color:var(--gold);margin:18px 0 6px}
   .timerbar{background:rgba(255,90,31,.1);border:1px solid rgba(255,90,31,.3);border-radius:12px;padding:12px;margin-top:14px;text-align:center;font-weight:800;color:var(--accent2)}
+  .linkbox{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px;
+    color:var(--sub);font-size:13px;text-align:center;margin:4px 0 14px;font-family:inherit}
+  .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(16px);
+    background:var(--txt);color:var(--bg);font-weight:850;font-size:14px;padding:12px 20px;border-radius:12px;
+    opacity:0;transition:.25s;z-index:200;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -163,6 +169,8 @@
 <div class="actions" id="actions" style="display:none">
   <div class="wrap" id="actionsInner"></div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <!-- 크루 만들기 -->
 <div class="modal" id="createModal">
@@ -185,7 +193,9 @@
       <h2>크루 완성!</h2>
       <p>이 코드를 친구들한테 보내세요.<br>코드로 들어오면 같은 사슬을 쌓아요.</p>
       <div class="codebox" id="newCode">----</div>
-      <button class="submit" id="shareCode">📩 초대 코드·링크 공유</button>
+      <input class="linkbox" id="newLink" readonly onclick="this.select()">
+      <button class="submit" id="copyInviteBtn">🔗 초대 링크 복사</button>
+      <button type="button" class="btn ghost" id="shareCode" style="margin-top:10px">📩 공유하기 (카톡 등)</button>
       <button type="button" class="ghost-btn" id="enterNew">크루 입장하기</button>
     </div>
   </div>
@@ -385,7 +395,7 @@ async function renderCrew(cid){
     <div style="padding:16px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:10px">
       <div><div style="font-size:20px;font-weight:900">${esc(crew.name)}</div>
         <div style="color:var(--sub);font-size:12.5px">주 ${goal}회 목표 · 크루원 ${workoutMembers.length}${guardians.length?` · 가디언 ${guardians.length}`:""}</div></div>
-      <div class="codechip" onclick="shareInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>초대</small></div>
+      <div class="codechip" onclick="copyInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>탭해서 링크 복사</small></div>
     </div>
 
     <div class="chainhero">
@@ -467,11 +477,29 @@ async function startWorkout(){
   }catch(e){ alert("실패: "+(e.message||e)); }
 }
 
+const inviteUrl = code => location.origin+location.pathname+"?code="+code;
+const inviteMsg = (code,name) => `우리 크루 '${name}' 같이 하자! ⛓️\n쇠사슬 코드: ${code}\n${inviteUrl(code)}`;
+
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); return true; }
+  catch(_){
+    try{ const ta=document.createElement("textarea"); ta.value=t; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.focus(); ta.select(); const ok=document.execCommand("copy"); document.body.removeChild(ta); return ok; }
+    catch(e){ return false; }
+  }
+}
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1900); }
+
+async function copyInvite(code,name){
+  const ok=await copyText(inviteMsg(code,name));
+  toast(ok?"초대 링크 복사됨! 📋 붙여넣기 하세요":"복사 실패 — 링크를 길게 눌러 복사하세요");
+}
+// 네이티브 공유 지원 시 공유창, 아니면 복사
 function shareInvite(code,name){
-  const url=location.origin+location.pathname+"?code="+code;
-  const msg=`우리 크루 '${name}' 같이 하자! ⛓️\n쇠사슬 앱 코드: ${code}\n${url}`;
+  const msg=inviteMsg(code,name);
   if(navigator.share){ navigator.share({text:msg}).catch(()=>{}); }
-  else navigator.clipboard.writeText(msg).then(()=>alert("초대 문구 복사됨!\n\n"+msg));
+  else copyInvite(code,name);
 }
 
 /* ---- 모달 제어 ---- */
@@ -485,20 +513,22 @@ document.getElementById("goalChips").innerHTML=[2,3,4,5,6].map((n,i)=>
   `<label class="chip"><input type="radio" name="goal" value="${n}" ${n===3?"checked":""}><span>주 ${n}회</span></label>`).join("");
 function openCreate(){ document.getElementById("createForm").style.display=""; document.getElementById("createDone").style.display="none";
   document.getElementById("createForm").reset(); document.querySelector('input[name=goal][value="3"]').checked=true; openModal("createModal"); }
-let pendingCrew=null;
+let pendingCrew=null, pendingCode=null, pendingName=null;
 document.getElementById("createForm").onsubmit=async e=>{
   e.preventDefault(); const btn=document.getElementById("createBtn"); btn.disabled=true; btn.textContent="만드는 중…";
   const fd=new FormData(e.target);
   try{
     const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), ownerName:fd.get("oname").trim()});
     addMe({crewId:crew.id, code:crew.code, crewName:crew.name, memberId:member.id, name:member.name, role:"member"});
-    pendingCrew=crew.id;
+    pendingCrew=crew.id; pendingCode=crew.code; pendingName=crew.name;
     document.getElementById("createForm").style.display="none"; document.getElementById("createDone").style.display="";
     document.getElementById("newCode").textContent=crew.code;
+    document.getElementById("newLink").value=inviteUrl(crew.code);
   }catch(err){ alert("생성 실패: "+(err.message||err)); }
   finally{ btn.disabled=false; btn.textContent="크루 만들기"; }
 };
-document.getElementById("shareCode").onclick=()=>{ const c=cache.crew; shareInvite(document.getElementById("newCode").textContent, (getMe().find(x=>String(x.crewId)===String(pendingCrew))||{}).crewName||"우리 크루"); };
+document.getElementById("copyInviteBtn").onclick=()=>copyInvite(pendingCode,pendingName);
+document.getElementById("shareCode").onclick=()=>shareInvite(pendingCode,pendingName);
 document.getElementById("enterNew").onclick=()=>{ closeModals(); if(pendingCrew) go(pendingCrew); };
 
 /* ---- 코드로 참여 ---- */
