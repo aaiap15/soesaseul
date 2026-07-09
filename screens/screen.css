@@ -1,8 +1,9 @@
 /* 쇠사슬 쇼케이스용 공용 스타일 (실제 앱 index.html에서 발췌) */
 :root{
-  --bg:#0d0f12; --card:#161a20; --card2:#1b2028; --line:#242b33; --txt:#f0f3f7; --sub:#97a2b0; --dim:#69727e;
-  --accent:#ff5a1f; --accent2:#ff8a4c; --gold:#ffc94d; --chick:#ff9a3c; --ok:#35d0a5; --danger:#ff5d6c;
-  --radius:18px;
+  --bg:#f2f4f7; --card:#ffffff; --card2:#eef1f5; --line:#e5e8ee; --txt:#1a1d23; --sub:#667085; --dim:#98a2b3;
+  --accent:#f5501a; --accent2:#ff7a42; --gold:#e39a00; --chick:#f97316; --ok:#12b886; --danger:#f04438;
+  --radius:20px;
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 6px 20px rgba(16,24,40,.06);
   font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -12,7 +13,7 @@ body{background:var(--bg);color:var(--txt);line-height:1.5}
 .wrap{padding:0 16px}
 .accent{color:var(--accent)}
 
-header{position:sticky;top:0;z-index:5;background:rgba(13,15,18,.92);backdrop-filter:blur(8px);
+header{position:sticky;top:0;z-index:5;background:rgba(242,244,247,.9);backdrop-filter:blur(10px);
   padding:14px 16px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
 .logo{font-size:20px;font-weight:900;letter-spacing:-.02em;display:flex;align-items:center;gap:6px}
 .logo b{color:var(--accent)}
@@ -26,10 +27,11 @@ h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
 .btn.ghost{background:var(--card);color:var(--txt);border:1px solid var(--line)}
 .btn+.btn{margin-top:10px}
 
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
 .card+.card{margin-top:12px}
 
-.chainhero{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:22px;padding:22px 20px;text-align:center}
+.chainhero{background:linear-gradient(165deg,#fff6e9,#ffffff 60%);border:1px solid #f4e6cf;border-radius:24px;padding:22px 20px;text-align:center;
+  box-shadow:0 2px 6px rgba(227,154,0,.06),0 12px 30px rgba(227,154,0,.08)}
 .chainhero .lbl{color:var(--sub);font-size:13px;font-weight:700}
 .chainbig{font-size:60px;font-weight:900;letter-spacing:-.03em;line-height:1;margin:6px 0 2px;
   background:linear-gradient(120deg,var(--gold),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
