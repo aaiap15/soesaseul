@@ -192,7 +192,7 @@
     return s;
   };
 
-  async function createCrew({ name, goal, ownerName }) {
+  async function createCrew({ name, goal, ownerName, userId }) {
     await ready;
     goal = Number(goal) || 3;
     if (sb) {
@@ -203,7 +203,7 @@
         if (!r.error) crew = r.data; else err = r.error;
       }
       if (!crew) throw err || new Error("크루 생성 실패");
-      const m = await sb.from("members").insert({ crew_id: crew.id, name: ownerName, role: "member" }).select().single();
+      const m = await sb.from("members").insert({ crew_id: crew.id, name: ownerName, role: "member", user_id: userId || null }).select().single();
       if (m.error) throw m.error;
       return { crew, member: m.data };
     }
@@ -242,12 +242,12 @@
     return m;
   }
 
-  async function joinCrew({ code, name, role }) {
+  async function joinCrew({ code, name, role, userId }) {
     await ready;
     const crew = await getCrewByCode(code);
     if (!crew) return { error: "코드에 해당하는 크루가 없어요" };
     if (sb) {
-      const m = await sb.from("members").insert({ crew_id: crew.id, name, role: role || "member" }).select().single();
+      const m = await sb.from("members").insert({ crew_id: crew.id, name, role: role || "member", user_id: userId || null }).select().single();
       if (m.error) throw m.error;
       return { crew, member: m.data };
     }
@@ -309,6 +309,57 @@
     return getLS(LS.checkins);
   }
 
+  // ================= 계정 / 프로필 =================
+  async function signUp(email, password) {
+    await ready; if (!sb) throw new Error("로컬 모드에선 회원가입이 없어요");
+    const { data, error } = await sb.auth.signUp({ email, password });
+    if (error) throw error; return data;
+  }
+  async function signIn(email, password) {
+    await ready; if (!sb) throw new Error("로컬 모드");
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw error; return data;
+  }
+  async function signOut() { await ready; if (sb) await sb.auth.signOut(); localStorage.removeItem("sasl_profile_local"); }
+  async function currentUser() {
+    await ready;
+    if (!sb) return { id: "local" };
+    const { data } = await sb.auth.getSession();
+    return data.session ? data.session.user : null;
+  }
+  function onAuth(cb) { if (sb) sb.auth.onAuthStateChange((_e, session) => cb(session ? session.user : null)); }
+
+  async function getProfile(id) {
+    await ready;
+    if (sb) { const { data, error } = await sb.from("profiles").select("*").eq("id", id).maybeSingle(); if (error) throw error; return data; }
+    try { return JSON.parse(localStorage.getItem("sasl_profile_local") || "null"); } catch { return null; }
+  }
+  async function upsertProfile(p) {
+    await ready;
+    if (sb) {
+      const { data, error } = await sb.from("profiles").upsert({ id: p.id, nickname: p.nickname, avatar: p.avatar || "", bio: p.bio || "" }).select().single();
+      if (error) throw error; return data;
+    }
+    const row = { id: "local", nickname: p.nickname, avatar: p.avatar || "", bio: p.bio || "" };
+    localStorage.setItem("sasl_profile_local", JSON.stringify(row)); return row;
+  }
+
+  // 내가 속한 크루 목록 (계정 기준 → 다른 기기에서도 동일)
+  async function getMyCrews(userId) {
+    await ready;
+    if (sb) {
+      const { data, error } = await sb.from("members")
+        .select("id,role,name,crew_id,crews(id,name,code,goal,created_at)")
+        .eq("user_id", userId).order("id", { ascending: false });
+      if (error) throw error;
+      return (data || []).filter(m => m.crews).map(m => ({
+        crewId: m.crews.id, memberId: m.id, role: m.role, name: m.name,
+        code: m.crews.code, crewName: m.crews.name,
+      }));
+    }
+    try { return JSON.parse(localStorage.getItem("sasl_me") || "[]"); } catch { return []; }
+  }
+
   async function mode() { await ready; return sb ? "supabase" : "local"; }
 
   window.DB = { ready, addPost, listPosts, addApplication, listApplications,
@@ -316,5 +367,6 @@
                 addFeedback, listFeedback,
                 createCrew, getCrewByCode, getCrew, joinCrew, getMembers, getCheckins, addCheckin,
                 listAllCrews, listAllMembers, listAllCheckins,
+                signUp, signIn, signOut, currentUser, onAuth, getProfile, upsertProfile, getMyCrews,
                 computeChain, weekStartTs, mode };
 })();

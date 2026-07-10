@@ -54,6 +54,26 @@
   .crewitem .ci-chain b{font-size:20px;font-weight:900;color:var(--gold)}
   .crewitem .ci-chain span{display:block;font-size:11px;color:var(--dim)}
 
+  /* ── 계정/프로필 ── */
+  .profbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--card);overflow:hidden;
+    cursor:pointer;padding:0;display:grid;place-items:center;font-weight:900;color:var(--accent);box-shadow:var(--shadow)}
+  .profbtn img{width:100%;height:100%;object-fit:cover}
+  .segbtns{display:flex;background:var(--card2);border-radius:12px;padding:4px;margin-bottom:4px}
+  .segb{flex:1;border:none;background:transparent;font-weight:800;font-size:14px;padding:11px;border-radius:9px;cursor:pointer;color:var(--sub)}
+  .segb.on{background:#fff;color:var(--txt);box-shadow:var(--shadow)}
+  .avataredit{width:96px;height:96px;border-radius:50%;border:2px dashed #f2c99a;background:#fff8f0;color:var(--accent);
+    display:grid;place-items:center;font-weight:900;font-size:18px;margin:4px auto;cursor:pointer;overflow:hidden;line-height:1.15}
+  .avataredit img{width:100%;height:100%;object-fit:cover}
+  .avataredit small{font-size:11px;font-weight:700}
+  .avatarbig{width:92px;height:92px;border-radius:50%;margin:0 auto;display:grid;place-items:center;overflow:hidden;
+    font-size:38px;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow)}
+  .avatarbig img{width:100%;height:100%;object-fit:cover}
+  .statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+  .statc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 6px;text-align:center;box-shadow:var(--shadow)}
+  .statc b{display:block;font-size:22px;font-weight:900;color:var(--accent)}
+  .statc span{font-size:11px;color:var(--sub);font-weight:700}
+  .linkback{background:transparent;border:none;color:var(--sub);font-weight:800;font-size:15px;cursor:pointer;padding:0}
+
   /* chain hero */
   .chainhero{background:linear-gradient(165deg,#fff6e9,#ffffff 60%);border:1px solid #f4e6cf;
     border-radius:24px;padding:24px 20px;text-align:center;position:relative;overflow:hidden;
@@ -206,7 +226,10 @@
 <header>
   <div class="wrap">
     <div class="logo" onclick="goHome()"><span>⛓️</span> <b>쇠사슬</b></div>
-    <span class="mode" id="modeBadge">…</span>
+    <div style="display:flex;align-items:center;gap:9px">
+      <span class="mode" id="modeBadge">…</span>
+      <button class="profbtn" id="profBtn" style="display:none" onclick="renderProfile()"></button>
+    </div>
   </div>
 </header>
 
@@ -236,8 +259,7 @@
         <input name="cname" required placeholder="예: 새벽 여섯시 클럽" autocomplete="off"></div>
       <div class="field"><label>주간 목표 <span class="opt">(1인당 · 주 몇 번 인증?)</span></label>
         <div class="chips" id="goalChips"></div></div>
-      <div class="field"><label>내 이름/닉네임 <span class="opt">*</span></label>
-        <input name="oname" required placeholder="크루원들이 부를 이름" autocomplete="off"></div>
+      <p class="desc" id="createAs" style="margin-top:14px"></p>
       <button class="submit" type="submit" id="createBtn">크루 만들기</button>
       <button type="button" class="ghost-btn" data-close>닫기</button>
     </form>
@@ -263,8 +285,6 @@
       <p class="desc">친구가 준 4자리 코드를 넣으세요.</p>
       <div class="field"><label>초대 코드 <span class="opt">*</span></label>
         <input name="code" class="code-in" maxlength="4" required placeholder="ABCD" autocomplete="off"></div>
-      <div class="field"><label>내 이름/닉네임 <span class="opt">*</span></label>
-        <input name="jname" required placeholder="크루원들이 부를 이름" autocomplete="off"></div>
       <div class="field"><label>어떻게 참여할래요?</label>
         <div class="chips">
           <label class="chip"><input type="radio" name="role" value="member" checked><span>🏋️ 크루원 (같이 운동)</span></label>
@@ -336,12 +356,17 @@ const MOODS = ["🔥 빡세게","💪 가볍게","😮‍💨 힘듦","😌 개�
 const STICKERS = ["🔥","💪","👏","🫡","🙌","❤️"];
 const WEEK_MS = 7*24*3600*1000;
 
-/* ===================== 내 멤버십(로컬) ===================== */
-const meKey = "sasl_me";
+/* ===================== 계정 / 멤버십 ===================== */
+let ME = null;                   // 내 프로필 {id, nickname, avatar, bio}
+let MEMS = [];                   // 내 멤버십 [{crewId, memberId, role, name, code, crewName}]
+let MODE = "local";
+let pendingInvite = null;        // ?code= 로 들어온 초대 코드 (로그인 후 처리)
+const meKey = "sasl_me";         // 로컬 모드 멤버십 저장
 const getMe  = () => { try { return JSON.parse(localStorage.getItem(meKey)||"[]"); } catch { return []; } };
 const setMe  = a => localStorage.setItem(meKey, JSON.stringify(a));
 function addMe(m){ const a=getMe().filter(x=>String(x.crewId)!==String(m.crewId)); a.unshift(m); setMe(a); }
-const myMember = cid => getMe().find(x=>String(x.crewId)===String(cid));
+const myMember = cid => MEMS.find(x=>String(x.crewId)===String(cid));
+async function loadMemberships(){ MEMS = ME ? await DB.getMyCrews(ME.id) : []; }
 
 let VIEW = null;                 // null=홈, 아니면 crewId
 let cache = { crew:null, members:[], checkins:[] };
@@ -413,7 +438,7 @@ function render(){
 
 async function renderHome(){
   document.getElementById("actions").style.display="none";
-  const mine=getMe();
+  const mine=MEMS;
   let chains={};
   // 홈 카드용 고리 수(있으면 표시) — 가벼운 계산 위해 각 크루 최신값은 크루 진입 시 갱신됨
   let html="";
@@ -643,14 +668,16 @@ document.querySelectorAll(".modal").forEach(m=>m.onclick=e=>{ if(e.target===m) c
 document.getElementById("goalChips").innerHTML=[2,3,4,5,6].map((n,i)=>
   `<label class="chip"><input type="radio" name="goal" value="${n}" ${n===3?"checked":""}><span>주 ${n}회</span></label>`).join("");
 function openCreate(){ document.getElementById("createForm").style.display=""; document.getElementById("createDone").style.display="none";
-  document.getElementById("createForm").reset(); document.querySelector('input[name=goal][value="3"]').checked=true; openModal("createModal"); }
+  document.getElementById("createForm").reset(); document.querySelector('input[name=goal][value="3"]').checked=true;
+  document.getElementById("createAs").textContent=`👤 ${ME?ME.nickname:""} 님이 크루장이 돼요`; openModal("createModal"); }
 let pendingCrew=null, pendingCode=null, pendingName=null;
 document.getElementById("createForm").onsubmit=async e=>{
   e.preventDefault(); const btn=document.getElementById("createBtn"); btn.disabled=true; btn.textContent="만드는 중…";
   const fd=new FormData(e.target);
   try{
-    const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), ownerName:fd.get("oname").trim()});
-    addMe({crewId:crew.id, code:crew.code, crewName:crew.name, memberId:member.id, name:member.name, role:"member"});
+    const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), ownerName:ME.nickname, userId:MODE!=="local"?ME.id:null});
+    if(MODE==="local") addMe({crewId:crew.id, code:crew.code, crewName:crew.name, memberId:member.id, name:member.name, role:"member"});
+    await loadMemberships();
     pendingCrew=crew.id; pendingCode=crew.code; pendingName=crew.name;
     document.getElementById("createForm").style.display="none"; document.getElementById("createDone").style.display="";
     document.getElementById("newCode").textContent=crew.code;
@@ -669,9 +696,10 @@ document.getElementById("joinForm").onsubmit=async e=>{
   e.preventDefault(); const btn=document.getElementById("joinBtn"); btn.disabled=true; btn.textContent="참여 중…";
   const fd=new FormData(e.target);
   try{
-    const res=await DB.joinCrew({code:fd.get("code").trim().toUpperCase(), name:fd.get("jname").trim(), role:fd.get("role")});
+    const res=await DB.joinCrew({code:fd.get("code").trim().toUpperCase(), name:ME.nickname, role:fd.get("role"), userId:MODE!=="local"?ME.id:null});
     if(res.error){ alert(res.error); btn.disabled=false; btn.textContent="참여하기"; return; }
-    addMe({crewId:res.crew.id, code:res.crew.code, crewName:res.crew.name, memberId:res.member.id, name:res.member.name, role:fd.get("role")});
+    if(MODE==="local") addMe({crewId:res.crew.id, code:res.crew.code, crewName:res.crew.name, memberId:res.member.id, name:res.member.name, role:fd.get("role")});
+    await loadMemberships();
     closeModals(); go(res.crew.id);
   }catch(err){ alert("참여 실패: "+(err.message||err)); }
   finally{ btn.disabled=false; btn.textContent="참여하기"; }
@@ -763,18 +791,155 @@ document.getElementById("cheerForm").onsubmit=async e=>{
   finally{ btn.disabled=false; btn.textContent="응원 보내기"; }
 };
 
-/* ===================== 초기화 ===================== */
-(async function init(){
-  const m=await DB.mode(); const b=document.getElementById("modeBadge");
-  if(m==="supabase"){ b.textContent="● 실시간"; b.classList.add("live"); } else b.textContent="로컬";
-  // 초대 링크(?code=)로 들어온 경우
-  const code=new URLSearchParams(location.search).get("code");
+/* ===================== 계정: 로그인/회원가입 ===================== */
+function showProfBtn(){ const b=document.getElementById("profBtn"); if(!ME){ b.style.display="none"; return; }
+  b.style.display=""; b.innerHTML = ME.avatar?`<img src="${ME.avatar}">`:`<span>${esc((ME.nickname||"?").slice(0,1))}</span>`; }
+function hideProfBtn(){ document.getElementById("profBtn").style.display="none"; }
+
+function renderAuth(tab){
+  tab=tab||"login"; hideProfBtn(); document.getElementById("actions").style.display="none";
+  document.getElementById("app").innerHTML=`
+    <div style="padding:36px 0 8px;text-align:center">
+      <div style="font-size:42px">⛓️</div>
+      <h1 style="margin-top:10px">쇠사슬 시작하기</h1>
+      <p class="lead">계정을 만들면 어느 기기에서든 내 크루·기록·프로필이 이어져요.</p>
+    </div>
+    <div class="card">
+      <div class="segbtns">
+        <button class="segb ${tab==='login'?'on':''}" onclick="renderAuth('login')">로그인</button>
+        <button class="segb ${tab==='signup'?'on':''}" onclick="renderAuth('signup')">회원가입</button>
+      </div>
+      <div class="field"><label>이메일</label><input id="authEmail" type="email" placeholder="you@wisc.edu" autocomplete="email"></div>
+      <div class="field"><label>비밀번호 <span class="opt">(6자 이상)</span></label><input id="authPw" type="password" placeholder="비밀번호" autocomplete="${tab==='signup'?'new-password':'current-password'}"></div>
+      <button class="btn primary" style="margin-top:18px" id="authBtn" onclick="doAuth('${tab}')">${tab==='signup'?'회원가입':'로그인'}</button>
+      <p id="authMsg" style="font-size:13px;margin-top:10px;text-align:center;color:var(--danger)"></p>
+    </div>`;
+}
+async function doAuth(tab){
+  const email=document.getElementById("authEmail").value.trim(), pw=document.getElementById("authPw").value;
+  const msg=document.getElementById("authMsg"), btn=document.getElementById("authBtn");
+  msg.style.color="var(--danger)";
+  if(!email||!pw){ msg.textContent="이메일과 비밀번호를 입력하세요"; return; }
+  btn.disabled=true; btn.textContent="처리 중…";
+  try{
+    if(tab==="signup"){
+      await DB.signUp(email,pw);
+      const u=await DB.currentUser();
+      if(!u){ msg.style.color="var(--ok)"; msg.textContent="확인 메일을 보냈어요. 인증 후 로그인하세요."; btn.disabled=false; btn.textContent="회원가입"; return; }
+    } else { await DB.signIn(email,pw); }
+    await bootstrap();
+  }catch(err){ msg.textContent=(err.message||err); btn.disabled=false; btn.textContent=tab==='signup'?'회원가입':'로그인'; }
+}
+
+/* ===================== 프로필 만들기/수정 ===================== */
+let pendingAvatar="", editingProfile=false;
+function renderProfileSetup(user){
+  hideProfBtn(); document.getElementById("actions").style.display="none";
+  pendingAvatar = editingProfile && ME ? (ME.avatar||"") : "";
+  const nick = editingProfile && ME ? ME.nickname : "";
+  const bio = editingProfile && ME ? (ME.bio||"") : "";
+  document.getElementById("app").innerHTML=`
+    <div style="padding:26px 0 6px;text-align:center">
+      <div style="font-size:38px">${editingProfile?"✏️":"🙌"}</div>
+      <h1 style="margin-top:8px">${editingProfile?"프로필 수정":"프로필 만들기"}</h1>
+      <p class="lead">크루원들에게 보일 프로필이에요.</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="avataredit" id="avatarPrev" onclick="document.getElementById('avatarInput').click()">${pendingAvatar?`<img src="${pendingAvatar}">`:"＋<br><small>사진</small>"}</div>
+      <input type="file" id="avatarInput" accept="image/*" hidden>
+      <div class="field" style="text-align:left"><label>닉네임 <span class="opt">*</span></label><input id="pfNick" maxlength="12" placeholder="예: 민준" value="${esc(nick)}"></div>
+      <div class="field" style="text-align:left"><label>한줄 소개 <span class="opt">(선택)</span></label><input id="pfBio" maxlength="40" placeholder="예: 3대 400 목표 / 새벽러" value="${esc(bio)}"></div>
+      <button class="btn primary" style="margin-top:18px" id="pfSaveBtn" onclick="saveProfile('${user.id}')">${editingProfile?"저장":"시작하기"}</button>
+      <p id="pfMsg" style="color:var(--danger);font-size:13px;margin-top:8px"></p>
+    </div>`;
+  document.getElementById("avatarInput").onchange=async e=>{
+    const f=e.target.files&&e.target.files[0]; if(!f) return;
+    try{ pendingAvatar=await downscaleImage(f,256,0.7);
+      document.getElementById("avatarPrev").innerHTML=`<img src="${pendingAvatar}">`;
+    }catch(_){ alert("사진 처리 실패"); }
+  };
+}
+async function saveProfile(uid){
+  const nick=document.getElementById("pfNick").value.trim();
+  if(!nick){ document.getElementById("pfMsg").textContent="닉네임을 입력하세요"; return; }
+  const btn=document.getElementById("pfSaveBtn"); btn.disabled=true; btn.textContent="저장 중…";
+  try{
+    const p=await DB.upsertProfile({id:uid, nickname:nick, avatar:pendingAvatar, bio:document.getElementById("pfBio").value.trim()});
+    ME={id:uid, ...p};
+    if(editingProfile){ editingProfile=false; showProfBtn(); renderProfile(); }
+    else { await afterLogin(); }
+  }catch(err){ document.getElementById("pfMsg").textContent=(err.message||err); btn.disabled=false; btn.textContent="저장"; }
+}
+
+/* ===================== 내 프로필 화면 ===================== */
+async function renderProfile(){
+  document.getElementById("actions").style.display="none";
+  document.getElementById("app").innerHTML=`<div class="empty" style="padding:50px">불러오는 중…</div>`;
+  let totalCk=0, totalPhoto=0, bestChain=0;
+  for(const mem of MEMS){
+    try{
+      const [crew,members,checkins]=await Promise.all([DB.getCrew(mem.crewId),DB.getMembers(mem.crewId),DB.getCheckins(mem.crewId)]);
+      const mine=checkins.filter(c=>String(c.member_id)===String(mem.memberId));
+      totalCk+=mine.filter(c=>(c.type||"workout")==="workout").length;
+      totalPhoto+=mine.filter(c=>c.photo).length;
+      if(crew){ const r=DB.computeChain(crew,members,checkins); bestChain=Math.max(bestChain,r.chain); }
+    }catch(_){}
+  }
+  const {cur}=tierOf(bestChain);
+  document.getElementById("app").innerHTML=`
+    <div style="padding:16px 0 4px"><button class="linkback" onclick="render()">← 뒤로</button></div>
+    <div class="card" style="text-align:center">
+      <div class="avatarbig">${ME.avatar?`<img src="${ME.avatar}">`:esc((ME.nickname||"?").slice(0,1))}</div>
+      <div style="font-size:22px;font-weight:900;margin-top:12px">${esc(ME.nickname)}</div>
+      ${ME.bio?`<div style="color:var(--sub);font-size:14px;margin-top:4px">${esc(ME.bio)}</div>`:""}
+      <div class="tier" style="color:${cur.color};margin-top:12px">${cur.emoji} ${cur.name}</div>
+    </div>
+    <div class="statgrid">
+      <div class="statc"><b>${MEMS.length}</b><span>크루</span></div>
+      <div class="statc"><b>${totalCk}</b><span>총 인증</span></div>
+      <div class="statc"><b>${bestChain}</b><span>최고 고리</span></div>
+      <div class="statc"><b>${totalPhoto}</b><span>인증샷</span></div>
+    </div>
+    <button class="btn ghost" style="margin-top:16px" onclick="openEditProfile()">프로필 수정</button>
+    <button class="btn ghost" style="margin-top:10px;color:var(--danger)" onclick="doLogout()">로그아웃</button>`;
+}
+function openEditProfile(){ editingProfile=true; renderProfileSetup({id:ME.id}); }
+async function doLogout(){ await DB.signOut(); ME=null; MEMS=[]; VIEW=null; localStorage.removeItem("sasl_current"); await bootstrap(); }
+
+/* ===================== 초기화 / 인증 게이트 ===================== */
+async function afterLogin(){
+  showProfBtn();
+  await loadMemberships();
   const cur=localStorage.getItem("sasl_current");
-  if(cur && myMember(cur)) VIEW=cur;
+  VIEW = (cur && MEMS.some(x=>String(x.crewId)===String(cur))) ? cur : null;
   render();
-  if(code && !getMe().some(x=>x.code===code.toUpperCase())){ openJoin(code.toUpperCase()); }
-  // 라이브 갱신(모달 없을 때만)
-  setInterval(()=>{ if(VIEW && !document.querySelector(".modal.open")) renderCrew(VIEW); }, 25000);
+  if(pendingInvite && !MEMS.some(x=>x.code===pendingInvite)){ openJoin(pendingInvite); }
+  pendingInvite=null;
+}
+let booting=false;
+async function bootstrap(){
+  if(booting) return; booting=true;
+  try{
+    const user=await DB.currentUser();
+    if(!user){ ME=null; hideProfBtn(); renderAuth("login"); return; }
+    let profile=null;
+    try{ profile=await DB.getProfile(user.id); }
+    catch(e){ hideProfBtn();
+      document.getElementById("app").innerHTML=`<div class="card" style="margin-top:30px"><div class="empty">프로필 테이블이 아직 없어요.<br>Supabase에서 <b>schema_auth.sql</b>을 먼저 실행해주세요.<br><br><button class="btn ghost" onclick="doLogout()" style="width:auto;display:inline-block;padding:8px 16px">로그아웃</button></div></div>`;
+      return; }
+    if(!profile){ ME=null; renderProfileSetup(user); return; }
+    ME={id:user.id, ...profile};
+    await afterLogin();
+  } finally { booting=false; }
+}
+(async function init(){
+  MODE=await DB.mode(); const b=document.getElementById("modeBadge");
+  if(MODE==="supabase"){ b.textContent="● 실시간"; b.classList.add("live"); } else b.textContent="로컬";
+  const code=new URLSearchParams(location.search).get("code");
+  pendingInvite = code ? code.toUpperCase() : null;
+  DB.onAuth(()=>bootstrap());
+  await bootstrap();
+  setInterval(()=>{ if(VIEW && ME && !document.querySelector(".modal.open")) renderCrew(VIEW); }, 25000);
 })();
 </script>
 </body>
