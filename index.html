@@ -304,7 +304,9 @@
       <h2>10초 인증 ✅</h2>
       <p class="desc">오늘 운동 완료! 부위만 찍고 끝. 고리 +1 ⛓️</p>
       <div id="checkTimer"></div>
-      <div class="field"><label>오늘 부위 <span class="opt">(여러 개 가능)</span></label>
+      <div class="field"><label>오늘 운동 <span class="req">*</span></label>
+        <div class="chips" id="actChips"></div></div>
+      <div class="field" id="subpartField" style="display:none"><label>부위 <span class="opt">(헬스 · 여러 개 가능)</span></label>
         <div class="chips" id="partChips"></div></div>
       <div class="field"><label>오늘 느낌 <span class="opt">(선택)</span></label>
         <div class="chips" id="moodChips"></div></div>
@@ -350,7 +352,9 @@
 <script src="db.js"></script>
 <script>
 /* ===================== 상수 ===================== */
-const PARTS = ["가슴","등","어깨","팔","하체","복근","유산소","전신"];
+const ACTS = [["헬스","🏋️"],["러닝","🏃"],["수영","🏊"],["홈트","🏠"],["요가","🧘"],["클라이밍","🧗"],["자전거","🚴"],["구기","⚽"],["기타","✨"]];
+const ACT_EMOJI = Object.fromEntries(ACTS);
+const PARTS = ["가슴","등","어깨","팔","하체","복근","유산소","전신"];   // 헬스 하위 부위
 const PART_EMOJI = {"가슴":"🎽","등":"🔙","어깨":"🏔️","팔":"💪","하체":"🦵","복근":"🧊","유산소":"🏃","전신":"🔥"};
 const MOODS = ["🔥 빡세게","💪 가볍게","😮‍💨 힘듦","😌 개운"];
 const STICKERS = ["🔥","💪","👏","🫡","🙌","❤️"];
@@ -584,11 +588,11 @@ async function renderCrew(cid){
             <div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--gold);font-size:11px;font-weight:800">가디언</span></div>
               <div class="ft">${esc(c.note||"응원을 보냈어요")}</div></div>
             <div class="fago">${ago(c.created_at)}</div></div>`;
-          const parts=(c.part||"").split("/").filter(Boolean);
+          const act=c.part||"";
           return `<div class="item">
-            <div class="fic">${PART_EMOJI[parts[0]]||"⛓️"}</div>
+            <div class="fic">${ACT_EMOJI[act]||"⛓️"}</div>
             <div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">인증 ⛓️</span></div>
-              <div class="ft">${parts.map(p=>`<span class="ftag">${esc(p)}</span>`).join("")}${esc(c.note||"")}</div>
+              <div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>
               ${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy" alt="인증샷"></div>`:""}</div>
             <div class="fago">${ago(c.created_at)}</div></div>`;
         }).join("") || `<div class="empty">아직 인증이 없어요. 첫 고리를 채워보세요!</div>`}
@@ -706,13 +710,20 @@ document.getElementById("joinForm").onsubmit=async e=>{
 };
 
 /* ---- 10초 인증 ---- */
+document.getElementById("actChips").innerHTML=ACTS.map(([k,e])=>
+  `<label class="chip"><input type="radio" name="act" value="${k}"><span>${e} ${k}</span></label>`).join("");
 document.getElementById("partChips").innerHTML=PARTS.map(p=>
-  `<label class="chip"><input type="checkbox" name="part" value="${p}"><span>${PART_EMOJI[p]} ${p}</span></label>`).join("");
+  `<label class="chip"><input type="checkbox" name="subpart" value="${p}"><span>${PART_EMOJI[p]} ${p}</span></label>`).join("");
 document.getElementById("moodChips").innerHTML=MOODS.map((m,i)=>
   `<label class="chip"><input type="radio" name="mood" value="${m}"><span>${m}</span></label>`).join("");
+// 헬스 고를 때만 부위 하위옵션 노출
+document.getElementById("actChips").addEventListener("change",e=>{
+  if(e.target.name==="act") document.getElementById("subpartField").style.display = e.target.value==="헬스" ? "" : "none";
+});
 function openCheck(){
   document.getElementById("checkForm").style.display=""; document.getElementById("checkDone").style.display="none";
   document.getElementById("checkForm").reset(); clearPhoto();
+  document.getElementById("subpartField").style.display="none";
   const live=activeWorkouts().find(a=>String(a.m.id)===String(myMember(VIEW).memberId));
   document.getElementById("checkTimer").innerHTML = live?`<div class="timerbar">⏱ 운동 시작한 지 ${live.mins}분 — 인증하면 마무리돼요</div>`:"";
   openModal("checkModal");
@@ -720,11 +731,13 @@ function openCheck(){
 document.getElementById("checkForm").onsubmit=async e=>{
   e.preventDefault(); const btn=document.getElementById("checkBtn"); btn.disabled=true; btn.textContent="기록 중…";
   const fd=new FormData(e.target); const mem=myMember(VIEW);
-  const parts=fd.getAll("part");
-  if(!parts.length){ alert("부위를 하나 이상 골라주세요"); btn.disabled=false; btn.textContent="인증하고 고리 +1"; return; }
-  const mood=fd.get("mood")||""; const note=[mood,(fd.get("note")||"").trim()].filter(Boolean).join(" ");
+  const act=fd.get("act");
+  if(!act){ alert("오늘 한 운동을 골라주세요"); btn.disabled=false; btn.textContent="인증하고 고리 +1"; return; }
+  const sub=fd.getAll("subpart");
+  const mood=fd.get("mood")||"";
+  const note=[ (act==="헬스"&&sub.length)?("💪 "+sub.join("·")):"", mood, (fd.get("note")||"").trim() ].filter(Boolean).join("  ");
   try{
-    await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"workout", part:parts.join("/"), note, photo:pendingPhoto});
+    await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"workout", part:act, note, photo:pendingPhoto});
     const [crew,members,checkins]=await Promise.all([DB.getCrew(VIEW),DB.getMembers(VIEW),DB.getCheckins(VIEW)]);
     cache={crew,members,checkins};
     const r=DB.computeChain(crew,members,checkins);
