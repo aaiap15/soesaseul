@@ -374,7 +374,8 @@ const getMe  = () => { try { return JSON.parse(localStorage.getItem(meKey)||"[]"
 const setMe  = a => localStorage.setItem(meKey, JSON.stringify(a));
 function addMe(m){ const a=getMe().filter(x=>String(x.crewId)!==String(m.crewId)); a.unshift(m); setMe(a); }
 const myMember = cid => MEMS.find(x=>String(x.crewId)===String(cid));
-async function loadMemberships(){ MEMS = ME ? await DB.getMyCrews(ME.id) : []; }
+// 로그인 없음 → 내 크루 목록은 이 기기(localStorage)에 저장
+async function loadMemberships(){ MEMS = ME ? getMe() : []; }
 
 let VIEW = null;                 // null=홈, 아니면 crewId
 let cache = { crew:null, members:[], checkins:[] };
@@ -684,8 +685,8 @@ document.getElementById("createForm").onsubmit=async e=>{
   e.preventDefault(); const btn=document.getElementById("createBtn"); btn.disabled=true; btn.textContent="만드는 중…";
   const fd=new FormData(e.target);
   try{
-    const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), ownerName:ME.nickname, userId:MODE!=="local"?ME.id:null});
-    if(MODE==="local") addMe({crewId:crew.id, code:crew.code, crewName:crew.name, memberId:member.id, name:member.name, role:"member"});
+    const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), ownerName:ME.nickname, userId:null});
+    addMe({crewId:crew.id, code:crew.code, crewName:crew.name, memberId:member.id, name:member.name, role:"member"});
     await loadMemberships();
     pendingCrew=crew.id; pendingCode=crew.code; pendingName=crew.name;
     document.getElementById("createForm").style.display="none"; document.getElementById("createDone").style.display="";
@@ -705,9 +706,9 @@ document.getElementById("joinForm").onsubmit=async e=>{
   e.preventDefault(); const btn=document.getElementById("joinBtn"); btn.disabled=true; btn.textContent="참여 중…";
   const fd=new FormData(e.target);
   try{
-    const res=await DB.joinCrew({code:fd.get("code").trim().toUpperCase(), name:ME.nickname, role:fd.get("role"), userId:MODE!=="local"?ME.id:null});
+    const res=await DB.joinCrew({code:fd.get("code").trim().toUpperCase(), name:ME.nickname, role:fd.get("role"), userId:null});
     if(res.error){ alert(res.error); btn.disabled=false; btn.textContent="참여하기"; return; }
-    if(MODE==="local") addMe({crewId:res.crew.id, code:res.crew.code, crewName:res.crew.name, memberId:res.member.id, name:res.member.name, role:fd.get("role")});
+    addMe({crewId:res.crew.id, code:res.crew.code, crewName:res.crew.name, memberId:res.member.id, name:res.member.name, role:fd.get("role")});
     await loadMemberships();
     closeModals(); go(res.crew.id);
   }catch(err){ alert("참여 실패: "+(err.message||err)); }
@@ -915,7 +916,7 @@ async function doAuth(tab){
 
 /* ===================== 프로필 만들기/수정 ===================== */
 let pendingAvatar="", editingProfile=false;
-function renderProfileSetup(user){
+function renderProfileSetup(){
   hideProfBtn(); document.getElementById("actions").style.display="none";
   pendingAvatar = editingProfile && ME ? (ME.avatar||"") : "";
   const nick = editingProfile && ME ? ME.nickname : "";
@@ -931,7 +932,7 @@ function renderProfileSetup(user){
       <input type="file" id="avatarInput" accept="image/*" hidden>
       <div class="field" style="text-align:left"><label>닉네임 <span class="opt">*</span></label><input id="pfNick" maxlength="12" placeholder="예: 민준" value="${esc(nick)}"></div>
       <div class="field" style="text-align:left"><label>한줄 소개 <span class="opt">(선택)</span></label><input id="pfBio" maxlength="40" placeholder="예: 3대 400 목표 / 새벽러" value="${esc(bio)}"></div>
-      <button class="btn primary" style="margin-top:18px" id="pfSaveBtn" onclick="saveProfile('${user.id}')">${editingProfile?"저장":"시작하기"}</button>
+      <button class="btn primary" style="margin-top:18px" id="pfSaveBtn" onclick="saveProfile()">${editingProfile?"저장":"시작하기"}</button>
       <p id="pfMsg" style="color:var(--danger);font-size:13px;margin-top:8px"></p>
     </div>`;
   document.getElementById("avatarInput").onchange=async e=>{
@@ -941,13 +942,13 @@ function renderProfileSetup(user){
     }catch(_){ alert("사진 처리 실패"); }
   };
 }
-async function saveProfile(uid){
+async function saveProfile(){
   const nick=document.getElementById("pfNick").value.trim();
   if(!nick){ document.getElementById("pfMsg").textContent="닉네임을 입력하세요"; return; }
   const btn=document.getElementById("pfSaveBtn"); btn.disabled=true; btn.textContent="저장 중…";
   try{
-    const p=await DB.upsertProfile({id:uid, nickname:nick, avatar:pendingAvatar, bio:document.getElementById("pfBio").value.trim()});
-    ME={id:uid, ...p};
+    const p=await DB.upsertProfile({nickname:nick, avatar:pendingAvatar, bio:document.getElementById("pfBio").value.trim()});
+    ME=p;
     if(editingProfile){ editingProfile=false; showProfBtn(); renderProfile(); }
     else { await afterLogin(); }
   }catch(err){ document.getElementById("pfMsg").textContent=(err.message||err); btn.disabled=false; btn.textContent="저장"; }
@@ -983,10 +984,14 @@ async function renderProfile(){
       <div class="statc"><b>${totalPhoto}</b><span>인증샷</span></div>
     </div>
     <button class="btn ghost" style="margin-top:16px" onclick="openEditProfile()">프로필 수정</button>
-    <button class="btn ghost" style="margin-top:10px;color:var(--danger)" onclick="doLogout()">로그아웃</button>`;
+    <button class="btn ghost" style="margin-top:10px;color:var(--danger)" onclick="doLogout()">이 기기에서 초기화</button>`;
 }
-function openEditProfile(){ editingProfile=true; renderProfileSetup({id:ME.id}); }
-async function doLogout(){ await DB.signOut(); ME=null; MEMS=[]; VIEW=null; localStorage.removeItem("sasl_current"); await bootstrap(); }
+function openEditProfile(){ editingProfile=true; renderProfileSetup(); }
+async function doLogout(){
+  if(!confirm("이 기기에서 프로필과 크루 목록을 초기화할까요?\n(크루 자체는 안 지워지고, 코드로 다시 들어올 수 있어요)")) return;
+  localStorage.removeItem("sasl_profile_local"); localStorage.removeItem("sasl_me"); localStorage.removeItem("sasl_current");
+  ME=null; MEMS=[]; VIEW=null; hideProfBtn(); await bootstrap();
+}
 
 /* ===================== 초기화 / 인증 게이트 ===================== */
 async function afterLogin(){
@@ -998,28 +1003,18 @@ async function afterLogin(){
   if(pendingInvite && !MEMS.some(x=>x.code===pendingInvite)){ openJoin(pendingInvite); }
   pendingInvite=null;
 }
-let booting=false;
 async function bootstrap(){
-  if(booting) return; booting=true;
-  try{
-    const user=await DB.currentUser();
-    if(!user){ ME=null; hideProfBtn(); renderAuth("login"); return; }
-    let profile=null;
-    try{ profile=await DB.getProfile(user.id); }
-    catch(e){ hideProfBtn();
-      document.getElementById("app").innerHTML=`<div class="card" style="margin-top:30px"><div class="empty">프로필 테이블이 아직 없어요.<br>Supabase에서 <b>schema_auth.sql</b>을 먼저 실행해주세요.<br><br><button class="btn ghost" onclick="doLogout()" style="width:auto;display:inline-block;padding:8px 16px">로그아웃</button></div></div>`;
-      return; }
-    if(!profile){ ME=null; renderProfileSetup(user); return; }
-    ME={id:user.id, ...profile};
-    await afterLogin();
-  } finally { booting=false; }
+  // 로그인 없음: 이 기기에 닉네임(프로필)만 있으면 바로 시작
+  const profile=await DB.getProfile();
+  if(!profile || !profile.nickname){ ME=null; renderProfileSetup(); return; }
+  ME=profile;
+  await afterLogin();
 }
 (async function init(){
   MODE=await DB.mode(); const b=document.getElementById("modeBadge");
   if(MODE==="supabase"){ b.textContent="● 실시간"; b.classList.add("live"); } else b.textContent="로컬";
   const code=new URLSearchParams(location.search).get("code");
   pendingInvite = code ? code.toUpperCase() : null;
-  DB.onAuth(()=>bootstrap());
   await bootstrap();
   setInterval(()=>{ if(VIEW && ME && !document.querySelector(".modal.open")) renderCrew(VIEW); }, 25000);
 })();

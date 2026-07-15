@@ -329,17 +329,11 @@
   }
   function onAuth(cb) { if (sb) sb.auth.onAuthStateChange((_e, session) => cb(session ? session.user : null)); }
 
-  async function getProfile(id) {
-    await ready;
-    if (sb) { const { data, error } = await sb.from("profiles").select("*").eq("id", id).maybeSingle(); if (error) throw error; return data; }
+  // 로그인 없이 사용 → 프로필은 이 기기(localStorage)에만 저장
+  async function getProfile() {
     try { return JSON.parse(localStorage.getItem("sasl_profile_local") || "null"); } catch { return null; }
   }
   async function upsertProfile(p) {
-    await ready;
-    if (sb) {
-      const { data, error } = await sb.from("profiles").upsert({ id: p.id, nickname: p.nickname, avatar: p.avatar || "", bio: p.bio || "" }).select().single();
-      if (error) throw error; return data;
-    }
     const row = { id: "local", nickname: p.nickname, avatar: p.avatar || "", bio: p.bio || "" };
     localStorage.setItem("sasl_profile_local", JSON.stringify(row)); return row;
   }
