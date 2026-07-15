@@ -112,6 +112,9 @@
   @keyframes beat{50%{box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 0 0 3px rgba(245,80,26,.2),0 0 18px rgba(245,80,26,.7)}}
   .lnk.pop{animation:pop .5s cubic-bezier(.2,1.5,.4,1) both}
   @keyframes pop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.22)}100%{transform:scale(1);opacity:1}}
+  .sharebtn{margin-top:14px;width:100%;background:linear-gradient(120deg,#fff,#fff);border:1.5px solid #f2c99a;
+    color:var(--accent);font-weight:850;font-size:14.5px;padding:14px;border-radius:13px;cursor:pointer;box-shadow:var(--shadow)}
+  .sharebtn:active{transform:translateY(1px)}
   .milestone{margin-top:14px;text-align:left}
   .milestone .mt{display:flex;justify-content:space-between;font-size:11.5px;font-weight:800;color:var(--sub);margin-bottom:6px}
   .mbar{height:9px;background:#f0ece2;border-radius:99px;overflow:hidden}
@@ -326,7 +329,8 @@
       <div class="ic">⛓️</div>
       <h2 id="checkDoneT">+1 고리!</h2>
       <p id="checkDoneP"></p>
-      <button class="submit" id="checkDoneOk" style="margin-top:20px">사슬 보러가기 ⛓️</button>
+      <button class="submit" id="checkDoneShare" style="margin-top:20px">📸 스토리에 자랑하기</button>
+      <button class="ghost-btn" id="checkDoneOk">사슬 보러가기 ⛓️</button>
     </div>
   </div>
 </div>
@@ -547,6 +551,7 @@ async function renderCrew(cid){
       </div>
       ${milestone}
       ${status}
+      <button class="sharebtn" onclick="shareCurrentCrew()">📸 스토리에 우리 사슬 자랑하기</button>
     </div>
 
     <div class="card">
@@ -752,6 +757,7 @@ document.getElementById("checkForm").onsubmit=async e=>{
 };
 // 인증 완료 → 닫으면서 크루 화면에서 새 고리가 튕겨 붙는 애니메이션 재생
 document.getElementById("checkDoneOk").onclick=()=>{ closeModals(); if(VIEW) renderCrew(VIEW); };
+document.getElementById("checkDoneShare").onclick=shareCurrentCrew;
 
 // ---- 인증샷: 촬영/업로드 + 클라이언트 압축 ----
 let pendingPhoto="";
@@ -788,6 +794,69 @@ function openLightbox(id){ const c=cache.checkins.find(x=>String(x.id)===String(
   document.getElementById("lightboxCap").textContent=`${c.name} · ${(c.part||"").split("/").join(" ")} · ${ago(c.created_at)}`;
   document.getElementById("lightbox").classList.add("open"); document.body.style.overflow="hidden"; }
 function closeLightbox(){ document.getElementById("lightbox").classList.remove("open"); document.body.style.overflow=""; }
+
+/* ===================== 공유 카드 (스토리 규격 1080×1920) ===================== */
+const FONT='-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif';
+function loadImg(src){ return new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=()=>rej(new Error("img")); i.src=src; }); }
+function roundRect(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+function drawLinks(g,cx,y,n){
+  const lw=46,lh=23,gap=-11,total=n*(lw+gap)-gap; let x=cx-total/2;
+  for(let i=0;i<n;i++){ const gr=g.createLinearGradient(x,y-lh/2,x,y+lh/2); gr.addColorStop(0,"#ffe6a8"); gr.addColorStop(1,"#d98a00");
+    g.fillStyle=gr; roundRect(g,x,y-lh/2,lw,lh,11); g.fill(); g.strokeStyle="rgba(170,110,0,.4)"; g.lineWidth=2; g.stroke(); x+=lw+gap; }
+}
+async function drawCollage(g,photos,x,y,w,h){
+  if(!photos.length){ g.textAlign="center"; g.fillStyle="#dfe3ea"; g.font=`220px ${FONT}`; g.fillText("⛓️",x+w/2,y+h/2+70); return; }
+  const imgs=(await Promise.all(photos.map(p=>loadImg(p).catch(()=>null)))).filter(Boolean);
+  const n=Math.min(imgs.length,4), gap=16; let cells;
+  const cw2=(w-gap)/2, ch2=(h-gap)/2;
+  if(n===1) cells=[[x,y,w,h]];
+  else if(n===2) cells=[[x,y,cw2,h],[x+cw2+gap,y,cw2,h]];
+  else if(n===3) cells=[[x,y,cw2,h],[x+cw2+gap,y,cw2,ch2],[x+cw2+gap,y+ch2+gap,cw2,ch2]];
+  else cells=[[x,y,cw2,ch2],[x+cw2+gap,y,cw2,ch2],[x,y+ch2+gap,cw2,ch2],[x+cw2+gap,y+ch2+gap,cw2,ch2]];
+  imgs.slice(0,n).forEach((img,i)=>{
+    const [cx,cy,cw,ch]=cells[i]; g.save(); roundRect(g,cx,cy,cw,ch,28); g.clip();
+    const ar=img.width/img.height, car=cw/ch; let dw,dh,dx,dy;
+    if(ar>car){ dh=ch; dw=ch*ar; dx=cx-(dw-cw)/2; dy=cy; } else { dw=cw; dh=cw/ar; dx=cx; dy=cy-(dh-ch)/2; }
+    g.drawImage(img,dx,dy,dw,dh); g.restore();
+    g.strokeStyle="rgba(0,0,0,.06)"; g.lineWidth=2; roundRect(g,cx,cy,cw,ch,28); g.stroke();
+  });
+}
+async function drawCardBlob({crewName,chain,tier,best,photos}){
+  const W=1080,H=1920, cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d");
+  const bg=g.createLinearGradient(0,0,0,H); bg.addColorStop(0,"#fff2da"); bg.addColorStop(.5,"#fff9f0"); bg.addColorStop(1,"#ffffff");
+  g.fillStyle=bg; g.fillRect(0,0,W,H);
+  g.textAlign="center";
+  g.fillStyle="#f5501a"; g.font=`800 46px ${FONT}`; g.fillText("⛓️ 쇠사슬",W/2,150);
+  g.fillStyle="#1a1d23"; g.font=`900 62px ${FONT}`; g.fillText(crewName.length>14?crewName.slice(0,14)+"…":crewName,W/2,244);
+  g.fillStyle=tier.color; g.font=`800 42px ${FONT}`; g.fillText(`${tier.emoji} ${tier.name}`,W/2,320);
+  const ng=g.createLinearGradient(0,400,0,760); ng.addColorStop(0,"#ffc94d"); ng.addColorStop(1,"#ff7a42");
+  g.fillStyle=ng; g.font=`900 340px ${FONT}`; g.textBaseline="middle"; g.fillText(String(chain),W/2,600); g.textBaseline="alphabetic";
+  g.fillStyle="#667085"; g.font=`800 66px ${FONT}`; g.fillText("고리",W/2,825);
+  drawLinks(g,W/2,905,Math.min(Math.max(chain,1),16));
+  g.fillStyle="#98a2b3"; g.font=`600 38px ${FONT}`; g.fillText(`최고 기록 ${best}고리`,W/2,985);
+  await drawCollage(g,photos,90,1055,W-180,600);
+  g.fillStyle="#667085"; g.font=`700 40px ${FONT}`; g.fillText("매일 같이 쌓는 운동 사슬",W/2,1770);
+  g.fillStyle="#f5501a"; g.font=`800 42px ${FONT}`; g.fillText("soesaseul.github.io",W/2,1832);
+  return await new Promise(res=>cv.toBlob(res,"image/png",.92));
+}
+async function shareCurrentCrew(){
+  if(!cache.crew){ return; }
+  const r=DB.computeChain(cache.crew,cache.members,cache.checkins);
+  const {cur}=tierOf(r.chain);
+  const photos=cache.checkins.filter(c=>(c.type||"workout")==="workout"&&c.photo).slice(0,4).map(c=>c.photo);
+  toast("카드 만드는 중… 📸");
+  try{
+    const blob=await drawCardBlob({crewName:cache.crew.name,chain:r.chain,tier:cur,best:r.best,photos});
+    const file=new File([blob],"soesaseul.png",{type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],text:`우리 크루 '${cache.crew.name}' ${r.chain}고리 ⛓️\n같이 운동 사슬 쌓는 중 · soesaseul.github.io #쇠사슬`});
+    } else {
+      const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=`soesaseul_${r.chain}고리.png`; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),4000);
+      toast("이미지 저장됨! 인스타 스토리에 올려보세요 📸");
+    }
+  }catch(err){ if(err && err.name!=="AbortError") toast("공유 실패 — 다시 시도해줘"); }
+}
 
 /* ---- 가디언 응원 ---- */
 document.getElementById("stickerChips").innerHTML=STICKERS.map((s,i)=>
