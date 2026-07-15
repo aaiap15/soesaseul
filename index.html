@@ -41,6 +41,9 @@
 
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
   .card + .card{margin-top:12px}
+  .how{display:flex;flex-direction:column;gap:15px}
+  .hs{display:flex;align-items:center;gap:13px;font-size:15px;font-weight:600}
+  .he{width:40px;height:40px;border-radius:12px;background:var(--card2);display:grid;place-items:center;font-size:20px;flex:none}
 
   /* home crew list */
   .crewitem{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);
@@ -345,7 +348,7 @@
       <div class="field"><label>스티커</label>
         <div class="chips" id="stickerChips"></div></div>
       <div class="field"><label>한마디 <span class="opt">(선택)</span></label>
-        <textarea name="note" placeholder="예: 오늘도 화이팅! 빠지면 치킨이다 🍗"></textarea></div>
+        <textarea name="note" placeholder="예: 오늘도 화이팅 💪"></textarea></div>
       <button class="submit" type="submit" id="cheerBtn">응원 보내기</button>
       <button type="button" class="ghost-btn" data-close>닫기</button>
     </form>
@@ -452,7 +455,7 @@ async function renderHome(){
   // 홈 카드용 고리 수(있으면 표시) — 가벼운 계산 위해 각 크루 최신값은 크루 진입 시 갱신됨
   let html="";
   if(mine.length){
-    html += `<div style="padding:22px 0 6px"><h1>내 크루 ⛓️</h1><p class="lead">들어가서 오늘 인증하고 고리를 쌓으세요.</p></div>`;
+    html += `<div style="padding:22px 0 10px"><h1>내 크루 ⛓️</h1></div>`;
     html += mine.map(m=>`
       <div class="crewitem" onclick="go('${m.crewId}')">
         <div class="ci-ic">⛓️</div>
@@ -465,17 +468,15 @@ async function renderHome(){
       <button class="btn ghost" onclick="openJoin()">코드로 참여하기</button>`;
   } else {
     html = `
-      <div style="padding:34px 0 8px">
-        <h1>같이 운동하자는 약속,<br><span class="accent">이번엔 안 깨지게.</span></h1>
-        <p class="lead">크루의 <b>쇠사슬</b>로 서로 끌고 가요. 한 명이 빠지면 사슬이 끊겨요.<br>인증 1번 = 고리 +1 ⛓️</p>
+      <div style="padding:44px 0 12px">
+        <h1>같이 운동,<br><span class="accent">안 깨지게.</span></h1>
+        <p class="lead">친구랑 크루를 만들면 <b>사슬</b>이 쌓여요.<br>한 명이 빠지면 끊겨요 ⛓️</p>
       </div>
       <div class="card">
-        <div style="font-weight:800;font-size:15px;margin-bottom:4px">이렇게 돼요</div>
-        <div style="color:var(--sub);font-size:13.5px;line-height:1.7">
-          1️⃣ 아는 친구끼리 크루 생성 → 코드 공유<br>
-          2️⃣ 매주 목표만큼 <b>10초 인증</b> (부위만 찍기)<br>
-          3️⃣ 다 채우면 사슬이 자라고, 한 명이라도 빠지면 <b>절단</b> + 🍗치킨 적립<br>
-          4️⃣ 운동 안 하는 친구는 <b>가디언</b>으로 응원 참여
+        <div class="how">
+          <div class="hs"><span class="he">👥</span>크루 만들고 코드 공유</div>
+          <div class="hs"><span class="he">📸</span>매주 목표만큼 인증</div>
+          <div class="hs"><span class="he">⛓️</span>다 채우면 사슬이 자라요</div>
         </div>
       </div>
       <div style="margin-top:18px"></div>
@@ -517,8 +518,8 @@ async function renderCrew(cid){
 
   // 상태 메시지
   let status;
-  if(behind.length===0 && workoutMembers.length>0) status=`<div class="status safe">🔥 이번 주 전원 목표 달성! 사슬이 이어지고 있어요</div>`;
-  else status=`<div class="status risk">⚠️ 이번 주 미달 ${behind.length}명 · 남은 ${daysLeft}일 · 한 명이라도 못 채우면 사슬 끊김</div>`;
+  if(behind.length===0 && workoutMembers.length>0) status=`<div class="status safe">🔥 이번 주 완료</div>`;
+  else status=`<div class="status risk">⚠️ 미달 ${behind.length} · ${daysLeft}일 남음</div>`;
 
   // 쌓이는 쇠사슬 (등급·마일스톤·성장 애니메이션)
   const {cur,next}=tierOf(r.chain);
@@ -527,18 +528,18 @@ async function renderCrew(cid){
   const popN = grew ? Math.min(r.chain-prevChain[cid], 12) : 0;
   const animStart = firstOpen ? 0 : (grew ? prevChain[cid] : r.chain);
   const linksHTML = r.chain>0 ? chainLinksHTML(r.chain, popN)
-    : `<div class="chainempty">첫 인증으로 첫 고리를 채워보세요 ⛓️</div>`;
+    : `<div class="chainempty">첫 고리를 채워보세요 ⛓️</div>`;
   const mpct = next ? Math.round((r.chain-cur.min)/(next.min-cur.min)*100) : 100;
   const milestone = next
-    ? `<div class="milestone"><div class="mt"><span>다음 등급 ${next.emoji} ${next.name}</span><span><b style="color:${cur.color}">${next.min-r.chain}고리</b> 남음</span></div>
+    ? `<div class="milestone"><div class="mt"><span>${next.emoji} ${next.name}</span><span><b style="color:${cur.color}">${next.min-r.chain}</b> 남음</span></div>
         <div class="mbar"><i style="width:${mpct}%;background:linear-gradient(90deg,${cur.color},${next.color})"></i></div></div>`
-    : `<div class="milestone"><div class="mt"><span>🐋 최고 등급 달성!</span><span>${r.chain}고리</span></div></div>`;
+    : `<div class="milestone"><div class="mt"><span>🐋 최고 등급</span><span>${r.chain}</span></div></div>`;
 
   let html=`
     <div style="padding:16px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:10px">
       <div><div style="font-size:20px;font-weight:900">${esc(crew.name)}</div>
-        <div style="color:var(--sub);font-size:12.5px">주 ${goal}회 목표 · 크루원 ${workoutMembers.length}${guardians.length?` · 가디언 ${guardians.length}`:""}</div></div>
-      <div class="codechip" onclick="copyInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>탭해서 링크 복사</small></div>
+        <div style="color:var(--sub);font-size:12.5px">주 ${goal}회 · ${workoutMembers.length}명${guardians.length?` · 🙌${guardians.length}`:""}</div></div>
+      <div class="codechip" onclick="copyInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>복사</small></div>
     </div>
 
     <div class="chainhero">
@@ -546,17 +547,14 @@ async function renderCrew(cid){
       <div class="tier" style="color:${cur.color}">${cur.emoji} ${cur.name}</div>
       <div class="chainbig" id="chainBig"><span id="chainNum">${animStart}</span><span class="u"> 고리</span></div>
       <div class="chainwrap">${linksHTML}</div>
-      <div class="chainmeta">
-        <div>최고 기록 <b>${r.best}고리</b></div>
-        <div>🍗 치킨 <b>${r.chicken}</b></div>
-      </div>
+      <div class="chainmeta"><div>최고 <b>${r.best}</b></div></div>
       ${milestone}
       ${status}
-      <button class="sharebtn" onclick="shareCurrentCrew()">📸 스토리에 우리 사슬 자랑하기</button>
+      <button class="sharebtn" onclick="shareCurrentCrew()">📸 자랑하기</button>
     </div>
 
     <div class="card">
-      <div class="sec-t">이번 주 진행 <span class="r">${new Date(curWk()).toLocaleDateString("ko-KR",{month:"numeric",day:"numeric"})} ~ · 남은 ${daysLeft}일</span></div>
+      <div class="sec-t">이번 주 <span class="r">${daysLeft}일 남음</span></div>
       ${workoutMembers.map(m=>{
         const c=weekCount(cid,m.id); const pct=Math.min(100,c/goal*100); const done=c>=goal;
         const liv=active.find(a=>String(a.m.id)===String(m.id));
@@ -571,22 +569,14 @@ async function renderCrew(cid){
       ${guardians.length?`<div style="margin-top:10px;color:var(--dim);font-size:12px">🙌 가디언: ${guardians.map(g=>esc(g.name)).join(", ")}</div>`:""}
     </div>
 
-    <div class="card">
-      <div class="chick">
-        <div class="big">🍗</div>
-        <div><div class="n">${r.chicken}마리</div>
-          <div class="d">미달마다 치킨 1마리 적립. 시즌 끝나면 다 같이 먹어요(빠진 사람이 쏘기 👀)</div></div>
-      </div>
-    </div>
-
     ${(()=>{ const ph=checkins.filter(c=>(c.type||"workout")==="workout"&&c.photo).slice(0,15);
       return ph.length ? `<div class="card">
-        <div class="sec-t">📸 우리 크루 인증샷 <span class="r">${ph.length}장</span></div>
+        <div class="sec-t">📸 인증샷 <span class="r">${ph.length}</span></div>
         <div class="gallery">${ph.map(c=>`<div class="gthumb" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"><div class="gn">${esc(c.name)}</div></div>`).join("")}</div>
       </div>` : ""; })()}
 
     <div class="card">
-      <div class="sec-t">크루 보드 <span class="r">최근 인증·응원</span></div>
+      <div class="sec-t">보드</div>
       <div class="feed">
         ${checkins.filter(c=>c.type!=="start").slice(0,20).map(c=>{
           if(c.type==="cheer") return `<div class="item">
@@ -601,7 +591,7 @@ async function renderCrew(cid){
               <div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>
               ${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy" alt="인증샷"></div>`:""}</div>
             <div class="fago">${ago(c.created_at)}</div></div>`;
-        }).join("") || `<div class="empty">아직 인증이 없어요. 첫 고리를 채워보세요!</div>`}
+        }).join("") || `<div class="empty">첫 인증을 남겨보세요 ⛓️</div>`}
       </div>
     </div>
   `;

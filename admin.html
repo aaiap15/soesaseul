@@ -135,21 +135,20 @@ function render(){
       <td>${esc(ownerName(c))}</td>
       <td>${wm.length}${ms.length-wm.length?` <span style="color:var(--gold)">+${ms.length-wm.length}🙌</span>`:""}</td>
       <td class="chain">${r.chain}<span style="color:var(--dim)"> / 최고 ${r.best}</span></td>
-      <td class="chick">🍗 ${r.chicken}</td>
       <td>${act?`<span class="pill live">활성</span>`:`<span class="pill dead">휴면</span>`}</td>
       <td>${s4===null?`<span style="color:var(--dim)">${wk.toFixed(1)}주</span>`:s4?`<span class="pill s4">4주 생존</span>`:`<span class="pill dead">이탈</span>`}</td>
     </tr>`;
   }).join("");
   document.getElementById("tableWrap").innerHTML=`<table><thead><tr>
-    <th>크루</th><th>개설자</th><th>인원</th><th>고리</th><th>치킨</th><th>이번주</th><th>4주</th></tr></thead><tbody>${rows}</tbody></table>`;
+    <th>크루</th><th>개설자</th><th>인원</th><th>고리</th><th>이번주</th><th>4주</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function exportCSV(){
-  const cols=["id","created_at","name","code","goal","개설자","크루원","가디언","현재고리","최고고리","치킨","이번주활성","4주생존"];
+  const cols=["id","created_at","name","code","goal","개설자","크루원","가디언","현재고리","최고고리","이번주활성","4주생존"];
   const rows=crews.map(c=>{ const ms=mOf(c.id); const r=DB.computeChain(c,ms,cOf(c.id)); const s4=survived4w(c);
     return {id:c.id,created_at:c.created_at,name:c.name,code:c.code,goal:c.goal,개설자:ownerName(c),
       크루원:ms.filter(m=>m.role!=="guardian").length,가디언:ms.filter(m=>m.role==="guardian").length,
-      현재고리:r.chain,최고고리:r.best,치킨:r.chicken,이번주활성:activeThisWeek(c)?"Y":"N",
+      현재고리:r.chain,최고고리:r.best,이번주활성:activeThisWeek(c)?"Y":"N",
       "4주생존":s4===null?"미판정":s4?"생존":"이탈"};});
   const head=cols.join(",");
   const body=rows.map(r=>cols.map(k=>`"${(""+(r[k]??"")).replace(/"/g,'""')}"`).join(",")).join("\n");
