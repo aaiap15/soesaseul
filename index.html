@@ -54,6 +54,11 @@
   .charname .lv{color:var(--sub);font-size:13px;font-weight:800}
   .charcond{font-weight:850;font-size:14px;margin-top:2px}
   .charnudge{margin-top:12px;background:rgba(240,68,56,.08);color:var(--danger);font-weight:800;font-size:12.5px;padding:10px;border-radius:12px}
+  .charnudge.good{background:rgba(18,184,134,.1);color:var(--ok)}
+  .iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:17px;cursor:pointer;box-shadow:var(--shadow)}
+  .teambadge{font-size:12px;font-weight:800;color:var(--gold);background:rgba(227,154,0,.12);padding:2px 8px;border-radius:999px;vertical-align:middle}
+  .penaltycard{background:#fff7ee;border:1px solid #f4dcc0;border-radius:14px;padding:13px 16px;font-size:13px;font-weight:700;color:#b26a1a;box-shadow:var(--shadow)}
+  .penaltycard b{color:#8a4d0f}
 
   /* home crew list */
   .crewitem{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);
@@ -270,7 +275,12 @@
     <div class="grip"></div>
     <form id="createForm">
       <h2>크루 만들기 ⛓️</h2>
-      <p class="desc">아는 사람끼리 만드세요. 만들면 초대 코드가 나와요.</p>
+      <p class="desc">같이 쇠붕이를 키워요. 만들면 초대 코드가 나와요.</p>
+      <div class="field"><label>어떤 크루?</label>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="ctype" value="friend" checked><span>👥 친구 크루 (2~6명)</span></label>
+          <label class="chip"><input type="radio" name="ctype" value="team"><span>🏆 팀 크루 (동아리·팀)</span></label>
+        </div></div>
       <div class="field"><label>크루 이름 <span class="opt">*</span></label>
         <input name="cname" required placeholder="예: 새벽 여섯시 클럽" autocomplete="off"></div>
       <div class="field"><label>주간 목표 <span class="opt">(1인당 · 주 몇 번 인증?)</span></label>
@@ -282,7 +292,7 @@
     <div class="done" id="createDone" style="display:none">
       <div class="ic">🎉</div>
       <h2>크루 완성!</h2>
-      <p class="desc" style="margin-top:8px">친구를 초대하면 같이 쇠부이를 키워요.</p>
+      <p class="desc" style="margin-top:8px">친구를 초대하면 같이 쇠붕이를 키워요.</p>
       <div class="codebox" id="newCode">----</div>
       <button class="submit" id="sendInviteBtn">📩 친구에게 초대 보내기</button>
       <button type="button" class="ghost-btn" id="copyCodeBtn">코드만 복사</button>
@@ -364,6 +374,29 @@
   </div>
 </div>
 
+<!-- 크루 설정 (하드모드 등 옵트인) -->
+<div class="modal" id="settingsModal">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h2>크루 설정 ⚙️</h2>
+    <div class="field"><label>주간 목표 <span class="opt">(1인당 · 주 몇 번)</span></label>
+      <div class="chips" id="setGoalChips"></div></div>
+    <div class="field"><label>하드모드 <span class="opt">(원하는 크루만 · 미달 시 벌금 집계)</span></label>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="hard" value="off" checked><span>😌 라이트 (캐릭터만)</span></label>
+        <label class="chip"><input type="radio" name="hard" value="on"><span>🔥 하드 (벌금)</span></label>
+      </div></div>
+    <div class="field" id="penaltyField" style="display:none"><label>미달 1회당 벌금</label>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="penalty" value="3000" checked><span>3천원</span></label>
+        <label class="chip"><input type="radio" name="penalty" value="5000"><span>5천원</span></label>
+        <label class="chip"><input type="radio" name="penalty" value="10000"><span>1만원</span></label>
+      </div></div>
+    <button class="submit" id="saveSettingsBtn">저장</button>
+    <button type="button" class="ghost-btn" data-close>닫기</button>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script src="db.js"></script>
 <script>
@@ -429,7 +462,7 @@ function animateCount(id, from, to, ms){
   })(t0);
 }
 
-/* ===================== 쇠부이 (크루 캐릭터) ===================== */
+/* ===================== 쇠붕이 (크루 캐릭터) ===================== */
 // 레벨 = 누적 인증(절대 안 빠짐), 컨디션 = 최근 7일 달성률(근손실 장치)
 const CONDS=[
   {n:"근손실",e:"🫠",c:"#f04438"},
@@ -450,7 +483,7 @@ function computeCharacter(crew, members, checkins){
   const expected=Math.max(1, wm.length*goal);
   const rate=recent/expected;
   const cond = rate>=1?4 : rate>=0.7?3 : rate>=0.4?2 : rate>=0.15?1 : 0;
-  return {level,total,cond,rate};
+  return {level,total,cond,rate,recent,expected};
 }
 function characterSVG(level, cond){
   const armR=Math.max(8, Math.min(30, 12 + Math.min(level,18)*0.7 - (4-cond)*4.5));
@@ -527,13 +560,13 @@ async function renderHome(){
     html = `
       <div style="padding:44px 0 12px">
         <h1>친구랑 같이 키우는<br><span class="accent">근손실 다마고치.</span></h1>
-        <p class="lead">크루가 운동하면 <b>쇠부이</b>가 벌크업,<br>빠지면 근손실 나요 🫠</p>
+        <p class="lead">크루가 운동하면 <b>쇠붕이</b>가 벌크업,<br>빠지면 근손실 나요 🫠</p>
       </div>
       <div class="card">
         <div class="how">
           <div class="hs"><span class="he">👥</span>크루 만들고 코드 공유</div>
           <div class="hs"><span class="he">📸</span>매주 목표만큼 인증</div>
-          <div class="hs"><span class="he">💪</span>쇠부이 벌크업 · 빠지면 근손실</div>
+          <div class="hs"><span class="he">💪</span>쇠붕이 벌크업 · 빠지면 근손실</div>
         </div>
       </div>
       <div style="margin-top:18px"></div>
@@ -573,10 +606,8 @@ async function renderCrew(cid){
   const behind=workoutMembers.filter(m=>weekCount(cid,m.id)<goal);
   const meLive=active.find(a=>String(a.m.id)===String(mem.memberId));
 
-  // 상태 메시지
-  let status;
-  if(behind.length===0 && workoutMembers.length>0) status=`<div class="status safe">🔥 이번 주 완료</div>`;
-  else status=`<div class="status risk">⚠️ 미달 ${behind.length} · ${daysLeft}일 남음</div>`;
+  // 이번 주 크루 인증 합계 (누적 사슬과 별개, 이번 주 성장분)
+  const thisWeekTotal = workoutMembers.reduce((s,m)=>s+weekCount(cid,m.id),0);
 
   // 쌓이는 쇠사슬 (등급·마일스톤·성장 애니메이션)
   const {cur,next}=tierOf(r.chain);
@@ -592,22 +623,29 @@ async function renderCrew(cid){
         <div class="mbar"><i style="width:${mpct}%;background:linear-gradient(90deg,${cur.color},${next.color})"></i></div></div>`
     : `<div class="milestone"><div class="mt"><span>🐋 최고 등급</span><span>${r.chain}</span></div></div>`;
 
-  // 쇠부이 캐릭터
+  // 쇠붕이 캐릭터 + 크루 단위 넛지(개인 지목 없음 · 진행 바에서 이미 보임)
   const ch=computeCharacter(crew,members,checkins);
   const cd=CONDS[ch.cond];
+  const charNudge =
+    ch.cond<=1 ? `<div class="charnudge">🥺 이번 주 인증 ${ch.recent}/${ch.expected} · 쇠붕이 단백질이 부족해요</div>`
+    : ch.cond>=4 ? `<div class="charnudge good">💪 이번 주 쇠붕이 빵빵! (${ch.recent}/${ch.expected})</div>`
+    : "";
 
   let html=`
     <div style="padding:16px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <div><div style="font-size:20px;font-weight:900">${esc(crew.name)}</div>
+      <div><div style="font-size:20px;font-weight:900">${esc(crew.name)}${crew.type==="team"?` <span class="teambadge">🏆 팀</span>`:""}</div>
         <div style="color:var(--sub);font-size:12.5px">주 ${goal}회 · ${workoutMembers.length}명${guardians.length?` · 🙌${guardians.length}`:""}</div></div>
-      <div class="codechip" onclick="sendInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>📩 초대</small></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="iconbtn" onclick="openSettings()">⚙️</button>
+        <div class="codechip" onclick="sendInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>📩 초대</small></div>
+      </div>
     </div>
 
     <div class="charcard">
       <div class="charbox">${characterSVG(ch.level, ch.cond)}</div>
-      <div class="charname">쇠부이 <span class="lv">Lv.${ch.level}</span></div>
+      <div class="charname">쇠붕이 <span class="lv">Lv.${ch.level}</span></div>
       <div class="charcond" style="color:${cd.c}">${cd.e} ${cd.n}</div>
-      ${ch.cond<=1 ? `<div class="charnudge">🫠 근손실 중! ${behind.length?`이번 주 미달: ${behind.map(m=>esc(m.name)).join(", ")}`:"이번 주 인증이 필요해요"}</div>` : ""}
+      ${charNudge}
     </div>
 
     <div class="chainhero">
@@ -615,9 +653,8 @@ async function renderCrew(cid){
       <div class="tier" style="color:${cur.color}">${cur.emoji} ${cur.name}</div>
       <div class="chainbig" id="chainBig"><span id="chainNum">${animStart}</span><span class="u"> 고리</span></div>
       <div class="chainwrap">${linksHTML}</div>
-      <div class="chainmeta"><div>최고 <b>${r.best}</b></div></div>
+      <div class="chainmeta"><div>이번 주 <b>+${thisWeekTotal}</b></div></div>
       ${milestone}
-      ${status}
       <button class="sharebtn" onclick="shareCurrentCrew()">📸 자랑하기</button>
     </div>
 
@@ -635,7 +672,10 @@ async function renderCrew(cid){
         </div>`;
       }).join("")}
       ${guardians.length?`<div style="margin-top:10px;color:var(--dim);font-size:12px">🙌 가디언: ${guardians.map(g=>esc(g.name)).join(", ")}</div>`:""}
+      ${crew.type==="team"?`<button class="linkback" style="margin-top:12px" onclick="shareReport()">📋 이번 주 개인훈련 집계 보내기</button>`:""}
     </div>
+
+    ${crew.hardmode?`<div class="penaltycard">🍗 하드모드 · 이번 주 미달 <b>${behind.length}명</b>${crew.penalty?` · 예상 벌금 ${(behind.length*crew.penalty).toLocaleString()}원`:""}</div>`:""}
 
     ${(()=>{ const ph=checkins.filter(c=>(c.type||"workout")==="workout"&&c.photo).slice(0,15);
       return ph.length ? `<div class="card">
@@ -759,7 +799,7 @@ document.getElementById("createForm").onsubmit=async e=>{
   e.preventDefault(); const btn=document.getElementById("createBtn"); btn.disabled=true; btn.textContent="만드는 중…";
   const fd=new FormData(e.target);
   try{
-    const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), ownerName:ME.nickname, userId:null});
+    const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), type:fd.get("ctype"), ownerName:ME.nickname, userId:null});
     addMe({crewId:crew.id, code:crew.code, crewName:crew.name, memberId:member.id, name:member.name, role:"member"});
     await loadMemberships();
     pendingCrew=crew.id; pendingCode=crew.code; pendingName=crew.name;
@@ -947,6 +987,41 @@ document.getElementById("cheerForm").onsubmit=async e=>{
   }catch(err){ alert("실패: "+(err.message||err)); }
   finally{ btn.disabled=false; btn.textContent="응원 보내기"; }
 };
+
+/* ---- 크루 설정 (하드모드 옵트인) ---- */
+document.getElementById("setGoalChips").innerHTML=[2,3,4,5,6].map(n=>
+  `<label class="chip"><input type="radio" name="setgoal" value="${n}"><span>주 ${n}회</span></label>`).join("");
+document.querySelector('input[name=hard][value=on]').closest('.chips').addEventListener("change",e=>{
+  if(e.target.name==="hard") document.getElementById("penaltyField").style.display = e.target.value==="on"?"":"none";
+});
+function openSettings(){
+  const c=cache.crew; if(!c) return;
+  (document.querySelector(`input[name=setgoal][value="${c.goal}"]`)||document.querySelector('input[name=setgoal][value="3"]')).checked=true;
+  document.querySelector(`input[name=hard][value=${c.hardmode?"on":"off"}]`).checked=true;
+  document.getElementById("penaltyField").style.display=c.hardmode?"":"none";
+  if(c.penalty){ const p=document.querySelector(`input[name=penalty][value="${c.penalty}"]`); if(p) p.checked=true; }
+  openModal("settingsModal");
+}
+document.getElementById("saveSettingsBtn").onclick=async()=>{
+  const btn=document.getElementById("saveSettingsBtn"); btn.disabled=true; btn.textContent="저장 중…";
+  const goal=Number(document.querySelector('input[name=setgoal]:checked').value);
+  const hard=document.querySelector('input[name=hard]:checked').value==="on";
+  const penalty=hard?Number(document.querySelector('input[name=penalty]:checked').value):0;
+  try{
+    const updated=await DB.updateCrew(cache.crew.id, {goal, hardmode:hard, penalty});
+    if(updated) cache.crew=updated;
+    closeModals(); await renderCrew(VIEW);
+  }catch(err){ alert("저장 실패: "+(err.message||err)); }
+  finally{ btn.disabled=false; btn.textContent="저장"; }
+};
+// 팀 크루: 이번 주 개인훈련 집계 (주장이 단톡방에 발송)
+function shareReport(){
+  const wm=cache.members.filter(m=>m.role!=="guardian");
+  const lines=wm.map(m=>`· ${m.name}: ${weekCount(VIEW,m.id)}회`).join("\n");
+  const txt=`[${cache.crew.name}] 이번 주 개인훈련 집계 🏆\n${lines}\n\n— 쇠사슬 · soesaseul.github.io`;
+  if(navigator.share){ navigator.share({text:txt}).catch(()=>{}); }
+  else copyText(txt).then(ok=>toast(ok?"집계 복사됨 📋 단톡방에 붙여넣기":"복사 실패"));
+}
 
 /* ===================== 계정: 로그인/회원가입 ===================== */
 function showProfBtn(){ const b=document.getElementById("profBtn"); if(!ME){ b.style.display="none"; return; }

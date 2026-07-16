@@ -33,47 +33,15 @@
     x.setDate(x.getDate() - dow);
     return x.getTime();
   }
-  // 크루의 현재 고리 수, 최고 기록, 치킨(미달 누적)을 인증 이력에서 계산.
-  // 규칙: 인증 1회 = 고리 +1. 완료된 주에 활성 멤버 중 목표 미달자가 1명이라도 있으면 사슬 절단(0).
-  function computeChain(crew, members, checkins, nowTs) {
-    const goal = Number(crew.goal) || 3;
+  // 사슬 = 크루 누적 인증 (리셋 없음, 절대 안 뺏김). 긴장감은 쇠붕이 컨디션이 담당.
+  // 고리 = 크루원(가디언 제외) 운동 인증의 총합.
+  function computeChain(crew, members, checkins) {
     const workoutMembers = (members || []).filter(m => m.role !== "guardian");
-    const memberIds = new Set(workoutMembers.map(m => String(m.id)));
-    const workouts = (checkins || []).filter(c =>
-      (c.type || "workout") === "workout" && memberIds.has(String(c.member_id)));
-    const now = nowTs || Date.now();
-    const nowWk = weekStartTs(now);
-    const startWk = weekStartTs(crew.created_at);
-
-    const byWeek = {};
-    for (const c of workouts) {
-      const wk = weekStartTs(c.created_at);
-      const w = (byWeek[wk] = byWeek[wk] || { counts: {}, total: 0 });
-      w.counts[c.member_id] = (w.counts[c.member_id] || 0) + 1;
-      w.total++;
-    }
-
-    let chain = 0, best = 0, chicken = 0, brokeAt = null;
-    for (let wk = startWk; wk <= nowWk; wk += WEEK_MS) {
-      const w = byWeek[wk] || { counts: {}, total: 0 };
-      const weekEnd = wk + WEEK_MS;
-      const active = workoutMembers.filter(m => new Date(m.created_at).getTime() < weekEnd);
-      if (wk < nowWk) {
-        // 완료된 주 정산
-        const misses = active.filter(m => (w.counts[m.id] || 0) < goal);
-        if (active.length > 0 && misses.length === 0) {
-          chain += w.total; best = Math.max(best, chain);
-        } else {
-          chicken += misses.length; best = Math.max(best, chain);
-          if (chain > 0) brokeAt = chain;
-          chain = 0;
-        }
-      } else {
-        // 진행 중인 이번 주: 잠정 합산
-        chain += w.total; best = Math.max(best, chain);
-      }
-    }
-    return { chain, best, chicken, brokeAt };
+    const ids = new Set(workoutMembers.map(m => String(m.id)));
+    const total = (checkins || []).filter(c =>
+      (c.type || "workout") === "workout" && ids.has(String(c.member_id))).length;
+    // best는 하위호환용(항상 total). chicken은 하드모드에서만 별도 계산.
+    return { chain: total, best: total, chicken: 0 };
   }
 
   // ---- 공통 API ----
@@ -192,14 +160,15 @@
     return s;
   };
 
-  async function createCrew({ name, goal, ownerName, userId }) {
+  async function createCrew({ name, goal, ownerName, userId, type }) {
     await ready;
     goal = Number(goal) || 3;
+    type = type || "friend";
     if (sb) {
       // 코드 충돌 시 몇 번 재시도
       let crew = null, err = null;
       for (let i = 0; i < 6 && !crew; i++) {
-        const r = await sb.from("crews").insert({ name, code: genCode(), goal }).select().single();
+        const r = await sb.from("crews").insert({ name, code: genCode(), goal, type }).select().single();
         if (!r.error) crew = r.data; else err = r.error;
       }
       if (!crew) throw err || new Error("크루 생성 실패");
@@ -208,10 +177,21 @@
       return { crew, member: m.data };
     }
     const crews = getLS(LS.crews);
-    const crew = { id: uid(), name, code: genCode(), goal, created_at: new Date().toISOString() };
+    const crew = { id: uid(), name, code: genCode(), goal, type, created_at: new Date().toISOString() };
     crews.push(crew); setLS(LS.crews, crews);
     const member = await addMemberLocal(crew.id, ownerName, "member");
     return { crew, member };
+  }
+
+  async function updateCrew(id, patch) {
+    await ready;
+    if (sb) {
+      const { data, error } = await sb.from("crews").update(patch).eq("id", id).select().single();
+      if (error) throw error; return data;
+    }
+    const crews = getLS(LS.crews); const i = crews.findIndex(c => String(c.id) === String(id));
+    if (i >= 0) { crews[i] = { ...crews[i], ...patch }; setLS(LS.crews, crews); return crews[i]; }
+    return null;
   }
 
   async function getCrewByCode(code) {
@@ -359,7 +339,7 @@
   window.DB = { ready, addPost, listPosts, addApplication, listApplications,
                 deletePost, deleteApplication, deleteAll,
                 addFeedback, listFeedback,
-                createCrew, getCrewByCode, getCrew, joinCrew, getMembers, getCheckins, addCheckin,
+                createCrew, updateCrew, getCrewByCode, getCrew, joinCrew, getMembers, getCheckins, addCheckin,
                 listAllCrews, listAllMembers, listAllCheckins,
                 signUp, signIn, signOut, currentUser, onAuth, getProfile, upsertProfile, getMyCrews,
                 computeChain, weekStartTs, mode };

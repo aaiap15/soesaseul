@@ -127,3 +127,7 @@ h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
 .gthumb{flex:none;width:82px;height:82px;border-radius:14px;overflow:hidden;border:1px solid var(--line);position:relative;display:grid;place-items:center;font-size:26px}
 .gthumb .gn{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.6));color:#fff;font-size:10px;font-weight:800;padding:10px 6px 4px}
 .fphoto{margin-top:8px;border-radius:12px;overflow:hidden;border:1px solid var(--line);max-width:210px;height:120px;display:grid;place-items:center;font-size:32px}
+
+.charnudge{margin-top:12px;background:rgba(240,68,56,.08);color:var(--danger);font-weight:800;font-size:12.5px;padding:10px;border-radius:12px}
+.charnudge.good{margin-top:12px;background:rgba(18,184,134,.1);color:var(--ok);font-weight:800;font-size:12.5px;padding:10px;border-radius:12px}
+.teambadge{font-size:12px;font-weight:800;color:var(--gold);background:rgba(227,154,0,.12);padding:2px 8px;border-radius:999px;vertical-align:middle}

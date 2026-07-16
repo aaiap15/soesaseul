@@ -53,5 +53,13 @@ create policy "insert members"  on members  for insert with check (true);
 create policy "read checkins"   on checkins for select using (true);
 create policy "insert checkins" on checkins for insert with check (true);
 
+-- v2: 크루 유형(친구/팀) + 하드모드(옵트인 벌금)
+alter table crews add column if not exists type     text default 'friend';   -- 'friend' | 'team'
+alter table crews add column if not exists hardmode boolean default false;
+alter table crews add column if not exists penalty  int default 0;
+-- 설정 변경(목표·하드모드) 반영을 위해 update 허용
+drop policy if exists "update crews" on crews;
+create policy "update crews" on crews for update using (true) with check (true);
+
 create index if not exists members_crew_idx  on members (crew_id);
 create index if not exists checkins_crew_idx  on checkins (crew_id, created_at desc);
