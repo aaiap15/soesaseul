@@ -280,14 +280,13 @@
       <button type="button" class="ghost-btn" data-close>닫기</button>
     </form>
     <div class="done" id="createDone" style="display:none">
-      <div class="ic">⛓️</div>
+      <div class="ic">🎉</div>
       <h2>크루 완성!</h2>
-      <p>이 코드를 친구들한테 보내세요.<br>코드로 들어오면 같은 사슬을 쌓아요.</p>
+      <p class="desc" style="margin-top:8px">친구를 초대하면 같이 쇠부이를 키워요.</p>
       <div class="codebox" id="newCode">----</div>
-      <input class="linkbox" id="newLink" readonly onclick="this.select()">
-      <button class="submit" id="copyInviteBtn">🔗 초대 링크 복사</button>
-      <button type="button" class="btn ghost" id="shareCode" style="margin-top:10px">📩 공유하기 (카톡 등)</button>
-      <button type="button" class="ghost-btn" id="enterNew">크루 입장하기</button>
+      <button class="submit" id="sendInviteBtn">📩 친구에게 초대 보내기</button>
+      <button type="button" class="ghost-btn" id="copyCodeBtn">코드만 복사</button>
+      <button type="button" class="ghost-btn" id="enterNew" style="margin-top:0">그냥 입장하기</button>
     </div>
   </div>
 </div>
@@ -454,24 +453,26 @@ function computeCharacter(crew, members, checkins){
   return {level,total,cond,rate};
 }
 function characterSVG(level, cond){
-  const armR=Math.max(7, Math.min(30, 11 + Math.min(level,18)*0.7 - (4-cond)*4.5));
-  const body = cond<=1 ? ["#d0d6de","#a9b2be"] : ["#c2cad6","#96a1b2"];
-  const mouth={4:"M76 132 Q100 158 124 132",3:"M82 134 Q100 150 118 134",2:"M84 138 L116 138",1:"M84 143 Q100 132 116 143",0:"M84 138 q8 12 16 0 q8 12 16 0"}[cond];
-  const blush = cond>=3 ? `<circle cx="64" cy="120" r="8" fill="#ff9a9a" opacity=".5"/><circle cx="136" cy="120" r="8" fill="#ff9a9a" opacity=".5"/>` : "";
-  const sparkle = cond===4 ? `<text x="150" y="52" font-size="28">✨</text><text x="20" y="72" font-size="22">✨</text>` : "";
-  const sweat = cond===0 ? `<path d="M58 74 q-7 13 0 18 q7 -5 0 -18" fill="#7cc4ff"/>` : "";
-  const eyes = cond===0
-    ? `<path d="M72 96 l14 0 M114 96 l14 0" stroke="#2a2f38" stroke-width="4" stroke-linecap="round"/>`
-    : `<circle cx="80" cy="98" r="6.5" fill="#2a2f38"/><circle cx="120" cy="98" r="6.5" fill="#2a2f38"/>`;
+  const armR=Math.max(8, Math.min(30, 12 + Math.min(level,18)*0.7 - (4-cond)*4.5));
+  const body = cond<=1 ? ["#dbe2ee","#b3bed2"] : ["#d2ddf0","#a7b6d4"];   // 부드러운 블루-스틸
+  const mouth={4:"M84 138 Q100 158 116 138",3:"M86 139 Q100 151 114 139",2:"M90 141 Q100 147 110 141",1:"M88 145 Q100 137 112 145",0:"M88 141 q6 9 12 0 q6 9 12 0"}[cond];
+  const sparkle = cond===4 ? `<text x="150" y="50" font-size="26">✨</text><text x="22" y="66" font-size="20">✨</text>` : "";
+  const sweat = cond===0 ? `<path d="M56 78 q-6 12 0 16 q6 -4 0 -16" fill="#8fd0ff"/>` : "";
+  const eye = cx => cond===0
+    ? `<path d="M${cx-8} 104 q8 6 16 0" fill="none" stroke="#3a3f4a" stroke-width="3.5" stroke-linecap="round"/>`
+    : `<circle cx="${cx}" cy="104" r="9.5" fill="#fff"/><circle cx="${cx+1}" cy="106" r="5.6" fill="#3a3f4a"/><circle cx="${cx+3.5}" cy="103" r="2.1" fill="#fff"/>`;
   return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="cbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${body[0]}"/><stop offset="1" stop-color="${body[1]}"/></linearGradient></defs>
     ${sparkle}
-    <circle cx="42" cy="130" r="${armR}" fill="url(#cbg)" stroke="#8a94a3" stroke-width="2"/>
-    <circle cx="158" cy="130" r="${armR}" fill="url(#cbg)" stroke="#8a94a3" stroke-width="2"/>
-    <rect x="50" y="68" width="100" height="100" rx="42" fill="url(#cbg)" stroke="#8a94a3" stroke-width="2.5"/>
-    <ellipse cx="78" cy="92" rx="17" ry="10" fill="#fff" opacity=".38"/>
-    ${blush}${eyes}
-    <path d="${mouth}" fill="none" stroke="#2a2f38" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="80" cy="177" rx="13" ry="8.5" fill="#9aa6bd"/><ellipse cx="120" cy="177" rx="13" ry="8.5" fill="#9aa6bd"/>
+    <circle cx="40" cy="134" r="${armR}" fill="url(#cbg)" stroke="#93a0b8" stroke-width="2"/>
+    <circle cx="160" cy="134" r="${armR}" fill="url(#cbg)" stroke="#93a0b8" stroke-width="2"/>
+    <rect x="46" y="56" width="108" height="114" rx="54" fill="url(#cbg)" stroke="#93a0b8" stroke-width="2.5"/>
+    <ellipse cx="76" cy="84" rx="18" ry="11" fill="#fff" opacity=".42"/>
+    <g opacity=".2"><rect x="86" y="148" width="28" height="5" rx="2.5" fill="#3a3f4a"/><circle cx="84" cy="150.5" r="6" fill="#3a3f4a"/><circle cx="116" cy="150.5" r="6" fill="#3a3f4a"/></g>
+    <circle cx="63" cy="122" r="9" fill="#ff9db0" opacity=".55"/><circle cx="137" cy="122" r="9" fill="#ff9db0" opacity=".55"/>
+    ${eye(78)}${eye(122)}
+    <path d="${mouth}" fill="none" stroke="#3a3f4a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
     ${sweat}
   </svg>`;
 }
@@ -599,7 +600,7 @@ async function renderCrew(cid){
     <div style="padding:16px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:10px">
       <div><div style="font-size:20px;font-weight:900">${esc(crew.name)}</div>
         <div style="color:var(--sub);font-size:12.5px">주 ${goal}회 · ${workoutMembers.length}명${guardians.length?` · 🙌${guardians.length}`:""}</div></div>
-      <div class="codechip" onclick="copyInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>복사</small></div>
+      <div class="codechip" onclick="sendInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>📩 초대</small></div>
     </div>
 
     <div class="charcard">
@@ -716,14 +717,30 @@ function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg
 
 async function copyInvite(code,name){
   const ok=await copyText(inviteMsg(code,name));
-  toast(ok?"초대 링크 복사됨! 📋 붙여넣기 하세요":"복사 실패 — 링크를 길게 눌러 복사하세요");
+  toast(ok?"초대 링크 복사됨 📋 붙여넣기 하세요":"복사 실패 — 링크를 길게 눌러 복사하세요");
 }
-// 네이티브 공유 지원 시 공유창, 아니면 복사
-function shareInvite(code,name){
-  const msg=inviteMsg(code,name);
-  if(navigator.share){ navigator.share({text:msg}).catch(()=>{}); }
-  else copyInvite(code,name);
+// 카카오 SDK (선택) 로드
+async function initKakao(){
+  const key=(window.SOECHIN_CONFIG||{}).KAKAO_JS_KEY;
+  if(!key) return;
+  try{
+    await new Promise((res,rej)=>{ const s=document.createElement("script");
+      s.src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"; s.crossOrigin="anonymous";
+      s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+    if(window.Kakao && !Kakao.isInitialized()) Kakao.init(key);
+  }catch(_){}
 }
+// 한 번에 보내기: 카카오톡(SDK) → 네이티브 공유시트(카톡·인스타 등) → 복사
+async function sendInvite(code,name){
+  const url=inviteUrl(code), msg=inviteMsg(code,name);
+  if(window.Kakao && Kakao.isInitialized && Kakao.isInitialized()){
+    try{ Kakao.Share.sendDefault({ objectType:"text", text:`⛓️ '${name}' 크루에 초대할게!\n쇠사슬 코드: ${code}`,
+      link:{ mobileWebUrl:url, webUrl:url }, buttonTitle:"크루 참여하기" }); return; }catch(_){}
+  }
+  if(navigator.share){ try{ await navigator.share({title:"쇠사슬 크루 초대", text:msg, url}); return; }catch(e){ if(e && e.name==="AbortError") return; } }
+  const ok=await copyText(msg); toast(ok?"초대 문구 복사됨 📋 카톡·인스타에 붙여넣기":"복사 실패");
+}
+function shareInvite(code,name){ sendInvite(code,name); }
 
 /* ---- 모달 제어 ---- */
 const openModal = id => { document.getElementById(id).classList.add("open"); document.body.style.overflow="hidden"; };
@@ -748,12 +765,11 @@ document.getElementById("createForm").onsubmit=async e=>{
     pendingCrew=crew.id; pendingCode=crew.code; pendingName=crew.name;
     document.getElementById("createForm").style.display="none"; document.getElementById("createDone").style.display="";
     document.getElementById("newCode").textContent=crew.code;
-    document.getElementById("newLink").value=inviteUrl(crew.code);
   }catch(err){ alert("생성 실패: "+(err.message||err)); }
   finally{ btn.disabled=false; btn.textContent="크루 만들기"; }
 };
-document.getElementById("copyInviteBtn").onclick=()=>copyInvite(pendingCode,pendingName);
-document.getElementById("shareCode").onclick=()=>shareInvite(pendingCode,pendingName);
+document.getElementById("sendInviteBtn").onclick=()=>sendInvite(pendingCode,pendingName);
+document.getElementById("copyCodeBtn").onclick=async()=>{ const ok=await copyText(pendingCode); toast(ok?`코드 복사됨: ${pendingCode}`:"복사 실패"); };
 document.getElementById("enterNew").onclick=()=>{ closeModals(); if(pendingCrew) go(pendingCrew); };
 
 /* ---- 코드로 참여 ---- */
@@ -879,7 +895,7 @@ async function drawCollage(g,photos,x,y,w,h){
     g.strokeStyle="rgba(0,0,0,.06)"; g.lineWidth=2; roundRect(g,cx,cy,cw,ch,28); g.stroke();
   });
 }
-async function drawCardBlob({crewName,chain,tier,best,photos}){
+async function drawCardBlob({crewName,chain,tier,best,photos,code}){
   const W=1080,H=1920, cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d");
   const bg=g.createLinearGradient(0,0,0,H); bg.addColorStop(0,"#fff2da"); bg.addColorStop(.5,"#fff9f0"); bg.addColorStop(1,"#ffffff");
   g.fillStyle=bg; g.fillRect(0,0,W,H);
@@ -893,8 +909,9 @@ async function drawCardBlob({crewName,chain,tier,best,photos}){
   drawLinks(g,W/2,905,Math.min(Math.max(chain,1),16));
   g.fillStyle="#98a2b3"; g.font=`600 38px ${FONT}`; g.fillText(`최고 기록 ${best}고리`,W/2,985);
   await drawCollage(g,photos,90,1055,W-180,600);
-  g.fillStyle="#667085"; g.font=`700 40px ${FONT}`; g.fillText("매일 같이 쌓는 운동 사슬",W/2,1770);
-  g.fillStyle="#f5501a"; g.font=`800 42px ${FONT}`; g.fillText("soesaseul.github.io",W/2,1832);
+  g.fillStyle="#667085"; g.font=`700 38px ${FONT}`; g.fillText("친구랑 같이 키우는 근손실 다마고치",W/2,1740);
+  if(code){ g.fillStyle="#1a1d23"; g.font=`900 52px ${FONT}`; g.fillText(`코드 ${code} 로 참여`,W/2,1806); }
+  g.fillStyle="#f5501a"; g.font=`800 40px ${FONT}`; g.fillText("soesaseul.github.io",W/2,1862);
   return await new Promise(res=>cv.toBlob(res,"image/png",.92));
 }
 async function shareCurrentCrew(){
@@ -904,7 +921,7 @@ async function shareCurrentCrew(){
   const photos=cache.checkins.filter(c=>(c.type||"workout")==="workout"&&c.photo).slice(0,4).map(c=>c.photo);
   toast("카드 만드는 중… 📸");
   try{
-    const blob=await drawCardBlob({crewName:cache.crew.name,chain:r.chain,tier:cur,best:r.best,photos});
+    const blob=await drawCardBlob({crewName:cache.crew.name,chain:r.chain,tier:cur,best:r.best,photos,code:cache.crew.code});
     const file=new File([blob],"soesaseul.png",{type:"image/png"});
     if(navigator.canShare && navigator.canShare({files:[file]})){
       await navigator.share({files:[file],text:`우리 크루 '${cache.crew.name}' ${r.chain}고리 ⛓️\n같이 운동 사슬 쌓는 중 · soesaseul.github.io #쇠사슬`});
@@ -1072,6 +1089,7 @@ async function bootstrap(){
   if(MODE==="supabase"){ b.textContent="● 실시간"; b.classList.add("live"); } else b.textContent="로컬";
   const code=new URLSearchParams(location.search).get("code");
   pendingInvite = code ? code.toUpperCase() : null;
+  initKakao();
   await bootstrap();
   setInterval(()=>{ if(VIEW && ME && !document.querySelector(".modal.open")) renderCrew(VIEW); }, 25000);
 })();
