@@ -1154,7 +1154,9 @@ async function drawCollage(g,photos,x,y,w,h){
   });
 }
 /* ── 카드 공통 규격 (스토리 1080×1920) · pitch-black + team-color ── */
-const CW=1080, CH=1920, CARD_URL="soesaseul.github.io";
+const CW=1080, CH=1920;
+// 실제 배포 주소에서 유도(하드코딩 도메인 404 방지)
+const CARD_URL=(location.host+location.pathname).replace(/\/index\.html$/,"").replace(/\/$/,"")||"formclub";
 function newCard(){ const cv=document.createElement("canvas"); cv.width=CW; cv.height=CH; return cv; }
 function cardFrame(g,color){
   g.fillStyle="#0A0A0A"; g.fillRect(0,0,CW,CH);
@@ -1169,8 +1171,9 @@ function cardEmblem(g,emblem,color,cx,cy,r){
   g.fillText(emblem||"●",cx,cy+2); g.textBaseline="alphabetic";
 }
 function cardFooter(g,code){
-  g.fillStyle="#9A9D96"; g.font=`700 36px ${FONT}`; g.fillText("우리 팀이 구단이 되는 곳 · 폼클럽",CW/2,1800);
-  if(code){ g.fillStyle="#fff"; g.font=`900 50px ${FONT}`; g.fillText(`코드 ${code} 로 합류`,CW/2,1862); }
+  g.fillStyle="#9A9D96"; g.font=`700 34px ${FONT}`; g.fillText("우리 팀이 구단이 되는 곳 · 폼클럽",CW/2,1788);
+  if(code){ g.fillStyle="#fff"; g.font=`900 48px ${FONT}`; g.fillText(`코드 ${code} 로 합류`,CW/2,1846); }
+  g.fillStyle="#9A9D96"; g.font=`600 30px ${FONT}`; g.fillText(CARD_URL,CW/2,1892);
 }
 const clip = (s,n)=> (s&&s.length>n)?s.slice(0,n)+"…":s;
 async function blobOf(cv){ return await new Promise(res=>cv.toBlob(res,"image/png",.92)); }
@@ -1348,7 +1351,7 @@ document.getElementById("saveSettingsBtn").onclick=async()=>{
 function shareReport(){
   const wm=cache.members.filter(m=>m.role!=="guardian");
   const lines=wm.map(m=>`· ${m.name}: ${weekCount(VIEW,m.id)}회`).join("\n");
-  const txt=`[${cache.crew.name}] 이번 주 개인훈련 집계 🏆\n${lines}\n\n— 폼클럽 · soesaseul.github.io`;
+  const txt=`[${cache.crew.name}] 이번 주 개인훈련 집계 🏆\n${lines}\n\n— 폼클럽 · ${CARD_URL}`;
   if(navigator.share){ navigator.share({text:txt}).catch(()=>{}); }
   else copyText(txt).then(ok=>toast(ok?"집계 복사됨 📋 단톡방에 붙여넣기":"복사 실패"));
 }
