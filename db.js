@@ -165,10 +165,13 @@
     goal = Number(goal) || 3;
     type = type || "friend";
     if (sb) {
-      // 코드 충돌 시 몇 번 재시도
+      // 코드 충돌 시 몇 번 재시도. type/hardmode 컬럼이 아직 없는 DB면 자동으로 빼고 생성(하위호환).
       let crew = null, err = null;
       for (let i = 0; i < 6 && !crew; i++) {
-        const r = await sb.from("crews").insert({ name, code: genCode(), goal, type }).select().single();
+        let r = await sb.from("crews").insert({ name, code: genCode(), goal, type }).select().single();
+        if (r.error && /type|hardmode|penalty|schema cache|column/i.test(r.error.message || "")) {
+          r = await sb.from("crews").insert({ name, code: genCode(), goal }).select().single();
+        }
         if (!r.error) crew = r.data; else err = r.error;
       }
       if (!crew) throw err || new Error("크루 생성 실패");
