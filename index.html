@@ -11,12 +11,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* 뉴트로 클럽하우스: 무채색 세계 + 시그널레드 CTA 하나 */
-    --bg:#f2f2ee; --card:#ffffff; --card2:#ecece6; --line:#e2e2da; --ink:#161616;
-    --txt:#161616; --sub:#5a5d57; --dim:#9a9a92;
-    --accent:#d22730; --accent2:#d22730; --blue:#1d4fd7; --ok:#0f9152; --gold:#9c7b17; --chick:#c2410c; --danger:#d22730;
-    --radius:14px; --maxw:500px;
-    --shadow:0 1px 2px rgba(22,22,22,.05);
+    /* 다크 애슬레틱: 블랙 베이스 + 강렬한 레드 + 거대 Anton 숫자 */
+    --bg:#0d0d10; --card:#17171c; --card2:#212127; --line:#2c2c34; --ink:#f4f4f6;
+    --txt:#f4f4f6; --sub:#9a9aa4; --dim:#66666f;
+    --accent:#e5352b; --accent2:#e5352b; --blue:#3b82f6; --ok:#22c55e; --gold:#d4af37; --chick:#f59e0b; --danger:#e5352b;
+    --radius:12px; --maxw:500px;
+    --shadow:0 2px 10px rgba(0,0,0,.35);
     --font-num:"Anton",-apple-system,BlinkMacSystemFont,sans-serif;
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
   }
@@ -25,7 +25,7 @@
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 16px}
   a{color:inherit}
 
-  header{position:sticky;top:0;z-index:20;background:rgba(242,244,247,.85);backdrop-filter:blur(10px);
+  header{position:sticky;top:0;z-index:20;background:rgba(13,13,16,.85);backdrop-filter:blur(10px);
     padding:14px 0 12px;border-bottom:1px solid var(--line)}
   header .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .logo{font-size:20px;font-weight:900;letter-spacing:-.02em;cursor:pointer;display:flex;align-items:center;gap:6px}
@@ -50,7 +50,7 @@
   .hs{display:flex;align-items:center;gap:13px;font-size:15px;font-weight:600}
   .he{width:40px;height:40px;border-radius:12px;background:var(--card2);display:grid;place-items:center;font-size:20px;flex:none}
 
-  .charcard{background:var(--card);border:1.5px solid var(--ink);border-radius:22px;
+  .charcard{background:var(--card);border:1px solid var(--line);border-radius:14px;
     padding:18px 18px 16px;text-align:center;box-shadow:var(--shadow);margin-bottom:12px}
   .charbox{width:168px;height:168px;margin:0 auto}
   .charbox svg{width:100%;height:100%;display:block;animation:breathe 3.4s ease-in-out infinite;transform-origin:center bottom}
@@ -72,8 +72,8 @@
   .wd.today{border-color:var(--ink)}
   .iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:17px;cursor:pointer;box-shadow:var(--shadow)}
   .teambadge{font-size:12px;font-weight:800;color:var(--gold);background:rgba(227,154,0,.12);padding:2px 8px;border-radius:999px;vertical-align:middle}
-  .penaltycard{background:#fff7ee;border:1px solid #f4dcc0;border-radius:14px;padding:13px 16px;font-size:13px;font-weight:700;color:#b26a1a;box-shadow:var(--shadow)}
-  .penaltycard b{color:#8a4d0f}
+  .penaltycard{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:12px;padding:13px 16px;font-size:13px;font-weight:700;color:#f0b03e;box-shadow:var(--shadow)}
+  .penaltycard b{color:#ffcf7a}
   /* 팀 크루 */
   .teambanner{display:flex;align-items:center;gap:14px;border-radius:14px;padding:16px 18px;margin-bottom:12px;color:#fff}
   .teambanner .tb-emblem{font-size:34px;line-height:1}
@@ -119,7 +119,7 @@
   .avataredit img{width:100%;height:100%;object-fit:cover}
   .avataredit small{font-size:11px;font-weight:700}
   .avatarbig{width:92px;height:92px;border-radius:50%;margin:0 auto;display:grid;place-items:center;overflow:hidden;
-    font-size:38px;font-weight:900;color:#fff;background:var(--ink)}
+    font-size:38px;font-weight:900;color:#fff;background:var(--accent)}
   .avatarbig img{width:100%;height:100%;object-fit:cover}
   .statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
   .statc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 6px;text-align:center;box-shadow:var(--shadow)}
@@ -132,7 +132,7 @@
     border-radius:16px;padding:22px 20px;text-align:center;position:relative;overflow:hidden;
     box-shadow:none}
   .chainhero .lbl{color:var(--sub);font-size:13px;font-weight:700}
-  .chainbig{font-size:64px;font-weight:900;letter-spacing:-.03em;line-height:1;margin:6px 0 2px;
+  .chainbig{font-size:76px;font-weight:900;letter-spacing:-.01em;line-height:1;margin:8px 0 2px;
     color:var(--ink);font-family:var(--font-num);font-weight:400;letter-spacing:0}
   .chainbig .u{font-size:24px;color:var(--sub);-webkit-text-fill-color:var(--sub)}
   .links{font-size:19px;letter-spacing:1px;margin:10px 0 4px;word-break:break-all;line-height:1.4}
@@ -240,7 +240,7 @@
   .chip{cursor:pointer}
   .chip input{position:absolute;opacity:0;pointer-events:none}
   .chip span{display:block;font-size:14px;font-weight:700;padding:10px 13px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);color:var(--sub)}
-  .chip input:checked + span{background:rgba(255,90,31,.12);border-color:var(--accent);color:var(--accent2)}
+  .chip input:checked + span{background:rgba(229,53,43,.16);border-color:var(--accent);color:#ff6a60}
   .chip.big span{font-size:24px;padding:12px 16px}
   .submit{width:100%;background:var(--accent);color:#fff;font-weight:850;font-size:16px;padding:16px;border:none;border-radius:12px;cursor:pointer;margin-top:24px}
   .submit:disabled{opacity:.5}
@@ -253,8 +253,8 @@
   .timerbar{background:rgba(255,90,31,.1);border:1px solid rgba(255,90,31,.3);border-radius:12px;padding:12px;margin-top:14px;text-align:center;font-weight:800;color:var(--accent2)}
 
   /* ── 인증샷 ── */
-  .photobtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed #f2c99a;
-    background:#fff8f0;color:var(--accent);font-weight:800;font-size:14px;padding:16px;border-radius:12px;cursor:pointer}
+  .photobtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed rgba(229,53,43,.45);
+    background:rgba(229,53,43,.08);color:#ff6a60;font-weight:800;font-size:14px;padding:16px;border-radius:12px;cursor:pointer}
   .photoprev{position:relative;margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
   .photoprev img{width:100%;display:block;max-height:240px;object-fit:cover}
   .photoprev .rm{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer}
@@ -544,25 +544,30 @@ function computeCharacter(crew, members, checkins){
 }
 function characterSVG(level, cond){
   const armR=Math.max(8, Math.min(30, 12 + Math.min(level,18)*0.7 - (4-cond)*4.5));
-  const body = cond<=1 ? ["#dbe2ee","#b3bed2"] : ["#d2ddf0","#a7b6d4"];   // 부드러운 블루-스틸
-  const mouth={4:"M84 138 Q100 158 116 138",3:"M86 139 Q100 151 114 139",2:"M90 141 Q100 147 110 141",1:"M88 145 Q100 137 112 145",0:"M88 141 q6 9 12 0 q6 9 12 0"}[cond];
-  const sparkle = cond===4 ? `<text x="150" y="50" font-size="26">✨</text><text x="22" y="66" font-size="20">✨</text>` : "";
-  const sweat = cond===0 ? `<path d="M56 78 q-6 12 0 16 q6 -4 0 -16" fill="#8fd0ff"/>` : "";
+  const body = cond<=1 ? ["#aeb4bf","#7c828d"] : ["#d9dde4","#9aa1ad"];   // 브러시드 스틸
+  const stroke="#5a606b";
+  const mouth={4:"M85 140 L115 140",3:"M87 140 L113 140",2:"M89 141 L111 141",1:"M88 144 Q100 139 112 144",0:"M88 142 q6 7 12 0 q6 7 12 0"}[cond];
+  const flame = cond===4 ? `<text x="150" y="52" font-size="30">🔥</text>` : "";
+  const sweat = cond===0 ? `<path d="M56 80 q-6 11 0 15 q6 -4 0 -15" fill="#7fbfe6"/>` : "";
+  // 결의 있는 눈썹(좋을수록 치켜, 저조하면 처짐)
+  const brow = cond>=3
+    ? `<path d="M68 90 L88 96 M132 90 L112 96" stroke="#20242b" stroke-width="5" stroke-linecap="round"/>`
+    : cond>=1 ? `<path d="M68 93 L88 95 M132 93 L112 95" stroke="#20242b" stroke-width="4.5" stroke-linecap="round"/>`
+    : `<path d="M68 96 L88 92 M132 96 L112 92" stroke="#20242b" stroke-width="4" stroke-linecap="round"/>`;
   const eye = cx => cond===0
-    ? `<path d="M${cx-8} 104 q8 6 16 0" fill="none" stroke="#3a3f4a" stroke-width="3.5" stroke-linecap="round"/>`
-    : `<circle cx="${cx}" cy="104" r="9.5" fill="#fff"/><circle cx="${cx+1}" cy="106" r="5.6" fill="#3a3f4a"/><circle cx="${cx+3.5}" cy="103" r="2.1" fill="#fff"/>`;
+    ? `<path d="M${cx-8} 106 q8 5 16 0" fill="none" stroke="#20242b" stroke-width="3.5" stroke-linecap="round"/>`
+    : `<circle cx="${cx}" cy="106" r="6.5" fill="#20242b"/>`;
   return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="cbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${body[0]}"/><stop offset="1" stop-color="${body[1]}"/></linearGradient></defs>
-    ${sparkle}
-    <ellipse cx="80" cy="177" rx="13" ry="8.5" fill="#9aa6bd"/><ellipse cx="120" cy="177" rx="13" ry="8.5" fill="#9aa6bd"/>
-    <circle cx="40" cy="134" r="${armR}" fill="url(#cbg)" stroke="#93a0b8" stroke-width="2"/>
-    <circle cx="160" cy="134" r="${armR}" fill="url(#cbg)" stroke="#93a0b8" stroke-width="2"/>
-    <rect x="46" y="56" width="108" height="114" rx="54" fill="url(#cbg)" stroke="#93a0b8" stroke-width="2.5"/>
-    <ellipse cx="76" cy="84" rx="18" ry="11" fill="#fff" opacity=".42"/>
-    <g opacity=".2"><rect x="86" y="148" width="28" height="5" rx="2.5" fill="#3a3f4a"/><circle cx="84" cy="150.5" r="6" fill="#3a3f4a"/><circle cx="116" cy="150.5" r="6" fill="#3a3f4a"/></g>
-    <circle cx="63" cy="122" r="9" fill="#ff9db0" opacity=".55"/><circle cx="137" cy="122" r="9" fill="#ff9db0" opacity=".55"/>
-    ${eye(78)}${eye(122)}
-    <path d="${mouth}" fill="none" stroke="#3a3f4a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    ${flame}
+    <rect x="70" y="172" width="20" height="12" rx="4" fill="#6b7280"/><rect x="110" y="172" width="20" height="12" rx="4" fill="#6b7280"/>
+    <circle cx="40" cy="134" r="${armR}" fill="url(#cbg)" stroke="${stroke}" stroke-width="2.5"/>
+    <circle cx="160" cy="134" r="${armR}" fill="url(#cbg)" stroke="${stroke}" stroke-width="2.5"/>
+    <rect x="46" y="56" width="108" height="116" rx="30" fill="url(#cbg)" stroke="${stroke}" stroke-width="3"/>
+    <path d="M58 76 q18 -10 36 -4" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".35"/>
+    <g opacity=".28"><rect x="84" y="150" width="32" height="6" rx="3" fill="#20242b"/><circle cx="82" cy="153" r="7" fill="#20242b"/><circle cx="118" cy="153" r="7" fill="#20242b"/></g>
+    ${brow}${eye(78)}${eye(122)}
+    <path d="${mouth}" fill="none" stroke="#20242b" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
     ${sweat}
   </svg>`;
 }
