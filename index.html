@@ -2,8 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>폼클럽 · 같이 키우는 운동 마스코트</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0d0d10" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="폼클럽" />
+<title>폼클럽 · 우리 팀이 구단이 되는 곳</title>
 <meta name="description" content="친구 크루랑 같이 키우는 운동 마스코트. 인증하면 벌크업, 방치하면 시들." />
 <meta property="og:title" content="폼클럽 · 같이 키우는 운동 마스코트" />
 <meta property="og:description" content="크루로 쌓는 운동 역사. 인증하면 마스코트가 자란다." />
@@ -85,7 +89,31 @@
   .teambadge{font-size:12px;font-weight:800;color:var(--gold);background:rgba(227,154,0,.12);padding:2px 8px;border-radius:999px;vertical-align:middle}
   .penaltycard{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:12px;padding:13px 16px;font-size:13px;font-weight:700;color:#f0b03e;box-shadow:var(--shadow)}
   .penaltycard b{color:#ffcf7a}
-  /* 팀 크루 */
+  /* ── 구단 UI ── */
+  .clubhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;margin:8px 0 12px;background:var(--card)}
+  .clubhead .ch-l{display:flex;align-items:center;gap:12px;min-width:0}
+  .ch-emblem{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;font-size:22px;font-weight:900;color:#fff;flex:none}
+  .ch-name{font-size:19px;font-weight:900;letter-spacing:-.02em}
+  .ch-mw{font-family:var(--font-num);font-size:13px;color:var(--sub);letter-spacing:.06em;margin-top:2px}
+  .ch-r{display:flex;align-items:center;gap:8px;flex:none}
+  .formcard{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:20px 18px;text-align:center;margin-bottom:12px}
+  .fc-chant{font-size:12.5px;color:var(--sub);font-weight:700;margin-bottom:8px}
+  .fc-form{font-family:var(--font-num);font-size:34px;letter-spacing:.02em}
+  .fc-ovr{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-top:6px}
+  .fc-ovr b{font-family:var(--font-num);font-weight:400;font-size:64px;line-height:1;color:var(--txt)}
+  .fc-ovr span{font-size:12px;font-weight:800;letter-spacing:.2em;color:var(--sub)}
+  .fc-total{margin-top:8px;font-size:14px;font-weight:700;color:var(--sub)}
+  .fc-total b{font-family:var(--font-num);font-weight:400;font-size:26px;color:var(--txt);vertical-align:-2px;margin:0 2px}
+  .fc-nudge{margin-top:12px;background:var(--card2);color:var(--sub);font-weight:700;font-size:12px;padding:10px;border-radius:10px}
+  .fc-nudge.good{color:var(--ok)}
+  .fc-week{display:flex;flex-direction:column;gap:8px;margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+  .fc-week>span{font-size:12.5px;font-weight:700;color:var(--sub)}
+  .fc-week b{color:var(--txt)}
+  .totrow{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:700;color:var(--sub)}
+  .totrow:last-child{border:none}
+  .totrow b{font-family:var(--font-num);font-weight:400;font-size:24px;color:var(--txt)}
+  .tabbtn{flex:1;background:transparent;border:none;color:var(--dim);font-weight:800;font-size:12.5px;padding:12px 4px;cursor:pointer;border-top:2px solid transparent}
+  .tabbtn.on{color:var(--txt);border-top-color:var(--accent)}
   .teambanner{display:flex;align-items:center;gap:14px;border-radius:14px;padding:16px 18px;margin-bottom:12px;color:#fff}
   .teambanner .tb-emblem{font-size:34px;line-height:1}
   .teambanner .tb-name{font-weight:900;font-size:19px;letter-spacing:-.02em}
@@ -223,9 +251,9 @@
   .codechip small{font-size:11px;color:var(--dim);letter-spacing:0;font-weight:700}
 
   /* action bar */
-  .actions{position:fixed;bottom:0;left:0;right:0;z-index:30;padding:12px 16px 20px;
-    background:linear-gradient(to top,var(--bg) 62%,transparent)}
-  .actions .wrap{padding:0 16px;display:flex;gap:10px}
+  .actions{position:fixed;bottom:0;left:0;right:0;z-index:30;padding:0 0 env(safe-area-inset-bottom,0);
+    background:var(--bg);border-top:1px solid var(--line)}
+  .actions .wrap{padding:0;display:flex;gap:0;max-width:var(--maxw);margin:0 auto}
   .actions button{flex:1;border:none;cursor:pointer;font-family:inherit;font-weight:850;font-size:15px;padding:15px;border-radius:14px}
   .a-start{background:var(--card);color:var(--txt);border:1px solid var(--line)}
   .a-check{background:var(--accent);color:#fff}
@@ -335,7 +363,7 @@
         <input name="cpin" inputmode="numeric" maxlength="6" placeholder="숫자 4~6자리" autocomplete="off">
         <div class="opt" style="margin-top:6px">다른 기기에서 재접속할 때 써요. 잊으면 못 찾으니 폼·은행 PIN 재사용 금지.</div></div>
       <p class="desc" id="createAs" style="margin-top:14px"></p>
-      <button class="submit" type="submit" id="createBtn">크루 만들기</button>
+      <button class="submit" type="submit" id="createBtn">팀 만들기</button>
       <button type="button" class="ghost-btn" data-close>닫기</button>
     </form>
     <div class="done" id="createDone" style="display:none">
@@ -497,6 +525,7 @@ async function loadMemberships(){
 }
 
 let VIEW = null;                 // null=홈, 아니면 crewId
+let crewTab = "home";            // 클럽하우스/락커룸/기록 탭
 let cache = { crew:null, members:[], checkins:[] };
 const prevChain = {};            // crewId -> 직전 렌더 고리 수 (성장 애니메이션용)
 
@@ -538,13 +567,13 @@ function animateCount(id, from, to, ms){
 
 /* ===================== 핏 (크루 캐릭터) ===================== */
 // 레벨 = 누적 인증(절대 안 빠짐), 컨디션 = 최근 7일 달성률(근손실 장치)
-// 핏(선수) 폼 상태 5단계 · FM식 · 이모지 없이 화살표 글리프, 하락은 무채색·최상만 그린
+// 팀 폼 상태 5단계 · 화살표 글리프(이모지 없음), 하락은 무채색·최상만 그린
 const CONDS=[
-  {n:"핏 사망",e:"▼▼",c:"#6a6a72"},
+  {n:"폼 바닥",e:"▼▼",c:"#6a6a72"},
   {n:"하락세",e:"▼", c:"#9a9aa4"},
   {n:"보합",  e:"→", c:"#9a9aa4"},
   {n:"상승세",e:"▲", c:"#22c55e"},
-  {n:"핏 미쳐",e:"▲▲",c:"#22c55e"},
+  {n:"폼 최고",e:"▲▲",c:"#22c55e"},
 ];
 function ovrOf(level){ return Math.min(99, 46 + Math.min(level,26)*2); }
 function computeCharacter(crew, members, checkins){
@@ -632,33 +661,33 @@ async function renderHome(){
   // 홈 카드용 고리 수(있으면 표시) — 가벼운 계산 위해 각 크루 최신값은 크루 진입 시 갱신됨
   let html="";
   if(mine.length){
-    html += `<div style="padding:22px 0 10px"><h1>내 크루 ⛓️</h1></div>`;
+    html += `<div style="padding:22px 0 10px"><h1>내 팀</h1></div>`;
     html += mine.map(m=>`
       <div class="crewitem" onclick="go('${m.crewId}')">
         <div class="ci-ic">⛓️</div>
         <div><div class="ci-n">${esc(m.crewName)}</div>
-          <div class="ci-m">${m.role==="guardian"?"🙌 가디언":"🏋️ 크루원"} · 코드 ${esc(m.code)}</div></div>
+          <div class="ci-m">${m.role==="guardian"?"서포터":"선수"} · 코드 ${esc(m.code)}</div></div>
         <div class="ci-chain"><b id="hc-${m.crewId}">–</b><span>고리</span></div>
       </div>`).join("");
     html += `<div style="margin-top:18px"></div>
-      <button class="btn primary" onclick="openCreate()">＋ 새 크루 만들기</button>
-      <button class="btn ghost" onclick="openJoin()">코드로 참여하기</button>`;
+      <button class="btn primary" onclick="openCreate()">＋ 새 팀 만들기</button>
+      <button class="btn ghost" onclick="openJoin()">코드로 합류하기</button>`;
   } else {
     html = `
       <div style="padding:44px 0 12px">
-        <h1>같이 키우는<br>운동 마스코트, 핏.</h1>
-        <p class="lead">크루가 인증하면 벌크업,<br>방치하면 시들해져요 🛋️</p>
+        <h1>우리 팀이<br><span class="accent">구단이 되는 곳.</span></h1>
+        <p class="lead">팀 만들고 매주 훈련 보고.<br>안 뛰면 팀 폼이 떨어져요.</p>
       </div>
       <div class="card">
         <div class="how">
-          <div class="hs"><span class="he">👥</span>크루 만들고 코드 공유</div>
-          <div class="hs"><span class="he">📸</span>매주 목표만큼 인증</div>
-          <div class="hs"><span class="he">💪</span>핏 벌크업 · 방치하면 시들</div>
+          <div class="hs"><span class="he">1</span>팀 만들고 코드 공유</div>
+          <div class="hs"><span class="he">2</span>매주 훈련 보고(사진)</div>
+          <div class="hs"><span class="he">3</span>팀 폼·통산·랭킹이 쌓임</div>
         </div>
       </div>
       <div style="margin-top:18px"></div>
-      <button class="btn primary" onclick="openCreate()">크루 만들기</button>
-      <button class="btn ghost" onclick="openJoin()">코드로 참여하기</button>`;
+      <button class="btn primary" onclick="openCreate()">팀 만들기</button>
+      <button class="btn ghost" onclick="openJoin()">코드로 합류하기</button>`;
   }
   document.getElementById("app").innerHTML=html;
 
@@ -704,152 +733,106 @@ async function renderCrew(cid){
   // 이번 주 크루 인증 합계 (누적 사슬과 별개, 이번 주 성장분)
   const thisWeekTotal = workoutMembers.reduce((s,m)=>s+weekCount(cid,m.id),0);
 
-  // 쌓이는 폼클럽 (등급·마일스톤·성장 애니메이션)
-  const {cur,next}=tierOf(r.chain);
-  const firstOpen = prevChain[cid]===undefined;
-  const grew = !firstOpen && r.chain>prevChain[cid];
-  const popN = grew ? Math.min(r.chain-prevChain[cid], 12) : 0;
-  const animStart = firstOpen ? 0 : (grew ? prevChain[cid] : r.chain);
-  const linksHTML = r.chain>0 ? chainLinksHTML(r.chain, popN)
-    : `<div class="chainempty">첫 고리를 채워보세요 ⛓️</div>`;
-  const mpct = next ? Math.round((r.chain-cur.min)/(next.min-cur.min)*100) : 100;
-  const milestone = next
-    ? `<div class="milestone"><div class="mt"><span>${next.emoji} ${next.name}</span><span><b style="color:${cur.color}">${next.min-r.chain}</b> 남음</span></div>
-        <div class="mbar"><i style="width:${mpct}%;background:var(--ok)"></i></div></div>`
-    : `<div class="milestone"><div class="mt"><span>🐋 최고 등급</span><span>${r.chain}</span></div></div>`;
-
-  // 핏 캐릭터 + 크루 단위 넛지(개인 지목 없음 · 진행 바에서 이미 보임)
+  // 캐릭터 제거 → 팀 폼(컨디션) 타이포로 전달
   const ch=computeCharacter(crew,members,checkins);
   const cd=CONDS[ch.cond];
-  const charNudge =
-    ch.cond<=1 ? `<div class="charnudge">핏 하락세 · 본인은 부정 중 · 이번 주 ${ch.recent}/${ch.expected}</div>`
-    : ch.cond>=4 ? `<div class="charnudge good">핏 미쳤다는 평가 · 이번 주 ${ch.recent}/${ch.expected}</div>`
-    : "";
+  const nudge = ch.cond<=1 ? `구단, 최근 훈련량 저조에 "아직 아니다" 공식입장`
+    : ch.cond>=4 ? `구단, 폼 절정 공식 인정` : "";
+  const matchweek = Math.max(1, Math.round((curWk()-DB.weekStartTs(crew.created_at))/WEEK_MS)+1);
+  const emblem = crew.emblem || "";
+  const WD=["월","화","수","목","금","토","일"], td=todayDow();
+  const teamDays=[0,0,0,0,0,0,0];
+  workoutMembers.forEach(m=>{ const d=weekDays(m.id); for(let i=0;i<7;i++) if(d[i]) teamDays[i]=1; });
+  const crewStrip=`<div class="wkstrip">${WD.map((d,i)=>`<span class="wd${teamDays[i]?" on":""}${i===td?" today":""}">${d}</span>`).join("")}</div>`;
+  const firstOpen = prevChain[cid]===undefined;
+  const grew = !firstOpen && r.chain>prevChain[cid];
+  const animStart = firstOpen ? 0 : (grew ? prevChain[cid] : r.chain);
 
-  let html=`
-    <div style="padding:16px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <div><div style="font-size:20px;font-weight:900">${esc(crew.name)}${crew.type==="team"?` <span class="teambadge">🏆 팀</span>`:""}</div>
-        <div style="color:var(--sub);font-size:12.5px">주 ${goal}회 · ${workoutMembers.length}명${guardians.length?` · 🙌${guardians.length}`:""}</div></div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button class="iconbtn" onclick="openSettings()">⚙️</button>
-        <div class="codechip" onclick="sendInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>📩 초대</small></div>
+  const header = `
+    <div class="clubhead"${isTeam&&crew.color?` style="border-color:${crew.color}"`:``}>
+      <div class="ch-l">
+        <div class="ch-emblem" style="background:${isTeam&&crew.color?crew.color:'var(--card2)'}">${emblem||esc(crew.name).slice(0,1)}</div>
+        <div><div class="ch-name">${esc(crew.name)}</div>
+          <div class="ch-mw">MATCHWEEK ${matchweek} · ${isTeam?'TEAM':'SQUAD'}</div></div>
       </div>
-    </div>
-
-    ${isTeam?`<div class="teambanner" style="background:${crew.color||'#161616'}">
-      <span class="tb-emblem">${esc(crew.emblem||'🏆')}</span>
-      <div class="tb-txt"><div class="tb-name">${esc(crew.name)}</div>${crew.chant?`<div class="tb-chant">"${esc(crew.chant)}"</div>`:``}</div>
-    </div>`:``}
-
-    <div class="charcard playercard"${isTeam&&crew.color?` style="border-color:${crew.color}"`:""}>
-      <div class="pc-top">
-        <div class="pc-ovr"><b>${ovrOf(ch.level)}</b><span>OVR</span></div>
-        <div class="pc-cond" style="color:${cd.c}">${cd.e} ${cd.n}</div>
+      <div class="ch-r">
+        <button class="iconbtn" onclick="openSettings()">⚙</button>
+        <div class="codechip" onclick="sendInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>합류</small></div>
       </div>
-      <div class="charbox">${characterSVG(ch.level, ch.cond)}</div>
-      <div class="pc-name">핏 <span class="pc-sub">${isTeam&&crew.emblem?esc(crew.emblem)+" ":""}${esc(crew.name)}</span></div>
-      ${charNudge}
-    </div>
+    </div>`;
 
-    <div class="chainhero">
+  const formCard = `
+    <div class="formcard"${isTeam&&crew.color?` style="border-color:${crew.color}"`:``}>
       <span class="burst" id="chBurst"></span>
-      <div class="tier" style="color:${cur.color}">${cur.emoji} ${cur.name}</div>
-      <div class="chainbig" id="chainBig"><span id="chainNum">${animStart}</span><span class="u"> 고리</span></div>
-      <div class="chainwrap">${linksHTML}</div>
-      <div class="chainmeta"><div>이번 주 <b>+${thisWeekTotal}</b></div></div>
-      ${milestone}
-      <button class="sharebtn" onclick="shareCurrentCrew()">공유 카드 만들기</button>
-    </div>
+      ${crew.chant?`<div class="fc-chant">"${esc(crew.chant)}"</div>`:``}
+      <div class="fc-form" style="color:${cd.c}">${cd.e} ${cd.n}</div>
+      <div class="fc-ovr"><b>${ovrOf(ch.level)}</b><span>OVR</span></div>
+      <div class="fc-total">통산 훈련 <b id="chainNum">${animStart}</b> 회</div>
+      ${nudge?`<div class="fc-nudge${ch.cond>=4?' good':''}">${nudge} · 이번 주 ${ch.recent}/${ch.expected}</div>`:``}
+      <div class="fc-week"><span>이번 주 훈련 <b>${thisWeekTotal}</b> · D-${daysLeft}</span>${crewStrip}</div>
+    </div>`;
 
-    <div class="card">
-      <div class="sec-t">이번 주 <span class="r">${daysLeft}일 남음</span></div>
-      ${(()=>{ const WD=["월","화","수","목","금","토","일"], td=todayDow();
-        return workoutMembers.map(m=>{
-        const c=weekCount(cid,m.id); const done=c>=goal;
-        const liv=active.find(a=>String(a.m.id)===String(m.id));
-        const dd=weekDays(m.id);
-        return `<div class="mrow2">
-          <div class="mrow2-top">
-            <span class="nm">${esc(m.name)}${String(m.id)===String(mem.memberId)?" <span style='color:var(--dim);font-weight:600'>(나)</span>":""}</span>
-            ${liv?`<span class="live">운동 중 ${liv.mins}분</span>`:""}
-            <span class="cnt ${done?"done":"miss"}">${c}/${goal}</span>
-          </div>
-          <div class="wkstrip">${WD.map((d,i)=>`<span class="wd${dd[i]?" on":""}${i===td?" today":""}">${d}</span>`).join("")}</div>
-        </div>`;
-      }).join(""); })()}
-      ${guardians.length?`<div style="margin-top:10px;color:var(--dim);font-size:12px">🙌 가디언: ${guardians.map(g=>esc(g.name)).join(", ")}</div>`:""}
-      ${crew.type==="team"?`<button class="linkback" style="margin-top:12px" onclick="shareReport()">📋 이번 주 개인훈련 집계 보내기</button>`:""}
-    </div>
+  const squad = `<div class="card"><div class="sec-t">명단 <span class="r">이번 주</span></div>
+    ${workoutMembers.map(m=>{ const c=weekCount(cid,m.id); const done=c>=goal; const liv=active.find(a=>String(a.m.id)===String(m.id)); const dd=weekDays(m.id);
+      return `<div class="mrow2"><div class="mrow2-top"><span class="nm">${esc(m.name)}${String(m.id)===String(mem.memberId)?" <span style='color:var(--dim);font-weight:600'>(나)</span>":""}</span>${liv?`<span class="live">훈련 중 ${liv.mins}분</span>`:""}<span class="cnt ${done?"done":"miss"}">${c}/${goal}</span></div>
+      <div class="wkstrip">${WD.map((d,i)=>`<span class="wd${dd[i]?" on":""}${i===td?" today":""}">${d}</span>`).join("")}</div></div>`; }).join("")}
+    ${guardians.length?`<div style="margin-top:10px;color:var(--dim);font-size:12px">서포터즈: ${guardians.map(g=>esc(g.name)).join(", ")}</div>`:""}
+    ${isTeam?`<button class="linkback" style="margin-top:12px" onclick="shareReport()">주간 집계 명단 발송</button>`:""}
+  </div>`;
 
-    ${crew.hardmode?`<div class="penaltycard">🍗 하드모드 · 이번 주 미달 <b>${behind.length}명</b>${crew.penalty?` · 예상 벌금 ${(behind.length*crew.penalty).toLocaleString()}원`:""}</div>`:""}
+  const penalty = crew.hardmode?`<div class="penaltycard">하드모드 · 이번 주 미달 <b>${behind.length}명</b>${crew.penalty?` · 벌금 ${(behind.length*crew.penalty).toLocaleString()}원`:""}</div>`:"";
 
-    ${isTeam?`<div class="card">
-      <div class="sec-t">랭킹 <span class="r">상위 3명만</span></div>
-      <div class="rankgrid">
-        <div><div class="rankttl">🔥 이번 주</div>
-          ${wkRank.slice(0,3).map((x,i)=>`<div class="rankrow"><span class="rk rk${i+1}">${i+1}</span><span class="rn">${esc(x.m.name)}</span><span class="rv">${x.v}</span></div>`).join("")||`<div class="myrank">아직 없음</div>`}
-          <div class="myrank">내 순위 ${myWkRank}위 · ${weekCount(cid,mem.memberId)}회</div></div>
-        <div><div class="rankttl">🏆 누적</div>
-          ${totRank.slice(0,3).map((x,i)=>`<div class="rankrow"><span class="rk rk${i+1}">${i+1}</span><span class="rn">${esc(x.m.name)}</span><span class="rv">${x.v}</span></div>`).join("")||`<div class="myrank">아직 없음</div>`}
-          <div class="myrank">내 순위 ${myTotRank}위</div></div>
-      </div>
-    </div>`:""}
+  const totalCard = `<div class="card"><div class="sec-t">통산</div>
+    <div class="totrow"><span>통산 훈련</span><b>${r.chain}</b></div>
+    <div class="totrow"><span>이번 주 훈련</span><b>+${thisWeekTotal}</b></div>
+    <div class="totrow"><span>팀 폼</span><b style="color:${cd.c}">${cd.n}</b></div></div>`;
 
-    ${(()=>{ const ph=checkins.filter(c=>(c.type||"workout")==="workout"&&c.photo).slice(0,15);
-      return ph.length ? `<div class="card">
-        <div class="sec-t">📸 인증샷 <span class="r">${ph.length}</span></div>
-        <div class="gallery">${ph.map(c=>`<div class="gthumb" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"><div class="gn">${esc(c.name)}</div></div>`).join("")}</div>
-      </div>` : ""; })()}
+  const rankCard = `<div class="card"><div class="sec-t">랭킹 <span class="r">상위 3명</span></div>
+    <div class="rankgrid">
+      <div><div class="rankttl">이번 주 꾸준함</div>${wkRank.slice(0,3).map((x,i)=>`<div class="rankrow"><span class="rk rk${i+1}">${i+1}</span><span class="rn">${esc(x.m.name)}</span><span class="rv">${x.v}</span></div>`).join("")||`<div class="myrank">-</div>`}<div class="myrank">내 순위 ${myWkRank}위</div></div>
+      <div><div class="rankttl">통산 기여</div>${totRank.slice(0,3).map((x,i)=>`<div class="rankrow"><span class="rk rk${i+1}">${i+1}</span><span class="rn">${esc(x.m.name)}</span><span class="rv">${x.v}</span></div>`).join("")||`<div class="myrank">-</div>`}<div class="myrank">내 순위 ${myTotRank}위</div></div>
+    </div></div>`;
 
-    <div class="card">
-      <div class="sec-t">보드${isTeam?` <span class="r">최신순</span>`:""}</div>
-      ${isTeam && wkRank[0] && wkRank[0].v>0 ? `<div class="feedhi">🔥 이번 주 최다 인증 · <b>${esc(wkRank[0].m.name)}</b> (${wkRank[0].v}회)</div>`:""}
-      <div class="feed">
-        ${checkins.filter(c=>c.type!=="start").slice(0, isTeam?8:20).map(c=>{
-          if(c.type==="cheer") return `<div class="item">
-            <div class="fic cheer">${esc(c.part||"🙌")}</div>
-            <div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--gold);font-size:11px;font-weight:800">가디언</span></div>
-              <div class="ft">${esc(c.note||"응원을 보냈어요")}</div></div>
-            <div class="fago">${ago(c.created_at)}</div></div>`;
-          const act=c.part||"";
-          return `<div class="item">
-            <div class="fic">${ACT_EMOJI[act]||"⛓️"}</div>
-            <div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">인증 ⛓️</span></div>
-              <div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>
-              ${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy" alt="인증샷"></div>`:""}</div>
-            <div class="fago">${ago(c.created_at)}</div></div>`;
-        }).join("") || `<div class="empty">첫 인증을 남겨보세요 ⛓️</div>`}
-      </div>
-    </div>
-  `;
-  document.getElementById("app").innerHTML=html;
+  const gallery=(()=>{ const ph=checkins.filter(c=>(c.type||"workout")==="workout"&&c.photo).slice(0,15);
+    return ph.length?`<div class="card"><div class="sec-t">사진 <span class="r">${ph.length}</span></div><div class="gallery">${ph.map(c=>`<div class="gthumb" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"><div class="gn">${esc(c.name)}</div></div>`).join("")}</div></div>`:""; })();
 
-  // 성장 애니메이션 (카운트업 + 숫자 튕김 + 증가량 버스트)
-  if(animStart!==r.chain){
+  const board = `<div class="card"><div class="sec-t">락커룸 <span class="r">최신순</span></div>
+    ${isTeam && wkRank[0] && wkRank[0].v>0 ? `<div class="feedhi">이번 주 최다 훈련 · <b>${esc(wkRank[0].m.name)}</b> (${wkRank[0].v})</div>`:""}
+    <div class="feed">${checkins.filter(c=>c.type!=="start").slice(0,isTeam?10:20).map(c=>{
+      if(c.type==="cheer") return `<div class="item"><div class="fic cheer">${esc(c.part||"응")}</div><div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--gold);font-size:11px;font-weight:800">서포터</span></div><div class="ft">${esc(c.note||"응원")}</div></div><div class="fago">${ago(c.created_at)}</div></div>`;
+      const act=c.part||"";
+      return `<div class="item"><div class="fic">${ACT_EMOJI[act]||"●"}</div><div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">훈련</span></div><div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"></div>`:""}</div><div class="fago">${ago(c.created_at)}</div></div>`;
+    }).join("")||`<div class="empty">첫 훈련 보고를 남겨보세요</div>`}</div></div>`;
+
+  const reportBtn = mem.role==="guardian"
+    ? `<button class="btn primary" onclick="openCheer()">응원 보내기</button>`
+    : `<button class="btn primary" onclick="openCheck()">오늘 훈련 보고하기</button>`;
+
+  let body;
+  if(crewTab==="locker") body = header + gallery + board;
+  else if(crewTab==="record") body = header + rankCard + totalCard;
+  else body = header + formCard + reportBtn + squad + penalty + totalCard;
+  document.getElementById("app").innerHTML = body;
+
+  // 통산 카운트업(클럽하우스 탭에서만)
+  if(crewTab!=="locker" && crewTab!=="record" && animStart!==r.chain){
     animateCount("chainNum", animStart, r.chain, 700);
-    const big=document.getElementById("chainBig");
-    if(big){ big.classList.add("bump"); setTimeout(()=>big.classList.remove("bump"),600); }
-    if(grew){
-      const delta=r.chain-prevChain[cid];
-      const b=document.getElementById("chBurst");
-      if(b){ b.textContent="+"+delta+" 고리 ⛓️"; b.classList.add("go"); setTimeout(()=>b.classList.remove("go"),1100); }
-    }
+    if(grew){ const b=document.getElementById("chBurst"); if(b){ b.textContent="+"+(r.chain-prevChain[cid])+" 훈련"; b.classList.add("go"); setTimeout(()=>b.classList.remove("go"),1100); } }
   }
   prevChain[cid]=r.chain;
 
-  // 액션바
+  // 하단 4탭
   const ab=document.getElementById("actions"); ab.style.display="";
-  if(mem.role==="guardian"){
-    document.getElementById("actionsInner").innerHTML=`<button class="a-cheer" onclick="openCheer()">응원 보내기</button>`;
-  } else {
-    document.getElementById("actionsInner").innerHTML=
-      `<button class="a-start" onclick="startWorkout()">${meLive?`운동 중 ${meLive.mins}분`:"운동 시작"}</button>
-       <button class="a-check" onclick="openCheck()">오늘 인증하기</button>`;
-  }
+  const TABS=[["home","클럽하우스"],["today","오늘"],["locker","락커룸"],["record","기록"]];
+  document.getElementById("actionsInner").innerHTML=TABS.map(([t,l])=>`<button class="tabbtn${crewTab===t?' on':''}" onclick="setTab('${t}')">${l}</button>`).join("");
 }
 
 /* ===================== 액션 ===================== */
-function go(cid){ VIEW=cid; localStorage.setItem("sasl_current",cid); window.scrollTo(0,0); render(); }
+function go(cid){ VIEW=cid; crewTab="home"; localStorage.setItem("sasl_current",cid); window.scrollTo(0,0); render(); }
+function setTab(t){
+  if(t==="today"){ const m=myMember(VIEW); if(m&&m.role==="guardian") openCheer(); else openCheck(); return; }
+  crewTab=t; window.scrollTo(0,0); renderCrew(VIEW);
+}
 function goHome(){ VIEW=null; localStorage.removeItem("sasl_current"); window.scrollTo(0,0); render(); }
 
 async function startWorkout(){
@@ -861,7 +844,7 @@ async function startWorkout(){
 }
 
 const inviteUrl = code => location.origin+location.pathname+"?code="+code;
-const inviteMsg = (code,name) => `우리 크루 '${name}' 같이 하자! ⛓️\n폼클럽 코드: ${code}\n${inviteUrl(code)}`;
+const inviteMsg = (code,name) => `우리 팀 '${name}' 합류해!\n폼클럽 코드: ${code}\n${inviteUrl(code)}`;
 
 async function copyText(t){
   try{ await navigator.clipboard.writeText(t); return true; }
