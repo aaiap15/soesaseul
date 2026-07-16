@@ -58,6 +58,17 @@
   .charname{font-weight:900;font-size:18px;margin-top:4px}
   .charname .lv{color:var(--sub);font-size:13px;font-weight:800}
   .charcond{font-weight:850;font-size:14px;margin-top:2px}
+  /* 피파식 선수 카드 */
+  .playercard{padding:16px}
+  .pc-top{display:flex;align-items:flex-start;justify-content:space-between}
+  .pc-ovr{display:flex;flex-direction:column;align-items:center;line-height:.85}
+  .pc-ovr b{font-family:var(--font-num);font-weight:400;font-size:44px;color:var(--txt)}
+  .pc-ovr span{font-size:10px;font-weight:800;letter-spacing:.18em;color:var(--sub);margin-top:3px}
+  .pc-cond{font-family:var(--font-num);font-weight:400;font-size:16px;letter-spacing:.02em;padding-top:6px}
+  .playercard .charbox{width:190px;height:auto;margin:2px auto 4px}
+  .playercard .charbox svg{width:100%;height:auto}
+  .pc-name{text-align:center;font-weight:900;font-size:20px}
+  .pc-name .pc-sub{display:block;font-size:12px;font-weight:700;color:var(--sub);margin-top:2px}
   .charnudge{margin-top:12px;background:var(--card2);color:var(--sub);font-weight:800;font-size:12.5px;padding:10px;border-radius:12px}
   .charnudge.good{background:rgba(18,184,134,.1);color:var(--ok)}
   .mrow2{padding:12px 0;border-bottom:1px solid var(--line)}
@@ -310,7 +321,7 @@
     <div class="grip"></div>
     <form id="createForm">
       <h2>크루 만들기 ⛓️</h2>
-      <p class="desc">같이 폼이를 키워요. 만들면 초대 코드가 나와요.</p>
+      <p class="desc">같이 핏를 키워요. 만들면 초대 코드가 나와요.</p>
       <div class="field"><label>어떤 크루?</label>
         <div class="chips">
           <label class="chip"><input type="radio" name="ctype" value="friend" checked><span>👥 친구 크루 (2~6명)</span></label>
@@ -330,7 +341,7 @@
     <div class="done" id="createDone" style="display:none">
       <div class="ic">🎉</div>
       <h2>크루 완성!</h2>
-      <p class="desc" style="margin-top:8px">친구를 초대하면 같이 폼이를 키워요.</p>
+      <p class="desc" style="margin-top:8px">친구를 초대하면 같이 핏를 키워요.</p>
       <div class="codebox" id="newCode">----</div>
       <button class="submit" id="sendInviteBtn">📩 친구에게 초대 보내기</button>
       <button type="button" class="ghost-btn" id="copyCodeBtn">코드만 복사</button>
@@ -393,8 +404,8 @@
       <div class="ic">⛓️</div>
       <h2 id="checkDoneT">+1 고리!</h2>
       <p id="checkDoneP"></p>
-      <button class="submit" id="checkDoneShare" style="margin-top:20px">📸 스토리에 자랑하기</button>
-      <button class="ghost-btn" id="checkDoneOk">사슬 보러가기 ⛓️</button>
+      <button class="submit" id="checkDoneShare" style="margin-top:20px">스토리에 자랑하기</button>
+      <button class="ghost-btn" id="checkDoneOk">확인</button>
     </div>
   </div>
 </div>
@@ -525,16 +536,17 @@ function animateCount(id, from, to, ms){
   })(t0);
 }
 
-/* ===================== 폼이 (크루 캐릭터) ===================== */
+/* ===================== 핏 (크루 캐릭터) ===================== */
 // 레벨 = 누적 인증(절대 안 빠짐), 컨디션 = 최근 7일 달성률(근손실 장치)
-// 반프(무뚝뚝) 5단계 · 하락은 무채색, 최상만 필드그린
+// 핏(선수) 폼 상태 5단계 · FM식 · 이모지 없이 화살표 글리프, 하락은 무채색·최상만 그린
 const CONDS=[
-  {n:"정전",e:"🕹️",c:"#5a5d57"},
-  {n:"방전",e:"😑",c:"#5a5d57"},
-  {n:"시들",e:"😐",c:"#5a5d57"},
-  {n:"보통",e:"🙂",c:"#5a5d57"},
-  {n:"빵빵",e:"💪",c:"#0f9152"},
+  {n:"핏 사망",e:"▼▼",c:"#6a6a72"},
+  {n:"하락세",e:"▼", c:"#9a9aa4"},
+  {n:"보합",  e:"→", c:"#9a9aa4"},
+  {n:"상승세",e:"▲", c:"#22c55e"},
+  {n:"핏 미쳐",e:"▲▲",c:"#22c55e"},
 ];
+function ovrOf(level){ return Math.min(99, 46 + Math.min(level,26)*2); }
 function computeCharacter(crew, members, checkins){
   const goal=Number(crew.goal)||3;
   const wm=members.filter(m=>m.role!=="guardian");
@@ -549,34 +561,29 @@ function computeCharacter(crew, members, checkins){
   const cond = rate>=1?4 : rate>=0.7?3 : rate>=0.4?2 : rate>=0.15?1 : 0;
   return {level,total,cond,rate,recent,expected};
 }
+// 도트(픽셀) 스프라이트 — 컨디션으로 표정, OVR/레벨로 팔(근육) 두께
 function characterSVG(level, cond){
-  const armR=Math.max(8, Math.min(30, 12 + Math.min(level,18)*0.7 - (4-cond)*4.5));
-  const body = cond<=1 ? ["#aeb4bf","#7c828d"] : ["#d9dde4","#9aa1ad"];   // 브러시드 스틸
-  const stroke="#5a606b";
-  const mouth={4:"M85 140 L115 140",3:"M87 140 L113 140",2:"M89 141 L111 141",1:"M88 144 Q100 139 112 144",0:"M88 142 q6 7 12 0 q6 7 12 0"}[cond];
-  const flame = cond===4 ? `<text x="150" y="52" font-size="30">🔥</text>` : "";
-  const sweat = cond===0 ? `<path d="M56 80 q-6 11 0 15 q6 -4 0 -15" fill="#7fbfe6"/>` : "";
-  // 결의 있는 눈썹(좋을수록 치켜, 저조하면 처짐)
-  const brow = cond>=3
-    ? `<path d="M68 90 L88 96 M132 90 L112 96" stroke="#20242b" stroke-width="5" stroke-linecap="round"/>`
-    : cond>=1 ? `<path d="M68 93 L88 95 M132 93 L112 95" stroke="#20242b" stroke-width="4.5" stroke-linecap="round"/>`
-    : `<path d="M68 96 L88 92 M132 96 L112 92" stroke="#20242b" stroke-width="4" stroke-linecap="round"/>`;
-  const eye = cx => cond===0
-    ? `<path d="M${cx-8} 106 q8 5 16 0" fill="none" stroke="#20242b" stroke-width="3.5" stroke-linecap="round"/>`
-    : `<circle cx="${cx}" cy="106" r="6.5" fill="#20242b"/>`;
-  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="cbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${body[0]}"/><stop offset="1" stop-color="${body[1]}"/></linearGradient></defs>
-    ${flame}
-    <rect x="70" y="172" width="20" height="12" rx="4" fill="#6b7280"/><rect x="110" y="172" width="20" height="12" rx="4" fill="#6b7280"/>
-    <circle cx="40" cy="134" r="${armR}" fill="url(#cbg)" stroke="${stroke}" stroke-width="2.5"/>
-    <circle cx="160" cy="134" r="${armR}" fill="url(#cbg)" stroke="${stroke}" stroke-width="2.5"/>
-    <rect x="46" y="56" width="108" height="116" rx="30" fill="url(#cbg)" stroke="${stroke}" stroke-width="3"/>
-    <path d="M58 76 q18 -10 36 -4" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".35"/>
-    <g opacity=".28"><rect x="84" y="150" width="32" height="6" rx="3" fill="#20242b"/><circle cx="82" cy="153" r="7" fill="#20242b"/><circle cx="118" cy="153" r="7" fill="#20242b"/></g>
-    ${brow}${eye(78)}${eye(122)}
-    <path d="${mouth}" fill="none" stroke="#20242b" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-    ${sweat}
-  </svg>`;
+  const C=13, dark="#191c22";
+  const body = cond<=1 ? "#98a0ac" : "#ccd3dd";
+  const armN = Math.max(1, Math.min(3, (cond>=3?2:1) + Math.floor(Math.min(level,24)/8)));
+  const eyes = cond===0 ? "#.-...-.#" : "#.o...o.#";
+  const mw = cond>=4?5 : cond>=2?3 : cond>=1?1 : 3;         // 입 폭(웃음~찡그림)
+  const m=Array(9).fill("."); m[0]="#"; m[8]="#";
+  const st=Math.floor((9-mw)/2); for(let i=0;i<mw;i++) m[st+i]="m";
+  const map=[".#######.","#########",eyes,"#########",m.join(""),"#########","#########","#########",".#######.",".##.#.##.",".##...##."];
+  const cols=9, rows=map.length, armMax=3, xOff=armMax*C, W=(cols+armMax*2)*C, H=rows*C;
+  let px="";
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    const ch=map[r][c]; if(ch===".") continue;
+    px+=`<rect x="${xOff+c*C}" y="${r*C}" width="${C}" height="${C}" fill="${(ch==="o"||ch==="m"||ch==="-")?dark:body}"/>`;
+  }
+  let arms="";
+  for(let ac=0;ac<armN;ac++) for(const r of [4,5,6]){
+    arms+=`<rect x="${xOff-(ac+1)*C}" y="${r*C}" width="${C}" height="${C}" fill="${body}"/>`;
+    arms+=`<rect x="${xOff+cols*C+ac*C}" y="${r*C}" width="${C}" height="${C}" fill="${body}"/>`;
+  }
+  const sweat = cond===0 ? `<rect x="${xOff+1*C}" y="${1*C}" width="${C}" height="${C}" fill="#4a9fd6"/>` : "";
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">${arms}${px}${sweat}</svg>`;
 }
 
 /* ===================== 유틸 ===================== */
@@ -639,14 +646,14 @@ async function renderHome(){
   } else {
     html = `
       <div style="padding:44px 0 12px">
-        <h1>같이 키우는<br>운동 마스코트, 폼이.</h1>
+        <h1>같이 키우는<br>운동 마스코트, 핏.</h1>
         <p class="lead">크루가 인증하면 벌크업,<br>방치하면 시들해져요 🛋️</p>
       </div>
       <div class="card">
         <div class="how">
           <div class="hs"><span class="he">👥</span>크루 만들고 코드 공유</div>
           <div class="hs"><span class="he">📸</span>매주 목표만큼 인증</div>
-          <div class="hs"><span class="he">💪</span>폼이 벌크업 · 방치하면 시들</div>
+          <div class="hs"><span class="he">💪</span>핏 벌크업 · 방치하면 시들</div>
         </div>
       </div>
       <div style="margin-top:18px"></div>
@@ -711,12 +718,12 @@ async function renderCrew(cid){
         <div class="mbar"><i style="width:${mpct}%;background:var(--ok)"></i></div></div>`
     : `<div class="milestone"><div class="mt"><span>🐋 최고 등급</span><span>${r.chain}</span></div></div>`;
 
-  // 폼이 캐릭터 + 크루 단위 넛지(개인 지목 없음 · 진행 바에서 이미 보임)
+  // 핏 캐릭터 + 크루 단위 넛지(개인 지목 없음 · 진행 바에서 이미 보임)
   const ch=computeCharacter(crew,members,checkins);
   const cd=CONDS[ch.cond];
   const charNudge =
-    ch.cond<=1 ? `<div class="charnudge">🛋️ 폼이가 소파에 정착했습니다 · 이번 주 ${ch.recent}/${ch.expected}</div>`
-    : ch.cond>=4 ? `<div class="charnudge good">💪 폼이 컨디션 최상 · 이번 주 ${ch.recent}/${ch.expected}</div>`
+    ch.cond<=1 ? `<div class="charnudge">핏 하락세 · 본인은 부정 중 · 이번 주 ${ch.recent}/${ch.expected}</div>`
+    : ch.cond>=4 ? `<div class="charnudge good">핏 미쳤다는 평가 · 이번 주 ${ch.recent}/${ch.expected}</div>`
     : "";
 
   let html=`
@@ -734,10 +741,13 @@ async function renderCrew(cid){
       <div class="tb-txt"><div class="tb-name">${esc(crew.name)}</div>${crew.chant?`<div class="tb-chant">"${esc(crew.chant)}"</div>`:``}</div>
     </div>`:``}
 
-    <div class="charcard">
+    <div class="charcard playercard"${isTeam&&crew.color?` style="border-color:${crew.color}"`:""}>
+      <div class="pc-top">
+        <div class="pc-ovr"><b>${ovrOf(ch.level)}</b><span>OVR</span></div>
+        <div class="pc-cond" style="color:${cd.c}">${cd.e} ${cd.n}</div>
+      </div>
       <div class="charbox">${characterSVG(ch.level, ch.cond)}</div>
-      <div class="charname">폼이 <span class="lv">Lv.${ch.level}</span></div>
-      <div class="charcond" style="color:${cd.c}">${cd.e} ${cd.n}</div>
+      <div class="pc-name">핏 <span class="pc-sub">${isTeam&&crew.emblem?esc(crew.emblem)+" ":""}${esc(crew.name)}</span></div>
       ${charNudge}
     </div>
 
@@ -748,7 +758,7 @@ async function renderCrew(cid){
       <div class="chainwrap">${linksHTML}</div>
       <div class="chainmeta"><div>이번 주 <b>+${thisWeekTotal}</b></div></div>
       ${milestone}
-      <button class="sharebtn" onclick="shareCurrentCrew()">📸 자랑하기</button>
+      <button class="sharebtn" onclick="shareCurrentCrew()">공유 카드 만들기</button>
     </div>
 
     <div class="card">
@@ -830,11 +840,11 @@ async function renderCrew(cid){
   // 액션바
   const ab=document.getElementById("actions"); ab.style.display="";
   if(mem.role==="guardian"){
-    document.getElementById("actionsInner").innerHTML=`<button class="a-cheer" onclick="openCheer()">🙌 응원 보내기</button>`;
+    document.getElementById("actionsInner").innerHTML=`<button class="a-cheer" onclick="openCheer()">응원 보내기</button>`;
   } else {
     document.getElementById("actionsInner").innerHTML=
-      `<button class="a-start" onclick="startWorkout()">${meLive?`⏱ 운동 중 ${meLive.mins}분`:"🏋️ 운동 시작"}</button>
-       <button class="a-check" onclick="openCheck()">✅ 오늘 인증하기</button>`;
+      `<button class="a-start" onclick="startWorkout()">${meLive?`운동 중 ${meLive.mins}분`:"운동 시작"}</button>
+       <button class="a-check" onclick="openCheck()">오늘 인증하기</button>`;
   }
 }
 
@@ -1071,33 +1081,34 @@ async function drawCollage(g,photos,x,y,w,h){
     g.strokeStyle="rgba(0,0,0,.06)"; g.lineWidth=2; roundRect(g,cx,cy,cw,ch,28); g.stroke();
   });
 }
-async function drawCardBlob({crewName,chain,tier,best,photos,code}){
+async function drawCardBlob({crewName,chain,tier,best,photos,code,ovr}){
   const W=1080,H=1920, cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d");
-  const bg=g.createLinearGradient(0,0,0,H); bg.addColorStop(0,"#fff2da"); bg.addColorStop(.5,"#fff9f0"); bg.addColorStop(1,"#ffffff");
-  g.fillStyle=bg; g.fillRect(0,0,W,H);
+  g.fillStyle="#0d0d10"; g.fillRect(0,0,W,H);
+  g.strokeStyle="#2c2c34"; g.lineWidth=3; g.strokeRect(40,40,W-80,H-80);
   g.textAlign="center";
-  g.fillStyle="#f5501a"; g.font=`800 46px ${FONT}`; g.fillText("폼클럽",W/2,150);
-  g.fillStyle="#1a1d23"; g.font=`900 62px ${FONT}`; g.fillText(crewName.length>14?crewName.slice(0,14)+"…":crewName,W/2,244);
-  g.fillStyle=tier.color; g.font=`800 42px ${FONT}`; g.fillText(`${tier.emoji} ${tier.name}`,W/2,320);
-  const ng=g.createLinearGradient(0,400,0,760); ng.addColorStop(0,"#ffc94d"); ng.addColorStop(1,"#ff7a42");
-  g.fillStyle=ng; g.font=`900 340px ${FONT}`; g.textBaseline="middle"; g.fillText(String(chain),W/2,600); g.textBaseline="alphabetic";
-  g.fillStyle="#667085"; g.font=`800 66px ${FONT}`; g.fillText("고리",W/2,825);
-  drawLinks(g,W/2,905,Math.min(Math.max(chain,1),16));
-  g.fillStyle="#98a2b3"; g.font=`600 38px ${FONT}`; g.fillText(`최고 기록 ${best}고리`,W/2,985);
-  await drawCollage(g,photos,90,1055,W-180,600);
-  g.fillStyle="#667085"; g.font=`700 38px ${FONT}`; g.fillText("같이 키우는 운동 마스코트",W/2,1740);
-  if(code){ g.fillStyle="#1a1d23"; g.font=`900 52px ${FONT}`; g.fillText(`코드 ${code} 로 참여`,W/2,1806); }
-  g.fillStyle="#f5501a"; g.font=`800 40px ${FONT}`; g.fillText("soesaseul.github.io",W/2,1862);
+  g.fillStyle="#e5352b"; g.font=`800 46px ${FONT}`; g.fillText("폼클럽",W/2,150);
+  g.fillStyle="#f4f4f6"; g.font=`900 62px ${FONT}`; g.fillText(crewName.length>14?crewName.slice(0,14)+"…":crewName,W/2,246);
+  if(ovr){ g.fillStyle="#f4f4f6"; g.font=`400 60px "Anton",sans-serif`; g.fillText(`OVR ${ovr}`,W/2,332); }
+  g.fillStyle=tier.color; g.font=`800 40px ${FONT}`; g.fillText(`${tier.name}`,W/2,392);
+  g.fillStyle="#f4f4f6"; g.font=`400 360px "Anton",sans-serif`; g.textBaseline="middle"; g.fillText(String(chain),W/2,640); g.textBaseline="alphabetic";
+  g.fillStyle="#9a9aa4"; g.font=`800 62px ${FONT}`; g.fillText("고리",W/2,860);
+  drawLinks(g,W/2,935,Math.min(Math.max(chain,1),16));
+  g.fillStyle="#66666f"; g.font=`600 36px ${FONT}`; g.fillText(`최고 ${best}`,W/2,1010);
+  await drawCollage(g,photos,90,1070,W-180,580);
+  g.fillStyle="#9a9aa4"; g.font=`700 38px ${FONT}`; g.fillText("친구 크루로 같이 키우는 핏",W/2,1730);
+  if(code){ g.fillStyle="#f4f4f6"; g.font=`900 52px ${FONT}`; g.fillText(`코드 ${code} 로 합류`,W/2,1800); }
+  g.fillStyle="#e5352b"; g.font=`800 40px ${FONT}`; g.fillText("soesaseul.github.io",W/2,1858);
   return await new Promise(res=>cv.toBlob(res,"image/png",.92));
 }
 async function shareCurrentCrew(){
   if(!cache.crew){ return; }
   const r=DB.computeChain(cache.crew,cache.members,cache.checkins);
   const {cur}=tierOf(r.chain);
+  const ch=computeCharacter(cache.crew,cache.members,cache.checkins);
   const photos=cache.checkins.filter(c=>(c.type||"workout")==="workout"&&c.photo).slice(0,4).map(c=>c.photo);
-  toast("카드 만드는 중… 📸");
+  toast("카드 만드는 중…");
   try{
-    const blob=await drawCardBlob({crewName:cache.crew.name,chain:r.chain,tier:cur,best:r.best,photos,code:cache.crew.code});
+    const blob=await drawCardBlob({crewName:cache.crew.name,chain:r.chain,tier:cur,best:r.best,photos,code:cache.crew.code,ovr:ovrOf(ch.level)});
     const file=new File([blob],"soesaseul.png",{type:"image/png"});
     if(navigator.canShare && navigator.canShare({files:[file]})){
       await navigator.share({files:[file],text:`우리 크루 '${cache.crew.name}' ${r.chain}고리 ⛓️\n같이 운동 사슬 쌓는 중 · soesaseul.github.io #폼클럽`});
