@@ -132,3 +132,13 @@ h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
 .charnudge{margin-top:12px;background:rgba(240,68,56,.08);color:var(--danger);font-weight:800;font-size:12.5px;padding:10px;border-radius:12px}
 .charnudge.good{margin-top:12px;background:rgba(18,184,134,.1);color:var(--ok);font-weight:800;font-size:12.5px;padding:10px;border-radius:12px}
 .teambadge{font-size:12px;font-weight:800;color:var(--gold);background:rgba(227,154,0,.12);padding:2px 8px;border-radius:999px;vertical-align:middle}
+
+.mrow2{padding:12px 0;border-bottom:1px solid var(--line)}
+.mrow2:last-child{border:none}
+.mrow2-top{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.mrow2-top .nm{font-weight:750;font-size:14.5px}
+.mrow2-top .cnt{margin-left:auto;font-size:12.5px;font-weight:800}
+.mrow2-top .cnt.done{color:var(--ok)} .mrow2-top .cnt.miss{color:var(--sub)}
+.wkstrip{display:flex;gap:6px}
+.wd{flex:1;height:28px;border-radius:8px;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--dim)}
+.wd.on{background:var(--ok);border-color:var(--ok);color:#fff}
