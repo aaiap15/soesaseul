@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Anton&display=swap");
-/* 쇠사슬 쇼케이스용 공용 스타일 (실제 앱 index.html에서 발췌) */
+/* 폼클럽 쇼케이스용 공용 스타일 (실제 앱 index.html에서 발췌) */
 :root{
   --bg:#f2f2ee; --card:#ffffff; --card2:#ecece6; --line:#e2e2da; --ink:#161616; --txt:#161616; --sub:#5a5d57; --dim:#9a9a92;
   --accent:#d22730; --accent2:#d22730; --blue:#1d4fd7; --ok:#0f9152; --gold:#9c7b17; --chick:#c2410c; --danger:#d22730;
@@ -17,7 +17,7 @@ body{background:var(--bg);color:var(--txt);line-height:1.5}
 header{position:sticky;top:0;z-index:5;background:rgba(242,244,247,.9);backdrop-filter:blur(10px);
   padding:14px 16px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
 .logo{font-size:20px;font-weight:900;letter-spacing:-.02em;display:flex;align-items:center;gap:6px}
-.logo b{color:var(--accent)}
+.logo b{color:var(--txt)}
 .mode{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ok);border-color:rgba(53,208,165,.4)}
 
 h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}

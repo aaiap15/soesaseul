@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>쇠사슬 · 운영자 화면</title>
+<title>폼클럽 · 운영자 화면</title>
 <style>
   :root{--bg:#f2f4f7;--card:#ffffff;--card2:#eef1f5;--line:#e5e8ee;--txt:#1a1d23;--sub:#667085;--dim:#98a2b3;
     --accent:#f5501a;--gold:#e39a00;--ok:#12b886;--danger:#f04438;--chick:#f97316;
@@ -50,7 +50,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>⛓️ 쇠사슬 운영자 화면 <span class="mode" id="modeBadge">…</span></h1>
+  <h1>폼클럽 운영자 화면 <span class="mode" id="modeBadge">…</span></h1>
   <p class="sub">핵심 신호 2개(4주 생존율 · 2차 크루 생성)로 수요를 판단하세요.</p>
 
   <div class="signals">
@@ -153,7 +153,7 @@ function exportCSV(){
   const head=cols.join(",");
   const body=rows.map(r=>cols.map(k=>`"${(""+(r[k]??"")).replace(/"/g,'""')}"`).join(",")).join("\n");
   const blob=new Blob(["﻿"+head+"\n"+body],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="쇠사슬_크루_"+new Date().toISOString().slice(0,10)+".csv"; a.click();
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="폼클럽_크루_"+new Date().toISOString().slice(0,10)+".csv"; a.click();
 }
 
 async function sample(){

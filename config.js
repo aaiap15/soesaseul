@@ -6,7 +6,7 @@
 window.SOECHIN_CONFIG = {
   SUPABASE_URL: "https://pxdnmrfmdlcgvznywehg.supabase.co",
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4ZG5tcmZtZGxjZ3Z6bnl3ZWhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1MDE1OTEsImV4cCI6MjA5OTA3NzU5MX0.j3AB9Ifq5MRcc8Y0jwK-EVXoezb8J5BzE2GvmHWSz6U",
-  APP_NAME: "쇠사슬",
+  APP_NAME: "폼클럽",
   SUBTITLE: "크루로 운동 지속 — 우리가 얼마나 쌓았나",
   KAKAO_JS_KEY: "",  // (선택) 카카오 developers JavaScript 키 → 넣으면 '카카오톡으로 초대' 리치 카드. 비우면 네이티브 공유로 동작
 };

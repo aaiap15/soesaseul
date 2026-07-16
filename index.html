@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>쇠사슬 · 같이 키우는 운동 마스코트</title>
+<title>폼클럽 · 같이 키우는 운동 마스코트</title>
 <meta name="description" content="친구 크루랑 같이 키우는 운동 마스코트. 인증하면 벌크업, 방치하면 시들." />
-<meta property="og:title" content="쇠사슬 · 같이 키우는 운동 마스코트" />
+<meta property="og:title" content="폼클럽 · 같이 키우는 운동 마스코트" />
 <meta property="og:description" content="크루로 쌓는 운동 역사. 인증하면 마스코트가 자란다." />
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
@@ -29,7 +29,7 @@
     padding:14px 0 12px;border-bottom:1px solid var(--line)}
   header .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .logo{font-size:20px;font-weight:900;letter-spacing:-.02em;cursor:pointer;display:flex;align-items:center;gap:6px}
-  .logo b{color:var(--accent)}
+  .logo b{color:var(--txt)}
   .mode{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--dim)}
   .mode.live{color:var(--ok);border-color:rgba(53,208,165,.4)}
 
@@ -113,7 +113,7 @@
   .status.safe{background:rgba(18,184,134,.12);color:var(--ok)}
   .status.risk{background:rgba(240,68,56,.1);color:var(--danger)}
 
-  /* ── 쌓이는 쇠사슬 ── */
+  /* ── 쌓이는 폼클럽 ── */
   .tier{display:inline-flex;align-items:center;gap:6px;font-weight:850;font-size:13px;
     background:#fff;border:1px solid var(--line);padding:5px 13px;border-radius:999px;box-shadow:var(--shadow)}
   .chainbig{cursor:default}
@@ -251,7 +251,7 @@
 
 <header>
   <div class="wrap">
-    <div class="logo" onclick="goHome()"><span>⛓️</span> <b>쇠사슬</b></div>
+    <div class="logo" onclick="goHome()"><b>폼클럽</b></div>
     <div style="display:flex;align-items:center;gap:9px">
       <span class="mode" id="modeBadge">…</span>
       <button class="profbtn" id="profBtn" style="display:none" onclick="renderProfile()"></button>
@@ -280,7 +280,7 @@
     <div class="grip"></div>
     <form id="createForm">
       <h2>크루 만들기 ⛓️</h2>
-      <p class="desc">같이 쇠붕이를 키워요. 만들면 초대 코드가 나와요.</p>
+      <p class="desc">같이 폼이를 키워요. 만들면 초대 코드가 나와요.</p>
       <div class="field"><label>어떤 크루?</label>
         <div class="chips">
           <label class="chip"><input type="radio" name="ctype" value="friend" checked><span>👥 친구 크루 (2~6명)</span></label>
@@ -297,7 +297,7 @@
     <div class="done" id="createDone" style="display:none">
       <div class="ic">🎉</div>
       <h2>크루 완성!</h2>
-      <p class="desc" style="margin-top:8px">친구를 초대하면 같이 쇠붕이를 키워요.</p>
+      <p class="desc" style="margin-top:8px">친구를 초대하면 같이 폼이를 키워요.</p>
       <div class="codebox" id="newCode">----</div>
       <button class="submit" id="sendInviteBtn">📩 친구에게 초대 보내기</button>
       <button type="button" class="ghost-btn" id="copyCodeBtn">코드만 복사</button>
@@ -467,7 +467,7 @@ function animateCount(id, from, to, ms){
   })(t0);
 }
 
-/* ===================== 쇠붕이 (크루 캐릭터) ===================== */
+/* ===================== 폼이 (크루 캐릭터) ===================== */
 // 레벨 = 누적 인증(절대 안 빠짐), 컨디션 = 최근 7일 달성률(근손실 장치)
 // 반프(무뚝뚝) 5단계 · 하락은 무채색, 최상만 필드그린
 const CONDS=[
@@ -565,14 +565,14 @@ async function renderHome(){
   } else {
     html = `
       <div style="padding:44px 0 12px">
-        <h1>같이 키우는<br>운동 마스코트, 쇠붕이.</h1>
+        <h1>같이 키우는<br>운동 마스코트, 폼이.</h1>
         <p class="lead">크루가 인증하면 벌크업,<br>방치하면 시들해져요 🛋️</p>
       </div>
       <div class="card">
         <div class="how">
           <div class="hs"><span class="he">👥</span>크루 만들고 코드 공유</div>
           <div class="hs"><span class="he">📸</span>매주 목표만큼 인증</div>
-          <div class="hs"><span class="he">💪</span>쇠붕이 벌크업 · 방치하면 시들</div>
+          <div class="hs"><span class="he">💪</span>폼이 벌크업 · 방치하면 시들</div>
         </div>
       </div>
       <div style="margin-top:18px"></div>
@@ -615,7 +615,7 @@ async function renderCrew(cid){
   // 이번 주 크루 인증 합계 (누적 사슬과 별개, 이번 주 성장분)
   const thisWeekTotal = workoutMembers.reduce((s,m)=>s+weekCount(cid,m.id),0);
 
-  // 쌓이는 쇠사슬 (등급·마일스톤·성장 애니메이션)
+  // 쌓이는 폼클럽 (등급·마일스톤·성장 애니메이션)
   const {cur,next}=tierOf(r.chain);
   const firstOpen = prevChain[cid]===undefined;
   const grew = !firstOpen && r.chain>prevChain[cid];
@@ -629,12 +629,12 @@ async function renderCrew(cid){
         <div class="mbar"><i style="width:${mpct}%;background:var(--ok)"></i></div></div>`
     : `<div class="milestone"><div class="mt"><span>🐋 최고 등급</span><span>${r.chain}</span></div></div>`;
 
-  // 쇠붕이 캐릭터 + 크루 단위 넛지(개인 지목 없음 · 진행 바에서 이미 보임)
+  // 폼이 캐릭터 + 크루 단위 넛지(개인 지목 없음 · 진행 바에서 이미 보임)
   const ch=computeCharacter(crew,members,checkins);
   const cd=CONDS[ch.cond];
   const charNudge =
-    ch.cond<=1 ? `<div class="charnudge">🛋️ 쇠붕이가 소파에 정착했습니다 · 이번 주 ${ch.recent}/${ch.expected}</div>`
-    : ch.cond>=4 ? `<div class="charnudge good">💪 쇠붕이 컨디션 최상 · 이번 주 ${ch.recent}/${ch.expected}</div>`
+    ch.cond<=1 ? `<div class="charnudge">🛋️ 폼이가 소파에 정착했습니다 · 이번 주 ${ch.recent}/${ch.expected}</div>`
+    : ch.cond>=4 ? `<div class="charnudge good">💪 폼이 컨디션 최상 · 이번 주 ${ch.recent}/${ch.expected}</div>`
     : "";
 
   let html=`
@@ -649,7 +649,7 @@ async function renderCrew(cid){
 
     <div class="charcard">
       <div class="charbox">${characterSVG(ch.level, ch.cond)}</div>
-      <div class="charname">쇠붕이 <span class="lv">Lv.${ch.level}</span></div>
+      <div class="charname">폼이 <span class="lv">Lv.${ch.level}</span></div>
       <div class="charcond" style="color:${cd.c}">${cd.e} ${cd.n}</div>
       ${charNudge}
     </div>
@@ -748,7 +748,7 @@ async function startWorkout(){
 }
 
 const inviteUrl = code => location.origin+location.pathname+"?code="+code;
-const inviteMsg = (code,name) => `우리 크루 '${name}' 같이 하자! ⛓️\n쇠사슬 코드: ${code}\n${inviteUrl(code)}`;
+const inviteMsg = (code,name) => `우리 크루 '${name}' 같이 하자! ⛓️\n폼클럽 코드: ${code}\n${inviteUrl(code)}`;
 
 async function copyText(t){
   try{ await navigator.clipboard.writeText(t); return true; }
@@ -780,10 +780,10 @@ async function initKakao(){
 async function sendInvite(code,name){
   const url=inviteUrl(code), msg=inviteMsg(code,name);
   if(window.Kakao && Kakao.isInitialized && Kakao.isInitialized()){
-    try{ Kakao.Share.sendDefault({ objectType:"text", text:`⛓️ '${name}' 크루에 초대할게!\n쇠사슬 코드: ${code}`,
+    try{ Kakao.Share.sendDefault({ objectType:"text", text:`⛓️ '${name}' 크루에 초대할게!\n폼클럽 코드: ${code}`,
       link:{ mobileWebUrl:url, webUrl:url }, buttonTitle:"크루 참여하기" }); return; }catch(_){}
   }
-  if(navigator.share){ try{ await navigator.share({title:"쇠사슬 크루 초대", text:msg, url}); return; }catch(e){ if(e && e.name==="AbortError") return; } }
+  if(navigator.share){ try{ await navigator.share({title:"폼클럽 크루 초대", text:msg, url}); return; }catch(e){ if(e && e.name==="AbortError") return; } }
   const ok=await copyText(msg); toast(ok?"초대 문구 복사됨 📋 카톡·인스타에 붙여넣기":"복사 실패");
 }
 function shareInvite(code,name){ sendInvite(code,name); }
@@ -946,7 +946,7 @@ async function drawCardBlob({crewName,chain,tier,best,photos,code}){
   const bg=g.createLinearGradient(0,0,0,H); bg.addColorStop(0,"#fff2da"); bg.addColorStop(.5,"#fff9f0"); bg.addColorStop(1,"#ffffff");
   g.fillStyle=bg; g.fillRect(0,0,W,H);
   g.textAlign="center";
-  g.fillStyle="#f5501a"; g.font=`800 46px ${FONT}`; g.fillText("⛓️ 쇠사슬",W/2,150);
+  g.fillStyle="#f5501a"; g.font=`800 46px ${FONT}`; g.fillText("폼클럽",W/2,150);
   g.fillStyle="#1a1d23"; g.font=`900 62px ${FONT}`; g.fillText(crewName.length>14?crewName.slice(0,14)+"…":crewName,W/2,244);
   g.fillStyle=tier.color; g.font=`800 42px ${FONT}`; g.fillText(`${tier.emoji} ${tier.name}`,W/2,320);
   const ng=g.createLinearGradient(0,400,0,760); ng.addColorStop(0,"#ffc94d"); ng.addColorStop(1,"#ff7a42");
@@ -955,7 +955,7 @@ async function drawCardBlob({crewName,chain,tier,best,photos,code}){
   drawLinks(g,W/2,905,Math.min(Math.max(chain,1),16));
   g.fillStyle="#98a2b3"; g.font=`600 38px ${FONT}`; g.fillText(`최고 기록 ${best}고리`,W/2,985);
   await drawCollage(g,photos,90,1055,W-180,600);
-  g.fillStyle="#667085"; g.font=`700 38px ${FONT}`; g.fillText("친구랑 같이 키우는 근손실 다마고치",W/2,1740);
+  g.fillStyle="#667085"; g.font=`700 38px ${FONT}`; g.fillText("같이 키우는 운동 마스코트",W/2,1740);
   if(code){ g.fillStyle="#1a1d23"; g.font=`900 52px ${FONT}`; g.fillText(`코드 ${code} 로 참여`,W/2,1806); }
   g.fillStyle="#f5501a"; g.font=`800 40px ${FONT}`; g.fillText("soesaseul.github.io",W/2,1862);
   return await new Promise(res=>cv.toBlob(res,"image/png",.92));
@@ -970,7 +970,7 @@ async function shareCurrentCrew(){
     const blob=await drawCardBlob({crewName:cache.crew.name,chain:r.chain,tier:cur,best:r.best,photos,code:cache.crew.code});
     const file=new File([blob],"soesaseul.png",{type:"image/png"});
     if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file],text:`우리 크루 '${cache.crew.name}' ${r.chain}고리 ⛓️\n같이 운동 사슬 쌓는 중 · soesaseul.github.io #쇠사슬`});
+      await navigator.share({files:[file],text:`우리 크루 '${cache.crew.name}' ${r.chain}고리 ⛓️\n같이 운동 사슬 쌓는 중 · soesaseul.github.io #폼클럽`});
     } else {
       const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=`soesaseul_${r.chain}고리.png`; a.click();
       setTimeout(()=>URL.revokeObjectURL(url),4000);
@@ -1024,7 +1024,7 @@ document.getElementById("saveSettingsBtn").onclick=async()=>{
 function shareReport(){
   const wm=cache.members.filter(m=>m.role!=="guardian");
   const lines=wm.map(m=>`· ${m.name}: ${weekCount(VIEW,m.id)}회`).join("\n");
-  const txt=`[${cache.crew.name}] 이번 주 개인훈련 집계 🏆\n${lines}\n\n— 쇠사슬 · soesaseul.github.io`;
+  const txt=`[${cache.crew.name}] 이번 주 개인훈련 집계 🏆\n${lines}\n\n— 폼클럽 · soesaseul.github.io`;
   if(navigator.share){ navigator.share({text:txt}).catch(()=>{}); }
   else copyText(txt).then(ok=>toast(ok?"집계 복사됨 📋 단톡방에 붙여넣기":"복사 실패"));
 }
@@ -1039,7 +1039,7 @@ function renderAuth(tab){
   document.getElementById("app").innerHTML=`
     <div style="padding:36px 0 8px;text-align:center">
       <div style="font-size:42px">⛓️</div>
-      <h1 style="margin-top:10px">쇠사슬 시작하기</h1>
+      <h1 style="margin-top:10px">폼클럽 시작하기</h1>
       <p class="lead">계정을 만들면 어느 기기에서든 내 크루·기록·프로필이 이어져요.</p>
     </div>
     <div class="card">
