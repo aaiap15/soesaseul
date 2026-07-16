@@ -476,7 +476,14 @@ const setMe  = a => localStorage.setItem(meKey, JSON.stringify(a));
 function addMe(m){ const a=getMe().filter(x=>String(x.crewId)!==String(m.crewId)); a.unshift(m); setMe(a); }
 const myMember = cid => MEMS.find(x=>String(x.crewId)===String(cid));
 // 로그인 없음 → 내 크루 목록은 이 기기(localStorage)에 저장
-async function loadMemberships(){ MEMS = ME ? getMe() : []; }
+async function loadMemberships(){
+  if(!ME){ MEMS=[]; return; }
+  let db=[]; try{ db = await DB.getMyCrews(ME.id); }catch(_){}
+  // DB(닉네임#PIN)와 이 기기 localStorage를 합침(중복은 crewId로), DB가 우선
+  const map={}; getMe().forEach(m=>map[String(m.crewId)]=m); db.forEach(m=>map[String(m.crewId)]=m);
+  MEMS = Object.values(map);
+  setMe(MEMS);   // 다음 로드용 캐시
+}
 
 let VIEW = null;                 // null=홈, 아니면 crewId
 let cache = { crew:null, members:[], checkins:[] };
@@ -907,7 +914,7 @@ document.getElementById("createForm").onsubmit=async e=>{
   const type=fd.get("ctype"), cpin=(fd.get("cpin")||"").trim();
   if(type==="team" && !/^\d{4,6}$/.test(cpin)){ alert("팀 크루는 주장 PIN(숫자 4~6자리)이 필요해요"); btn.disabled=false; btn.textContent="크루 만들기"; return; }
   try{
-    const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), type, pin:type==="team"?cpin:null, ownerName:ME.nickname, userId:null});
+    const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), type, pin:type==="team"?cpin:null, ownerName:ME.nickname, userId:null, ownerKey:ME.id});
     addMe({crewId:crew.id, code:crew.code, crewName:crew.name, memberId:member.id, name:member.name, role:"member"});
     await loadMemberships();
     pendingCrew=crew.id; pendingCode=crew.code; pendingName=crew.name;
@@ -943,13 +950,13 @@ document.getElementById("joinForm").onsubmit=async e=>{
         }
         alert(`'${ME.nickname}' 이름은 이미 있어요. PIN이 맞아야 재접속돼요.\n(PIN 잊었으면 주장에게 리셋 요청)`); done(); return;
       }
-      const res=await DB.joinCrew({code, name:ME.nickname, role, userId:null, pin:jpin});
+      const res=await DB.joinCrew({code, name:ME.nickname, role, userId:null, pin:jpin, ownerKey:ME.id});
       if(res.error){ alert(res.error); done(); return; }
       addMe({crewId:res.crew.id, code:res.crew.code, crewName:res.crew.name, memberId:res.member.id, name:res.member.name, role});
       await loadMemberships(); closeModals(); go(res.crew.id); return;
     }
     // 친구 크루
-    const res=await DB.joinCrew({code, name:ME.nickname, role, userId:null});
+    const res=await DB.joinCrew({code, name:ME.nickname, role, userId:null, ownerKey:ME.id});
     if(res.error){ alert(res.error); done(); return; }
     addMe({crewId:res.crew.id, code:res.crew.code, crewName:res.crew.name, memberId:res.member.id, name:res.member.name, role});
     await loadMemberships(); closeModals(); go(res.crew.id);
@@ -1229,19 +1236,22 @@ async function doAuth(tab){
 let pendingAvatar="", editingProfile=false;
 function renderProfileSetup(){
   hideProfBtn(); document.getElementById("actions").style.display="none";
-  pendingAvatar = editingProfile && ME ? (ME.avatar||"") : "";
-  const nick = editingProfile && ME ? ME.nickname : "";
-  const bio = editingProfile && ME ? (ME.bio||"") : "";
+  const ex = (()=>{ try{return JSON.parse(localStorage.getItem("sasl_profile_local")||"null");}catch{return null;} })();
+  const src = (editingProfile && ME) ? ME : (ex||{});
+  pendingAvatar = src.avatar||"";
+  const nick = src.nickname||"", bio = src.bio||"", pin = src.pin||"";
   document.getElementById("app").innerHTML=`
     <div style="padding:26px 0 6px;text-align:center">
       <div style="font-size:38px">${editingProfile?"✏️":"🙌"}</div>
       <h1 style="margin-top:8px">${editingProfile?"프로필 수정":"프로필 만들기"}</h1>
-      <p class="lead">크루원들에게 보일 프로필이에요.</p>
+      <p class="lead">닉네임 + PIN. 이거면 어느 기기서든 내 크루가 떠요.</p>
     </div>
     <div class="card" style="text-align:center">
       <div class="avataredit" id="avatarPrev" onclick="document.getElementById('avatarInput').click()">${pendingAvatar?`<img src="${pendingAvatar}">`:"＋<br><small>사진</small>"}</div>
       <input type="file" id="avatarInput" accept="image/*" hidden>
       <div class="field" style="text-align:left"><label>닉네임 <span class="opt">*</span></label><input id="pfNick" maxlength="12" placeholder="예: 민준" value="${esc(nick)}"></div>
+      <div class="field" style="text-align:left"><label>PIN <span class="opt">* 숫자 4~6자리</span></label><input id="pfPin" inputmode="numeric" maxlength="6" placeholder="다른 기기 접속·복구용" value="${esc(pin)}">
+        <div class="opt" style="margin-top:6px">잊으면 내 크루를 못 찾아요. 폰·은행 PIN 재사용 금지.</div></div>
       <div class="field" style="text-align:left"><label>한줄 소개 <span class="opt">(선택)</span></label><input id="pfBio" maxlength="40" placeholder="예: 3대 400 목표 / 새벽러" value="${esc(bio)}"></div>
       <button class="btn primary" style="margin-top:18px" id="pfSaveBtn" onclick="saveProfile()">${editingProfile?"저장":"시작하기"}</button>
       <p id="pfMsg" style="color:var(--danger);font-size:13px;margin-top:8px"></p>
@@ -1255,10 +1265,12 @@ function renderProfileSetup(){
 }
 async function saveProfile(){
   const nick=document.getElementById("pfNick").value.trim();
+  const pin=(document.getElementById("pfPin").value||"").trim();
   if(!nick){ document.getElementById("pfMsg").textContent="닉네임을 입력하세요"; return; }
+  if(!/^\d{4,6}$/.test(pin)){ document.getElementById("pfMsg").textContent="PIN을 숫자 4~6자리로 입력하세요"; return; }
   const btn=document.getElementById("pfSaveBtn"); btn.disabled=true; btn.textContent="저장 중…";
   try{
-    const p=await DB.upsertProfile({nickname:nick, avatar:pendingAvatar, bio:document.getElementById("pfBio").value.trim()});
+    const p=await DB.upsertProfile({nickname:nick, pin, avatar:pendingAvatar, bio:document.getElementById("pfBio").value.trim()});
     ME=p;
     if(editingProfile){ editingProfile=false; showProfBtn(); renderProfile(); }
     else { await afterLogin(); }
@@ -1317,7 +1329,7 @@ async function afterLogin(){
 async function bootstrap(){
   // 로그인 없음: 이 기기에 닉네임(프로필)만 있으면 바로 시작
   const profile=await DB.getProfile();
-  if(!profile || !profile.nickname){ ME=null; renderProfileSetup(); return; }
+  if(!profile || !profile.nickname || !profile.pin){ ME=null; renderProfileSetup(); return; }
   ME=profile;
   await afterLogin();
 }

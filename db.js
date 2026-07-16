@@ -160,17 +160,17 @@
     return s;
   };
 
-  // 멤버 insert (pin 컬럼 없는 DB면 자동으로 빼고 재시도)
+  // 멤버 insert (pin/owner_key 컬럼 없는 DB면 자동으로 빼고 재시도)
   async function insertMemberSb(row) {
     let r = await sb.from("members").insert(row).select().single();
-    if (r.error && /pin|schema cache|column/i.test(r.error.message || "")) {
-      const { pin, ...rest } = row;
+    if (r.error && /pin|owner_key|schema cache|column/i.test(r.error.message || "")) {
+      const { pin, owner_key, ...rest } = row;
       r = await sb.from("members").insert(rest).select().single();
     }
     return r;
   }
 
-  async function createCrew({ name, goal, ownerName, userId, type, pin }) {
+  async function createCrew({ name, goal, ownerName, userId, type, pin, ownerKey }) {
     await ready;
     goal = Number(goal) || 3;
     type = type || "friend";
@@ -185,7 +185,7 @@
         if (!r.error) crew = r.data; else err = r.error;
       }
       if (!crew) throw err || new Error("크루 생성 실패");
-      const m = await insertMemberSb({ crew_id: crew.id, name: ownerName, role: "member", user_id: userId || null, pin: pin || null });
+      const m = await insertMemberSb({ crew_id: crew.id, name: ownerName, role: "member", user_id: userId || null, pin: pin || null, owner_key: ownerKey || null });
       if (m.error) throw m.error;
       return { crew, member: m.data };
     }
@@ -246,12 +246,12 @@
     return m;
   }
 
-  async function joinCrew({ code, name, role, userId, pin }) {
+  async function joinCrew({ code, name, role, userId, pin, ownerKey }) {
     await ready;
     const crew = await getCrewByCode(code);
     if (!crew) return { error: "코드에 해당하는 크루가 없어요" };
     if (sb) {
-      const m = await insertMemberSb({ crew_id: crew.id, name, role: role || "member", user_id: userId || null, pin: pin || null });
+      const m = await insertMemberSb({ crew_id: crew.id, name, role: role || "member", user_id: userId || null, pin: pin || null, owner_key: ownerKey || null });
       if (m.error) throw m.error;
       return { crew, member: m.data };
     }
@@ -338,24 +338,26 @@
     try { return JSON.parse(localStorage.getItem("sasl_profile_local") || "null"); } catch { return null; }
   }
   async function upsertProfile(p) {
-    const row = { id: "local", nickname: p.nickname, avatar: p.avatar || "", bio: p.bio || "" };
+    // 정체성 키 = 닉네임#PIN → 어느 기기서든 이 키로 내 크루를 불러옴
+    const id = (p.nickname && p.pin) ? `${p.nickname}#${p.pin}` : "local";
+    const row = { id, nickname: p.nickname, pin: p.pin || "", avatar: p.avatar || "", bio: p.bio || "" };
     localStorage.setItem("sasl_profile_local", JSON.stringify(row)); return row;
   }
 
-  // 내가 속한 크루 목록 (계정 기준 → 다른 기기에서도 동일)
-  async function getMyCrews(userId) {
+  // 내가 속한 크루 목록 (owner_key=닉네임#PIN 기준 → 다른 기기·재접속에도 동일)
+  async function getMyCrews(ownerKey) {
     await ready;
-    if (sb) {
+    if (sb && ownerKey && ownerKey !== "local") {
       const { data, error } = await sb.from("members")
         .select("id,role,name,crew_id,crews(id,name,code,goal,created_at)")
-        .eq("user_id", userId).order("id", { ascending: false });
-      if (error) throw error;
+        .eq("owner_key", ownerKey).order("id", { ascending: false });
+      if (error) return [];
       return (data || []).filter(m => m.crews).map(m => ({
         crewId: m.crews.id, memberId: m.id, role: m.role, name: m.name,
         code: m.crews.code, crewName: m.crews.name,
       }));
     }
-    try { return JSON.parse(localStorage.getItem("sasl_me") || "[]"); } catch { return []; }
+    return [];
   }
 
   async function mode() { await ready; return sb ? "supabase" : "local"; }

@@ -62,6 +62,9 @@ drop policy if exists "update crews" on crews;
 create policy "update crews" on crews for update using (true) with check (true);
 
 -- v2.1: 팀 크루 PIN + 팀 컬러/구호/엠블럼 + 멤버 update(주장 PIN 리셋)
+-- + owner_key(닉네임#PIN): 어느 기기서든 내 크루를 불러오는 정체성 키
+alter table members add column if not exists owner_key text;
+create index if not exists members_owner_idx on members(owner_key);
 alter table members add column if not exists pin    text;
 alter table crews   add column if not exists color  text;
 alter table crews   add column if not exists chant  text;
