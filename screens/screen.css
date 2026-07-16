@@ -1,7 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Anton&display=swap");
 /* 쇠사슬 쇼케이스용 공용 스타일 (실제 앱 index.html에서 발췌) */
 :root{
-  --bg:#f2f4f7; --card:#ffffff; --card2:#eef1f5; --line:#e5e8ee; --txt:#1a1d23; --sub:#667085; --dim:#98a2b3;
-  --accent:#f5501a; --accent2:#ff7a42; --gold:#e39a00; --chick:#f97316; --ok:#12b886; --danger:#f04438;
+  --bg:#f2f2ee; --card:#ffffff; --card2:#ecece6; --line:#e2e2da; --ink:#161616; --txt:#161616; --sub:#5a5d57; --dim:#9a9a92;
+  --accent:#d22730; --accent2:#d22730; --blue:#1d4fd7; --ok:#0f9152; --gold:#9c7b17; --chick:#c2410c; --danger:#d22730;
   --radius:20px;
   --shadow:0 1px 2px rgba(16,24,40,.04),0 6px 20px rgba(16,24,40,.06);
   font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
@@ -30,11 +31,11 @@ h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
 .card+.card{margin-top:12px}
 
-.chainhero{background:linear-gradient(165deg,#fff6e9,#ffffff 60%);border:1px solid #f4e6cf;border-radius:24px;padding:22px 20px;text-align:center;
+.chainhero{background:var(--card);border:1.5px solid var(--ink);border-radius:24px;padding:22px 20px;text-align:center;
   box-shadow:0 2px 6px rgba(227,154,0,.06),0 12px 30px rgba(227,154,0,.08)}
 .chainhero .lbl{color:var(--sub);font-size:13px;font-weight:700}
 .chainbig{font-size:60px;font-weight:900;letter-spacing:-.03em;line-height:1;margin:6px 0 2px;
-  background:linear-gradient(120deg,var(--gold),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  color:var(--ink);font-family:"Anton",sans-serif;font-weight:400}
 .chainbig .u{font-size:22px;color:var(--sub);-webkit-text-fill-color:var(--sub)}
 .links{font-size:18px;letter-spacing:1px;margin:10px 0 4px;line-height:1.4;word-break:break-all}
 .chainmeta{display:flex;justify-content:center;gap:18px;margin-top:10px}
@@ -43,7 +44,7 @@ h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
 .status.safe{background:rgba(18,184,134,.12);color:var(--ok)}
 .status.risk{background:rgba(240,68,56,.1);color:var(--danger)}
 
-.charcard{background:linear-gradient(165deg,#f6f9fc,#ffffff);border:1px solid var(--line);border-radius:24px;padding:16px 18px 14px;text-align:center;box-shadow:var(--shadow);margin-bottom:12px}
+.charcard{background:var(--card);border:1.5px solid var(--ink);border-radius:24px;padding:16px 18px 14px;text-align:center;box-shadow:var(--shadow);margin-bottom:12px}
 .charbox{width:148px;height:148px;margin:0 auto}
 .charbox svg{width:100%;height:100%;display:block}
 .charname{font-weight:900;font-size:18px;margin-top:4px}
@@ -52,12 +53,12 @@ h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
 .tier{display:inline-flex;align-items:center;gap:6px;font-weight:850;font-size:13px;background:#fff;border:1px solid var(--line);padding:5px 13px;border-radius:999px;box-shadow:var(--shadow)}
 .chainwrap{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;margin:16px auto 4px;max-width:290px;min-height:16px}
 .lnk{width:24px;height:12px;border-radius:7px;margin:2.5px -6px;flex:none;
-  background:linear-gradient(150deg,#ffe6a8 0%,#f4b52e 46%,#d98a00 100%);border:1px solid rgba(170,110,0,.35);
+  background:#c6c6bc;border:1px solid rgba(170,110,0,.35);
   box-shadow:inset 0 1px 1px rgba(255,255,255,.75),inset 0 -1px 1px rgba(150,90,0,.28),0 1px 1px rgba(150,90,0,.15)}
-.lnk.head{background:linear-gradient(150deg,#ffd6ad,#ff7a42 58%,#f5501a);border-color:rgba(200,60,10,.4);
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 0 0 2px rgba(245,80,26,.14),0 0 12px rgba(245,80,26,.5);
+.lnk.head{background:var(--ink);border-color:var(--ink);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 0 0 2px rgba(22,22,22,.14),0 0 12px rgba(22,22,22,.5);
   animation:beat 1.5s ease-in-out infinite;z-index:1}
-@keyframes beat{50%{box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 0 0 3px rgba(245,80,26,.2),0 0 18px rgba(245,80,26,.7)}}
+@keyframes beat{50%{box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 0 0 3px rgba(22,22,22,.2),0 0 18px rgba(22,22,22,.7)}}
 .milestone{margin-top:14px;text-align:left}
 .milestone .mt{display:flex;justify-content:space-between;font-size:11.5px;font-weight:800;color:var(--sub);margin-bottom:6px}
 .mbar{height:9px;background:#f0ece2;border-radius:99px;overflow:hidden}
@@ -98,8 +99,8 @@ h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
 .actions{position:fixed;bottom:0;left:0;right:0;padding:12px 16px 18px;background:linear-gradient(to top,var(--bg) 62%,transparent);display:flex;gap:10px}
 .actions button{flex:1;border:none;font-weight:850;font-size:15px;padding:15px;border-radius:14px}
 .a-start{background:var(--card);color:var(--txt);border:1px solid var(--line)}
-.a-check{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 8px 22px rgba(255,90,31,.3)}
-.a-cheer{background:linear-gradient(120deg,var(--gold),#ffb43c);color:#241a00}
+.a-check{background:var(--accent);color:#fff}
+.a-cheer{background:var(--card2);color:var(--ink);border:1px solid var(--line)}
 
 /* 모달형 화면 */
 .dim{position:absolute;inset:0;background:rgba(0,0,0,.5)}
@@ -115,7 +116,7 @@ h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
 .chip{font-size:14px;font-weight:700;padding:10px 13px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);color:var(--sub)}
 .chip.on{background:rgba(255,90,31,.12);border-color:var(--accent);color:var(--accent2)}
 .chip.big{font-size:24px;padding:10px 15px}
-.submit{width:100%;background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;font-weight:850;font-size:16px;padding:15px;border:none;border-radius:14px;margin-top:18px}
+.submit{width:100%;background:var(--accent);color:#fff;font-weight:850;font-size:16px;padding:15px;border:none;border-radius:14px;margin-top:18px}
 .ghost-btn{background:transparent;border:none;color:var(--dim);font-size:14px;margin-top:12px;width:100%;text-align:center}
 .codebox{font-size:40px;font-weight:900;letter-spacing:.2em;color:var(--gold);text-align:center;margin:16px 0 6px}
 .linkbox{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px;color:var(--sub);font-size:12.5px;text-align:center;margin:4px 0 14px}

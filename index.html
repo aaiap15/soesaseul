@@ -3,16 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>쇠사슬 · 크루로 운동 지속</title>
-<meta name="description" content="같이 운동하자는 약속이 흐지부지되지 않게. 크루의 쇠사슬(공동 스트릭)로 서로 끌고 가는 운동 지속 앱." />
-<meta property="og:title" content="쇠사슬 · 우리가 얼마나 쌓았나" />
-<meta property="og:description" content="한 명이 빠지면 사슬이 끊긴다. 크루로 함께 쌓는 운동 스트릭." />
+<title>쇠사슬 · 같이 키우는 운동 마스코트</title>
+<meta name="description" content="친구 크루랑 같이 키우는 운동 마스코트. 인증하면 벌크업, 방치하면 시들." />
+<meta property="og:title" content="쇠사슬 · 같이 키우는 운동 마스코트" />
+<meta property="og:description" content="크루로 쌓는 운동 역사. 인증하면 마스코트가 자란다." />
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f2f4f7; --card:#ffffff; --card2:#eef1f5; --line:#e5e8ee; --txt:#1a1d23; --sub:#667085; --dim:#98a2b3;
-    --accent:#f5501a; --accent2:#ff7a42; --gold:#e39a00; --chick:#f97316; --ok:#12b886; --danger:#f04438;
-    --radius:20px; --maxw:500px;
-    --shadow:0 1px 2px rgba(16,24,40,.04),0 6px 20px rgba(16,24,40,.06);
+    /* 뉴트로 클럽하우스: 무채색 세계 + 시그널레드 CTA 하나 */
+    --bg:#f2f2ee; --card:#ffffff; --card2:#ecece6; --line:#e2e2da; --ink:#161616;
+    --txt:#161616; --sub:#5a5d57; --dim:#9a9a92;
+    --accent:#d22730; --accent2:#d22730; --blue:#1d4fd7; --ok:#0f9152; --gold:#9c7b17; --chick:#c2410c; --danger:#d22730;
+    --radius:14px; --maxw:500px;
+    --shadow:0 1px 2px rgba(22,22,22,.05);
+    --font-num:"Anton",-apple-system,BlinkMacSystemFont,sans-serif;
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -28,13 +33,13 @@
   .mode{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--dim)}
   .mode.live{color:var(--ok);border-color:rgba(53,208,165,.4)}
 
-  h1{font-size:26px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
+  h1{font-size:26px;font-weight:900;letter-spacing:-.03em;line-height:1.28;word-break:keep-all}
   .lead{color:var(--sub);font-size:15px;margin-top:12px}
   .accent{color:var(--accent)}
 
   .btn{display:block;width:100%;text-align:center;border:none;cursor:pointer;font-family:inherit;
     font-weight:850;font-size:16px;padding:16px;border-radius:14px}
-  .btn.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 10px 26px rgba(255,90,31,.32)}
+  .btn.primary{background:var(--accent);color:#fff}
   .btn.ghost{background:var(--card);color:var(--txt);border:1px solid var(--line)}
   .btn:active{transform:translateY(1px)}
   .btn + .btn{margin-top:10px}
@@ -45,7 +50,7 @@
   .hs{display:flex;align-items:center;gap:13px;font-size:15px;font-weight:600}
   .he{width:40px;height:40px;border-radius:12px;background:var(--card2);display:grid;place-items:center;font-size:20px;flex:none}
 
-  .charcard{background:linear-gradient(165deg,#f6f9fc,#ffffff);border:1px solid var(--line);border-radius:24px;
+  .charcard{background:var(--card);border:1.5px solid var(--ink);border-radius:22px;
     padding:18px 18px 16px;text-align:center;box-shadow:var(--shadow);margin-bottom:12px}
   .charbox{width:168px;height:168px;margin:0 auto}
   .charbox svg{width:100%;height:100%;display:block;animation:breathe 3.4s ease-in-out infinite;transform-origin:center bottom}
@@ -53,7 +58,7 @@
   .charname{font-weight:900;font-size:18px;margin-top:4px}
   .charname .lv{color:var(--sub);font-size:13px;font-weight:800}
   .charcond{font-weight:850;font-size:14px;margin-top:2px}
-  .charnudge{margin-top:12px;background:rgba(240,68,56,.08);color:var(--danger);font-weight:800;font-size:12.5px;padding:10px;border-radius:12px}
+  .charnudge{margin-top:12px;background:var(--card2);color:var(--sub);font-weight:800;font-size:12.5px;padding:10px;border-radius:12px}
   .charnudge.good{background:rgba(18,184,134,.1);color:var(--ok)}
   .iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:17px;cursor:pointer;box-shadow:var(--shadow)}
   .teambadge{font-size:12px;font-weight:800;color:var(--gold);background:rgba(227,154,0,.12);padding:2px 8px;border-radius:999px;vertical-align:middle}
@@ -62,10 +67,10 @@
 
   /* home crew list */
   .crewitem{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);
-    border-radius:18px;padding:16px;margin-top:10px;cursor:pointer;box-shadow:var(--shadow)}
+    border-radius:14px;padding:16px;margin-top:10px;cursor:pointer;box-shadow:var(--shadow)}
   .crewitem:active{transform:scale(.99)}
   .crewitem .ci-ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;flex:none;
-    background:linear-gradient(135deg,rgba(255,201,77,.18),rgba(255,90,31,.16))}
+    background:var(--card2)}
   .crewitem .ci-n{font-weight:850;font-size:16px}
   .crewitem .ci-m{color:var(--sub);font-size:13px;margin-top:2px}
   .crewitem .ci-chain{margin-left:auto;text-align:right}
@@ -84,7 +89,7 @@
   .avataredit img{width:100%;height:100%;object-fit:cover}
   .avataredit small{font-size:11px;font-weight:700}
   .avatarbig{width:92px;height:92px;border-radius:50%;margin:0 auto;display:grid;place-items:center;overflow:hidden;
-    font-size:38px;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow)}
+    font-size:38px;font-weight:900;color:#fff;background:var(--ink)}
   .avatarbig img{width:100%;height:100%;object-fit:cover}
   .statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
   .statc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 6px;text-align:center;box-shadow:var(--shadow)}
@@ -93,12 +98,12 @@
   .linkback{background:transparent;border:none;color:var(--sub);font-weight:800;font-size:15px;cursor:pointer;padding:0}
 
   /* chain hero */
-  .chainhero{background:linear-gradient(165deg,#fff6e9,#ffffff 60%);border:1px solid #f4e6cf;
-    border-radius:24px;padding:24px 20px;text-align:center;position:relative;overflow:hidden;
-    box-shadow:0 2px 6px rgba(227,154,0,.06),0 12px 30px rgba(227,154,0,.08)}
+  .chainhero{background:var(--card);border:1.5px solid var(--ink);
+    border-radius:16px;padding:22px 20px;text-align:center;position:relative;overflow:hidden;
+    box-shadow:none}
   .chainhero .lbl{color:var(--sub);font-size:13px;font-weight:700}
   .chainbig{font-size:64px;font-weight:900;letter-spacing:-.03em;line-height:1;margin:6px 0 2px;
-    background:linear-gradient(120deg,var(--gold),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    color:var(--ink);font-family:var(--font-num);font-weight:400;letter-spacing:0}
   .chainbig .u{font-size:24px;color:var(--sub);-webkit-text-fill-color:var(--sub)}
   .links{font-size:19px;letter-spacing:1px;margin:10px 0 4px;word-break:break-all;line-height:1.4}
   .chainmeta{display:flex;justify-content:center;gap:18px;margin-top:12px;flex-wrap:wrap}
@@ -115,23 +120,23 @@
   .chainbig.bump{animation:bump .55s cubic-bezier(.2,1.5,.4,1)}
   @keyframes bump{30%{transform:scale(1.14)}60%{transform:scale(.97)}100%{transform:scale(1)}}
   .burst{position:absolute;top:78px;left:50%;transform:translateX(-50%);font-weight:900;color:var(--accent);
-    font-size:18px;opacity:0;pointer-events:none;z-index:2;text-shadow:0 2px 8px rgba(245,80,26,.35)}
+    font-size:18px;opacity:0;pointer-events:none;z-index:2;text-shadow:0 2px 8px rgba(22,22,22,.35)}
   .burst.go{animation:burst 1.1s ease forwards}
   @keyframes burst{0%{opacity:0;transform:translate(-50%,10px) scale(.7)}22%{opacity:1}100%{opacity:0;transform:translate(-50%,-30px) scale(1.15)}}
   .chainwrap{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;margin:16px auto 4px;max-width:290px;min-height:16px}
   .chainempty{color:var(--dim);font-size:13px;margin:16px 0 4px}
   .lnk{width:24px;height:12px;border-radius:7px;margin:2.5px -6px;flex:none;
-    background:linear-gradient(150deg,#ffe6a8 0%,#f4b52e 46%,#d98a00 100%);
+    background:#c6c6bc;
     border:1px solid rgba(170,110,0,.35);
     box-shadow:inset 0 1px 1px rgba(255,255,255,.75),inset 0 -1px 1px rgba(150,90,0,.28),0 1px 1px rgba(150,90,0,.15)}
-  .lnk.head{background:linear-gradient(150deg,#ffd6ad,#ff7a42 58%,#f5501a);border-color:rgba(200,60,10,.4);
-    box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 0 0 2px rgba(245,80,26,.14),0 0 12px rgba(245,80,26,.5);
+  .lnk.head{background:var(--ink);border-color:var(--ink);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 0 0 2px rgba(22,22,22,.14),0 0 12px rgba(22,22,22,.5);
     animation:beat 1.5s ease-in-out infinite;z-index:1}
-  @keyframes beat{50%{box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 0 0 3px rgba(245,80,26,.2),0 0 18px rgba(245,80,26,.7)}}
+  @keyframes beat{50%{box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 0 0 3px rgba(22,22,22,.2),0 0 18px rgba(22,22,22,.7)}}
   .lnk.pop{animation:pop .5s cubic-bezier(.2,1.5,.4,1) both}
   @keyframes pop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.22)}100%{transform:scale(1);opacity:1}}
-  .sharebtn{margin-top:14px;width:100%;background:linear-gradient(120deg,#fff,#fff);border:1.5px solid #f2c99a;
-    color:var(--accent);font-weight:850;font-size:14.5px;padding:14px;border-radius:13px;cursor:pointer;box-shadow:var(--shadow)}
+  .sharebtn{margin-top:14px;width:100%;background:var(--card);border:1.5px solid var(--ink);
+    color:var(--ink);font-weight:850;font-size:14.5px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow)}
   .sharebtn:active{transform:translateY(1px)}
   .milestone{margin-top:14px;text-align:left}
   .milestone .mt{display:flex;justify-content:space-between;font-size:11.5px;font-weight:800;color:var(--sub);margin-bottom:6px}
@@ -147,8 +152,8 @@
   .mrow .nm{font-weight:750;font-size:14.5px;flex:none}
   .mrow .gd{font-size:10.5px;font-weight:800;color:var(--gold);background:rgba(255,201,77,.12);padding:2px 7px;border-radius:999px}
   .mrow .prog{flex:1;height:9px;background:var(--card2);border-radius:99px;overflow:hidden;margin:0 4px}
-  .mrow .prog i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-  .mrow .prog i.done{background:linear-gradient(90deg,var(--ok),#5fe6c0)}
+  .mrow .prog i{display:block;height:100%;border-radius:99px;background:var(--sub)}
+  .mrow .prog i.done{background:var(--ok)}
   .mrow .cnt{font-size:12.5px;font-weight:800;width:34px;text-align:right}
   .mrow .cnt.miss{color:var(--danger)}
   .mrow .cnt.done{color:var(--ok)}
@@ -182,8 +187,8 @@
   .actions .wrap{padding:0 16px;display:flex;gap:10px}
   .actions button{flex:1;border:none;cursor:pointer;font-family:inherit;font-weight:850;font-size:15px;padding:15px;border-radius:14px}
   .a-start{background:var(--card);color:var(--txt);border:1px solid var(--line)}
-  .a-check{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 8px 22px rgba(255,90,31,.3)}
-  .a-cheer{background:linear-gradient(120deg,var(--gold),#ffb43c);color:#241a00}
+  .a-check{background:var(--accent);color:#fff}
+  .a-cheer{background:var(--card2);color:var(--ink);border:1px solid var(--line)}
 
   /* modal */
   .modal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);display:none;align-items:flex-end}
@@ -207,7 +212,7 @@
   .chip span{display:block;font-size:14px;font-weight:700;padding:10px 13px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);color:var(--sub)}
   .chip input:checked + span{background:rgba(255,90,31,.12);border-color:var(--accent);color:var(--accent2)}
   .chip.big span{font-size:24px;padding:12px 16px}
-  .submit{width:100%;background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;font-weight:850;font-size:16px;padding:16px;border:none;border-radius:14px;cursor:pointer;margin-top:24px}
+  .submit{width:100%;background:var(--accent);color:#fff;font-weight:850;font-size:16px;padding:16px;border:none;border-radius:12px;cursor:pointer;margin-top:24px}
   .submit:disabled{opacity:.5}
   .ghost-btn{background:transparent;border:none;color:var(--dim);font-size:14px;margin-top:16px;cursor:pointer;width:100%}
   .done{text-align:center;padding:20px 0 6px}
@@ -464,12 +469,13 @@ function animateCount(id, from, to, ms){
 
 /* ===================== 쇠붕이 (크루 캐릭터) ===================== */
 // 레벨 = 누적 인증(절대 안 빠짐), 컨디션 = 최근 7일 달성률(근손실 장치)
+// 반프(무뚝뚝) 5단계 · 하락은 무채색, 최상만 필드그린
 const CONDS=[
-  {n:"근손실",e:"🫠",c:"#f04438"},
-  {n:"시무룩",e:"😟",c:"#f97316"},
-  {n:"보통",  e:"😐",c:"#e39a00"},
-  {n:"좋음",  e:"🙂",c:"#35c07a"},
-  {n:"빵빵",  e:"💪",c:"#12b886"},
+  {n:"정전",e:"🕹️",c:"#5a5d57"},
+  {n:"방전",e:"😑",c:"#5a5d57"},
+  {n:"시들",e:"😐",c:"#5a5d57"},
+  {n:"보통",e:"🙂",c:"#5a5d57"},
+  {n:"빵빵",e:"💪",c:"#0f9152"},
 ];
 function computeCharacter(crew, members, checkins){
   const goal=Number(crew.goal)||3;
@@ -559,14 +565,14 @@ async function renderHome(){
   } else {
     html = `
       <div style="padding:44px 0 12px">
-        <h1>친구랑 같이 키우는<br><span class="accent">근손실 다마고치.</span></h1>
-        <p class="lead">크루가 운동하면 <b>쇠붕이</b>가 벌크업,<br>빠지면 근손실 나요 🫠</p>
+        <h1>같이 키우는<br>운동 마스코트, 쇠붕이.</h1>
+        <p class="lead">크루가 인증하면 벌크업,<br>방치하면 시들해져요 🛋️</p>
       </div>
       <div class="card">
         <div class="how">
           <div class="hs"><span class="he">👥</span>크루 만들고 코드 공유</div>
           <div class="hs"><span class="he">📸</span>매주 목표만큼 인증</div>
-          <div class="hs"><span class="he">💪</span>쇠붕이 벌크업 · 빠지면 근손실</div>
+          <div class="hs"><span class="he">💪</span>쇠붕이 벌크업 · 방치하면 시들</div>
         </div>
       </div>
       <div style="margin-top:18px"></div>
@@ -620,15 +626,15 @@ async function renderCrew(cid){
   const mpct = next ? Math.round((r.chain-cur.min)/(next.min-cur.min)*100) : 100;
   const milestone = next
     ? `<div class="milestone"><div class="mt"><span>${next.emoji} ${next.name}</span><span><b style="color:${cur.color}">${next.min-r.chain}</b> 남음</span></div>
-        <div class="mbar"><i style="width:${mpct}%;background:linear-gradient(90deg,${cur.color},${next.color})"></i></div></div>`
+        <div class="mbar"><i style="width:${mpct}%;background:var(--ok)"></i></div></div>`
     : `<div class="milestone"><div class="mt"><span>🐋 최고 등급</span><span>${r.chain}</span></div></div>`;
 
   // 쇠붕이 캐릭터 + 크루 단위 넛지(개인 지목 없음 · 진행 바에서 이미 보임)
   const ch=computeCharacter(crew,members,checkins);
   const cd=CONDS[ch.cond];
   const charNudge =
-    ch.cond<=1 ? `<div class="charnudge">🥺 이번 주 인증 ${ch.recent}/${ch.expected} · 쇠붕이 단백질이 부족해요</div>`
-    : ch.cond>=4 ? `<div class="charnudge good">💪 이번 주 쇠붕이 빵빵! (${ch.recent}/${ch.expected})</div>`
+    ch.cond<=1 ? `<div class="charnudge">🛋️ 쇠붕이가 소파에 정착했습니다 · 이번 주 ${ch.recent}/${ch.expected}</div>`
+    : ch.cond>=4 ? `<div class="charnudge good">💪 쇠붕이 컨디션 최상 · 이번 주 ${ch.recent}/${ch.expected}</div>`
     : "";
 
   let html=`
@@ -725,7 +731,7 @@ async function renderCrew(cid){
   } else {
     document.getElementById("actionsInner").innerHTML=
       `<button class="a-start" onclick="startWorkout()">${meLive?`⏱ 운동 중 ${meLive.mins}분`:"🏋️ 운동 시작"}</button>
-       <button class="a-check" onclick="openCheck()">✅ 10초 인증</button>`;
+       <button class="a-check" onclick="openCheck()">✅ 오늘 인증하기</button>`;
   }
 }
 
