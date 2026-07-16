@@ -43,6 +43,12 @@ h1{font-size:25px;font-weight:900;letter-spacing:-.02em;line-height:1.28}
 .status.safe{background:rgba(18,184,134,.12);color:var(--ok)}
 .status.risk{background:rgba(240,68,56,.1);color:var(--danger)}
 
+.charcard{background:linear-gradient(165deg,#f6f9fc,#ffffff);border:1px solid var(--line);border-radius:24px;padding:16px 18px 14px;text-align:center;box-shadow:var(--shadow);margin-bottom:12px}
+.charbox{width:148px;height:148px;margin:0 auto}
+.charbox svg{width:100%;height:100%;display:block}
+.charname{font-weight:900;font-size:18px;margin-top:4px}
+.charname .lv{color:var(--sub);font-size:13px;font-weight:800}
+.charcond{font-weight:850;font-size:14px;margin-top:2px}
 .tier{display:inline-flex;align-items:center;gap:6px;font-weight:850;font-size:13px;background:#fff;border:1px solid var(--line);padding:5px 13px;border-radius:999px;box-shadow:var(--shadow)}
 .chainwrap{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;margin:16px auto 4px;max-width:290px;min-height:16px}
 .lnk{width:24px;height:12px;border-radius:7px;margin:2.5px -6px;flex:none;

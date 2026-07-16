@@ -45,6 +45,16 @@
   .hs{display:flex;align-items:center;gap:13px;font-size:15px;font-weight:600}
   .he{width:40px;height:40px;border-radius:12px;background:var(--card2);display:grid;place-items:center;font-size:20px;flex:none}
 
+  .charcard{background:linear-gradient(165deg,#f6f9fc,#ffffff);border:1px solid var(--line);border-radius:24px;
+    padding:18px 18px 16px;text-align:center;box-shadow:var(--shadow);margin-bottom:12px}
+  .charbox{width:168px;height:168px;margin:0 auto}
+  .charbox svg{width:100%;height:100%;display:block;animation:breathe 3.4s ease-in-out infinite;transform-origin:center bottom}
+  @keyframes breathe{50%{transform:translateY(-5px) scale(1.02)}}
+  .charname{font-weight:900;font-size:18px;margin-top:4px}
+  .charname .lv{color:var(--sub);font-size:13px;font-weight:800}
+  .charcond{font-weight:850;font-size:14px;margin-top:2px}
+  .charnudge{margin-top:12px;background:rgba(240,68,56,.08);color:var(--danger);font-weight:800;font-size:12.5px;padding:10px;border-radius:12px}
+
   /* home crew list */
   .crewitem{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);
     border-radius:18px;padding:16px;margin-top:10px;cursor:pointer;box-shadow:var(--shadow)}
@@ -420,6 +430,52 @@ function animateCount(id, from, to, ms){
   })(t0);
 }
 
+/* ===================== 쇠부이 (크루 캐릭터) ===================== */
+// 레벨 = 누적 인증(절대 안 빠짐), 컨디션 = 최근 7일 달성률(근손실 장치)
+const CONDS=[
+  {n:"근손실",e:"🫠",c:"#f04438"},
+  {n:"시무룩",e:"😟",c:"#f97316"},
+  {n:"보통",  e:"😐",c:"#e39a00"},
+  {n:"좋음",  e:"🙂",c:"#35c07a"},
+  {n:"빵빵",  e:"💪",c:"#12b886"},
+];
+function computeCharacter(crew, members, checkins){
+  const goal=Number(crew.goal)||3;
+  const wm=members.filter(m=>m.role!=="guardian");
+  const ids=new Set(wm.map(m=>String(m.id)));
+  const workouts=checkins.filter(c=>(c.type||"workout")==="workout" && ids.has(String(c.member_id)));
+  const total=workouts.length;                 // 누적 인증 = 밥 먹은 횟수
+  const level=Math.floor(total/3)+1;           // 3끼에 레벨업
+  const weekAgo=Date.now()-7*86400000;
+  const recent=workouts.filter(c=>new Date(c.created_at).getTime()>=weekAgo).length;
+  const expected=Math.max(1, wm.length*goal);
+  const rate=recent/expected;
+  const cond = rate>=1?4 : rate>=0.7?3 : rate>=0.4?2 : rate>=0.15?1 : 0;
+  return {level,total,cond,rate};
+}
+function characterSVG(level, cond){
+  const armR=Math.max(7, Math.min(30, 11 + Math.min(level,18)*0.7 - (4-cond)*4.5));
+  const body = cond<=1 ? ["#d0d6de","#a9b2be"] : ["#c2cad6","#96a1b2"];
+  const mouth={4:"M76 132 Q100 158 124 132",3:"M82 134 Q100 150 118 134",2:"M84 138 L116 138",1:"M84 143 Q100 132 116 143",0:"M84 138 q8 12 16 0 q8 12 16 0"}[cond];
+  const blush = cond>=3 ? `<circle cx="64" cy="120" r="8" fill="#ff9a9a" opacity=".5"/><circle cx="136" cy="120" r="8" fill="#ff9a9a" opacity=".5"/>` : "";
+  const sparkle = cond===4 ? `<text x="150" y="52" font-size="28">✨</text><text x="20" y="72" font-size="22">✨</text>` : "";
+  const sweat = cond===0 ? `<path d="M58 74 q-7 13 0 18 q7 -5 0 -18" fill="#7cc4ff"/>` : "";
+  const eyes = cond===0
+    ? `<path d="M72 96 l14 0 M114 96 l14 0" stroke="#2a2f38" stroke-width="4" stroke-linecap="round"/>`
+    : `<circle cx="80" cy="98" r="6.5" fill="#2a2f38"/><circle cx="120" cy="98" r="6.5" fill="#2a2f38"/>`;
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${body[0]}"/><stop offset="1" stop-color="${body[1]}"/></linearGradient></defs>
+    ${sparkle}
+    <circle cx="42" cy="130" r="${armR}" fill="url(#cbg)" stroke="#8a94a3" stroke-width="2"/>
+    <circle cx="158" cy="130" r="${armR}" fill="url(#cbg)" stroke="#8a94a3" stroke-width="2"/>
+    <rect x="50" y="68" width="100" height="100" rx="42" fill="url(#cbg)" stroke="#8a94a3" stroke-width="2.5"/>
+    <ellipse cx="78" cy="92" rx="17" ry="10" fill="#fff" opacity=".38"/>
+    ${blush}${eyes}
+    <path d="${mouth}" fill="none" stroke="#2a2f38" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${sweat}
+  </svg>`;
+}
+
 /* ===================== 유틸 ===================== */
 const esc = s => (""+(s??"")).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function ago(iso){ const s=(Date.now()-new Date(iso).getTime())/1000;
@@ -469,14 +525,14 @@ async function renderHome(){
   } else {
     html = `
       <div style="padding:44px 0 12px">
-        <h1>같이 운동,<br><span class="accent">안 깨지게.</span></h1>
-        <p class="lead">친구랑 크루를 만들면 <b>사슬</b>이 쌓여요.<br>한 명이 빠지면 끊겨요 ⛓️</p>
+        <h1>친구랑 같이 키우는<br><span class="accent">근손실 다마고치.</span></h1>
+        <p class="lead">크루가 운동하면 <b>쇠부이</b>가 벌크업,<br>빠지면 근손실 나요 🫠</p>
       </div>
       <div class="card">
         <div class="how">
           <div class="hs"><span class="he">👥</span>크루 만들고 코드 공유</div>
           <div class="hs"><span class="he">📸</span>매주 목표만큼 인증</div>
-          <div class="hs"><span class="he">⛓️</span>다 채우면 사슬이 자라요</div>
+          <div class="hs"><span class="he">💪</span>쇠부이 벌크업 · 빠지면 근손실</div>
         </div>
       </div>
       <div style="margin-top:18px"></div>
@@ -535,11 +591,22 @@ async function renderCrew(cid){
         <div class="mbar"><i style="width:${mpct}%;background:linear-gradient(90deg,${cur.color},${next.color})"></i></div></div>`
     : `<div class="milestone"><div class="mt"><span>🐋 최고 등급</span><span>${r.chain}</span></div></div>`;
 
+  // 쇠부이 캐릭터
+  const ch=computeCharacter(crew,members,checkins);
+  const cd=CONDS[ch.cond];
+
   let html=`
     <div style="padding:16px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:10px">
       <div><div style="font-size:20px;font-weight:900">${esc(crew.name)}</div>
         <div style="color:var(--sub);font-size:12.5px">주 ${goal}회 · ${workoutMembers.length}명${guardians.length?` · 🙌${guardians.length}`:""}</div></div>
       <div class="codechip" onclick="copyInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>복사</small></div>
+    </div>
+
+    <div class="charcard">
+      <div class="charbox">${characterSVG(ch.level, ch.cond)}</div>
+      <div class="charname">쇠부이 <span class="lv">Lv.${ch.level}</span></div>
+      <div class="charcond" style="color:${cd.c}">${cd.e} ${cd.n}</div>
+      ${ch.cond<=1 ? `<div class="charnudge">🫠 근손실 중! ${behind.length?`이번 주 미달: ${behind.map(m=>esc(m.name)).join(", ")}`:"이번 주 인증이 필요해요"}</div>` : ""}
     </div>
 
     <div class="chainhero">
