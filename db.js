@@ -160,7 +160,17 @@
     return s;
   };
 
-  async function createCrew({ name, goal, ownerName, userId, type }) {
+  // 멤버 insert (pin 컬럼 없는 DB면 자동으로 빼고 재시도)
+  async function insertMemberSb(row) {
+    let r = await sb.from("members").insert(row).select().single();
+    if (r.error && /pin|schema cache|column/i.test(r.error.message || "")) {
+      const { pin, ...rest } = row;
+      r = await sb.from("members").insert(rest).select().single();
+    }
+    return r;
+  }
+
+  async function createCrew({ name, goal, ownerName, userId, type, pin }) {
     await ready;
     goal = Number(goal) || 3;
     type = type || "friend";
@@ -169,20 +179,20 @@
       let crew = null, err = null;
       for (let i = 0; i < 6 && !crew; i++) {
         let r = await sb.from("crews").insert({ name, code: genCode(), goal, type }).select().single();
-        if (r.error && /type|hardmode|penalty|schema cache|column/i.test(r.error.message || "")) {
+        if (r.error && /type|hardmode|penalty|color|chant|emblem|schema cache|column/i.test(r.error.message || "")) {
           r = await sb.from("crews").insert({ name, code: genCode(), goal }).select().single();
         }
         if (!r.error) crew = r.data; else err = r.error;
       }
       if (!crew) throw err || new Error("크루 생성 실패");
-      const m = await sb.from("members").insert({ crew_id: crew.id, name: ownerName, role: "member", user_id: userId || null }).select().single();
+      const m = await insertMemberSb({ crew_id: crew.id, name: ownerName, role: "member", user_id: userId || null, pin: pin || null });
       if (m.error) throw m.error;
       return { crew, member: m.data };
     }
     const crews = getLS(LS.crews);
     const crew = { id: uid(), name, code: genCode(), goal, type, created_at: new Date().toISOString() };
     crews.push(crew); setLS(LS.crews, crews);
-    const member = await addMemberLocal(crew.id, ownerName, "member");
+    const member = await addMemberLocal(crew.id, ownerName, "member", pin);
     return { crew, member };
   }
 
@@ -194,6 +204,17 @@
     }
     const crews = getLS(LS.crews); const i = crews.findIndex(c => String(c.id) === String(id));
     if (i >= 0) { crews[i] = { ...crews[i], ...patch }; setLS(LS.crews, crews); return crews[i]; }
+    return null;
+  }
+
+  async function updateMember(id, patch) {
+    await ready;
+    if (sb) {
+      const { data, error } = await sb.from("members").update(patch).eq("id", id).select().single();
+      if (error) throw error; return data;
+    }
+    const ms = getLS(LS.members); const i = ms.findIndex(m => String(m.id) === String(id));
+    if (i >= 0) { ms[i] = { ...ms[i], ...patch }; setLS(LS.members, ms); return ms[i]; }
     return null;
   }
 
@@ -218,23 +239,23 @@
     return getLS(LS.crews).find(c => String(c.id) === String(id)) || null;
   }
 
-  async function addMemberLocal(crewId, name, role) {
+  async function addMemberLocal(crewId, name, role, pin) {
     const members = getLS(LS.members);
-    const m = { id: uid(), crew_id: crewId, name, role, created_at: new Date().toISOString() };
+    const m = { id: uid(), crew_id: crewId, name, role, pin: pin || null, created_at: new Date().toISOString() };
     members.push(m); setLS(LS.members, members);
     return m;
   }
 
-  async function joinCrew({ code, name, role, userId }) {
+  async function joinCrew({ code, name, role, userId, pin }) {
     await ready;
     const crew = await getCrewByCode(code);
     if (!crew) return { error: "코드에 해당하는 크루가 없어요" };
     if (sb) {
-      const m = await sb.from("members").insert({ crew_id: crew.id, name, role: role || "member", user_id: userId || null }).select().single();
+      const m = await insertMemberSb({ crew_id: crew.id, name, role: role || "member", user_id: userId || null, pin: pin || null });
       if (m.error) throw m.error;
       return { crew, member: m.data };
     }
-    const member = await addMemberLocal(crew.id, name, role || "member");
+    const member = await addMemberLocal(crew.id, name, role || "member", pin);
     return { crew, member };
   }
 
@@ -342,7 +363,7 @@
   window.DB = { ready, addPost, listPosts, addApplication, listApplications,
                 deletePost, deleteApplication, deleteAll,
                 addFeedback, listFeedback,
-                createCrew, updateCrew, getCrewByCode, getCrew, joinCrew, getMembers, getCheckins, addCheckin,
+                createCrew, updateCrew, updateMember, getCrewByCode, getCrew, joinCrew, getMembers, getCheckins, addCheckin,
                 listAllCrews, listAllMembers, listAllCheckins,
                 signUp, signIn, signOut, currentUser, onAuth, getProfile, upsertProfile, getMyCrews,
                 computeChain, weekStartTs, mode };

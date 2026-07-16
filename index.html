@@ -74,6 +74,26 @@
   .teambadge{font-size:12px;font-weight:800;color:var(--gold);background:rgba(227,154,0,.12);padding:2px 8px;border-radius:999px;vertical-align:middle}
   .penaltycard{background:#fff7ee;border:1px solid #f4dcc0;border-radius:14px;padding:13px 16px;font-size:13px;font-weight:700;color:#b26a1a;box-shadow:var(--shadow)}
   .penaltycard b{color:#8a4d0f}
+  /* 팀 크루 */
+  .teambanner{display:flex;align-items:center;gap:14px;border-radius:14px;padding:16px 18px;margin-bottom:12px;color:#fff}
+  .teambanner .tb-emblem{font-size:34px;line-height:1}
+  .teambanner .tb-name{font-weight:900;font-size:19px;letter-spacing:-.02em}
+  .teambanner .tb-chant{font-size:12.5px;opacity:.85;margin-top:2px}
+  .colorchip input{position:absolute;opacity:0}
+  .colorchip span{display:block;width:34px;height:34px;border-radius:50%;padding:0;border:2px solid transparent}
+  .colorchip input:checked + span{border-color:var(--ink);box-shadow:0 0 0 2px #fff inset}
+  .rankgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .rankttl{font-size:12.5px;font-weight:800;color:var(--sub);margin-bottom:8px}
+  .rankrow{display:flex;align-items:center;gap:8px;padding:5px 0}
+  .rankrow .rk{width:20px;height:20px;border-radius:6px;background:var(--card2);display:grid;place-items:center;font-size:11px;font-weight:900;flex:none}
+  .rankrow .rk.rk1{background:var(--ok);color:#fff}
+  .rankrow .rn{font-weight:700;font-size:13.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rankrow .rv{font-weight:800;font-size:13px;font-family:var(--font-num)}
+  .myrank{margin-top:8px;font-size:11.5px;font-weight:800;color:var(--sub);border-top:1px solid var(--line);padding-top:8px}
+  .feedhi{background:var(--card2);border-radius:10px;padding:10px 12px;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:10px}
+  .resetrow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:700}
+  .resetrow:last-child{border:none}
+  .minibtn{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:800;cursor:pointer}
 
   /* home crew list */
   .crewitem{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);
@@ -300,6 +320,9 @@
         <input name="cname" required placeholder="예: 새벽 여섯시 클럽" autocomplete="off"></div>
       <div class="field"><label>주간 목표 <span class="opt">(1인당 · 주 몇 번 인증?)</span></label>
         <div class="chips" id="goalChips"></div></div>
+      <div class="field" id="createPinField" style="display:none"><label>주장 PIN <span class="opt">(4~6자리)</span></label>
+        <input name="cpin" inputmode="numeric" maxlength="6" placeholder="숫자 4~6자리" autocomplete="off">
+        <div class="opt" style="margin-top:6px">다른 기기에서 재접속할 때 써요. 잊으면 못 찾으니 폼·은행 PIN 재사용 금지.</div></div>
       <p class="desc" id="createAs" style="margin-top:14px"></p>
       <button class="submit" type="submit" id="createBtn">크루 만들기</button>
       <button type="button" class="ghost-btn" data-close>닫기</button>
@@ -325,6 +348,8 @@
       <p class="desc">친구가 준 4자리 코드를 넣으세요.</p>
       <div class="field"><label>초대 코드 <span class="opt">*</span></label>
         <input name="code" class="code-in" maxlength="4" required placeholder="ABCD" autocomplete="off"></div>
+      <div class="field"><label>PIN <span class="opt">(팀 크루만 · 4~6자리, 친구 크루면 비워두기)</span></label>
+        <input name="jpin" inputmode="numeric" maxlength="6" placeholder="팀 크루면 입력" autocomplete="off"></div>
       <div class="field"><label>어떻게 참여할래요?</label>
         <div class="chips">
           <label class="chip"><input type="radio" name="role" value="member" checked><span>🏋️ 크루원 (같이 운동)</span></label>
@@ -409,6 +434,20 @@
         <label class="chip"><input type="radio" name="penalty" value="5000"><span>5천원</span></label>
         <label class="chip"><input type="radio" name="penalty" value="10000"><span>1만원</span></label>
       </div></div>
+
+    <div id="teamSettings" style="display:none">
+      <div class="field"><label>팀 컬러 <span class="opt">(우리 팀 색)</span></label>
+        <div class="chips" id="colorChips"></div></div>
+      <div class="field"><label>엠블럼 <span class="opt">(이모지 1개)</span></label>
+        <input id="setEmblem" maxlength="2" placeholder="예: ⚽ 🦁 🔥"></div>
+      <div class="field"><label>응원 구호 <span class="opt">(선택)</span></label>
+        <input id="setChant" maxlength="20" placeholder="예: 죽어도 새벽 6시"></div>
+      <div id="ownerZone" style="display:none">
+        <div class="field"><label>멤버 PIN 리셋 <span class="opt">(주장 전용)</span></label>
+          <div id="memberResetList"></div></div>
+      </div>
+    </div>
+
     <button class="submit" id="saveSettingsBtn">저장</button>
     <button type="button" class="ghost-btn" data-close>닫기</button>
   </div>
@@ -635,6 +674,14 @@ async function renderCrew(cid){
   const behind=workoutMembers.filter(m=>weekCount(cid,m.id)<goal);
   const meLive=active.find(a=>String(a.m.id)===String(mem.memberId));
 
+  // 팀 랭킹(이원화): 이번 주 꾸준함 / 누적 기여
+  const totOf=mid=>checkins.filter(c=>String(c.member_id)===String(mid)&&(c.type||"workout")==="workout").length;
+  const wkRank=workoutMembers.map(m=>({m,v:weekCount(cid,m.id)})).sort((a,b)=>b.v-a.v);
+  const totRank=workoutMembers.map(m=>({m,v:totOf(m.id)})).sort((a,b)=>b.v-a.v);
+  const myWkRank=wkRank.findIndex(x=>String(x.m.id)===String(mem.memberId))+1;
+  const myTotRank=totRank.findIndex(x=>String(x.m.id)===String(mem.memberId))+1;
+  const isTeam=crew.type==="team";
+
   // 이번 주 크루 인증 합계 (누적 사슬과 별개, 이번 주 성장분)
   const thisWeekTotal = workoutMembers.reduce((s,m)=>s+weekCount(cid,m.id),0);
 
@@ -669,6 +716,11 @@ async function renderCrew(cid){
         <div class="codechip" onclick="sendInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>📩 초대</small></div>
       </div>
     </div>
+
+    ${isTeam?`<div class="teambanner" style="background:${crew.color||'#161616'}">
+      <span class="tb-emblem">${esc(crew.emblem||'🏆')}</span>
+      <div class="tb-txt"><div class="tb-name">${esc(crew.name)}</div>${crew.chant?`<div class="tb-chant">"${esc(crew.chant)}"</div>`:``}</div>
+    </div>`:``}
 
     <div class="charcard">
       <div class="charbox">${characterSVG(ch.level, ch.cond)}</div>
@@ -709,6 +761,18 @@ async function renderCrew(cid){
 
     ${crew.hardmode?`<div class="penaltycard">🍗 하드모드 · 이번 주 미달 <b>${behind.length}명</b>${crew.penalty?` · 예상 벌금 ${(behind.length*crew.penalty).toLocaleString()}원`:""}</div>`:""}
 
+    ${isTeam?`<div class="card">
+      <div class="sec-t">랭킹 <span class="r">상위 3명만</span></div>
+      <div class="rankgrid">
+        <div><div class="rankttl">🔥 이번 주</div>
+          ${wkRank.slice(0,3).map((x,i)=>`<div class="rankrow"><span class="rk rk${i+1}">${i+1}</span><span class="rn">${esc(x.m.name)}</span><span class="rv">${x.v}</span></div>`).join("")||`<div class="myrank">아직 없음</div>`}
+          <div class="myrank">내 순위 ${myWkRank}위 · ${weekCount(cid,mem.memberId)}회</div></div>
+        <div><div class="rankttl">🏆 누적</div>
+          ${totRank.slice(0,3).map((x,i)=>`<div class="rankrow"><span class="rk rk${i+1}">${i+1}</span><span class="rn">${esc(x.m.name)}</span><span class="rv">${x.v}</span></div>`).join("")||`<div class="myrank">아직 없음</div>`}
+          <div class="myrank">내 순위 ${myTotRank}위</div></div>
+      </div>
+    </div>`:""}
+
     ${(()=>{ const ph=checkins.filter(c=>(c.type||"workout")==="workout"&&c.photo).slice(0,15);
       return ph.length ? `<div class="card">
         <div class="sec-t">📸 인증샷 <span class="r">${ph.length}</span></div>
@@ -716,9 +780,10 @@ async function renderCrew(cid){
       </div>` : ""; })()}
 
     <div class="card">
-      <div class="sec-t">보드</div>
+      <div class="sec-t">보드${isTeam?` <span class="r">최신순</span>`:""}</div>
+      ${isTeam && wkRank[0] && wkRank[0].v>0 ? `<div class="feedhi">🔥 이번 주 최다 인증 · <b>${esc(wkRank[0].m.name)}</b> (${wkRank[0].v}회)</div>`:""}
       <div class="feed">
-        ${checkins.filter(c=>c.type!=="start").slice(0,20).map(c=>{
+        ${checkins.filter(c=>c.type!=="start").slice(0, isTeam?8:20).map(c=>{
           if(c.type==="cheer") return `<div class="item">
             <div class="fic cheer">${esc(c.part||"🙌")}</div>
             <div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--gold);font-size:11px;font-weight:800">가디언</span></div>
@@ -825,13 +890,19 @@ document.getElementById("goalChips").innerHTML=[2,3,4,5,6].map((n,i)=>
   `<label class="chip"><input type="radio" name="goal" value="${n}" ${n===3?"checked":""}><span>주 ${n}회</span></label>`).join("");
 function openCreate(){ document.getElementById("createForm").style.display=""; document.getElementById("createDone").style.display="none";
   document.getElementById("createForm").reset(); document.querySelector('input[name=goal][value="3"]').checked=true;
+  document.getElementById("createPinField").style.display="none";
   document.getElementById("createAs").textContent=`👤 ${ME?ME.nickname:""} 님이 크루장이 돼요`; openModal("createModal"); }
+document.querySelectorAll('input[name=ctype]').forEach(r=>r.addEventListener("change",()=>{
+  document.getElementById("createPinField").style.display = document.querySelector('input[name=ctype]:checked').value==="team" ? "" : "none";
+}));
 let pendingCrew=null, pendingCode=null, pendingName=null;
 document.getElementById("createForm").onsubmit=async e=>{
   e.preventDefault(); const btn=document.getElementById("createBtn"); btn.disabled=true; btn.textContent="만드는 중…";
   const fd=new FormData(e.target);
+  const type=fd.get("ctype"), cpin=(fd.get("cpin")||"").trim();
+  if(type==="team" && !/^\d{4,6}$/.test(cpin)){ alert("팀 크루는 주장 PIN(숫자 4~6자리)이 필요해요"); btn.disabled=false; btn.textContent="크루 만들기"; return; }
   try{
-    const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), type:fd.get("ctype"), ownerName:ME.nickname, userId:null});
+    const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), type, pin:type==="team"?cpin:null, ownerName:ME.nickname, userId:null});
     addMe({crewId:crew.id, code:crew.code, crewName:crew.name, memberId:member.id, name:member.name, role:"member"});
     await loadMemberships();
     pendingCrew=crew.id; pendingCode=crew.code; pendingName=crew.name;
@@ -848,16 +919,36 @@ document.getElementById("enterNew").onclick=()=>{ closeModals(); if(pendingCrew)
 function openJoin(code){ document.getElementById("joinForm").reset();
   if(code) document.querySelector('input[name=code]').value=code; openModal("joinModal"); }
 document.getElementById("joinForm").onsubmit=async e=>{
-  e.preventDefault(); const btn=document.getElementById("joinBtn"); btn.disabled=true; btn.textContent="참여 중…";
+  e.preventDefault(); const btn=document.getElementById("joinBtn");
+  const done=()=>{ btn.disabled=false; btn.textContent="참여하기"; };
+  btn.disabled=true; btn.textContent="참여 중…";
   const fd=new FormData(e.target);
+  const code=fd.get("code").trim().toUpperCase(), jpin=(fd.get("jpin")||"").trim(), role=fd.get("role");
   try{
-    const res=await DB.joinCrew({code:fd.get("code").trim().toUpperCase(), name:ME.nickname, role:fd.get("role"), userId:null});
-    if(res.error){ alert(res.error); btn.disabled=false; btn.textContent="참여하기"; return; }
-    addMe({crewId:res.crew.id, code:res.crew.code, crewName:res.crew.name, memberId:res.member.id, name:res.member.name, role:fd.get("role")});
-    await loadMemberships();
-    closeModals(); go(res.crew.id);
-  }catch(err){ alert("참여 실패: "+(err.message||err)); }
-  finally{ btn.disabled=false; btn.textContent="참여하기"; }
+    const crew=await DB.getCrewByCode(code);
+    if(!crew){ alert("코드에 해당하는 크루가 없어요"); done(); return; }
+    if(crew.type==="team"){
+      if(!/^\d{4,6}$/.test(jpin)){ alert("팀 크루는 PIN(숫자 4~6자리)이 필요해요"); done(); return; }
+      const members=await DB.getMembers(crew.id);
+      const existing=members.find(m=>m.name===ME.nickname);
+      if(existing){
+        if((existing.pin||"")===jpin){   // 재접속(로그인)
+          addMe({crewId:crew.id, code:crew.code, crewName:crew.name, memberId:existing.id, name:existing.name, role:existing.role});
+          await loadMemberships(); closeModals(); go(crew.id); return;
+        }
+        alert(`'${ME.nickname}' 이름은 이미 있어요. PIN이 맞아야 재접속돼요.\n(PIN 잊었으면 주장에게 리셋 요청)`); done(); return;
+      }
+      const res=await DB.joinCrew({code, name:ME.nickname, role, userId:null, pin:jpin});
+      if(res.error){ alert(res.error); done(); return; }
+      addMe({crewId:res.crew.id, code:res.crew.code, crewName:res.crew.name, memberId:res.member.id, name:res.member.name, role});
+      await loadMemberships(); closeModals(); go(res.crew.id); return;
+    }
+    // 친구 크루
+    const res=await DB.joinCrew({code, name:ME.nickname, role, userId:null});
+    if(res.error){ alert(res.error); done(); return; }
+    addMe({crewId:res.crew.id, code:res.crew.code, crewName:res.crew.name, memberId:res.member.id, name:res.member.name, role});
+    await loadMemberships(); closeModals(); go(res.crew.id);
+  }catch(err){ alert("참여 실패: "+(err.message||err)); done(); }
 };
 
 /* ---- 10초 인증 ---- */
@@ -1022,26 +1113,59 @@ document.getElementById("cheerForm").onsubmit=async e=>{
 };
 
 /* ---- 크루 설정 (하드모드 옵트인) ---- */
+const TEAM_COLORS=["#161616","#1d4fd7","#d22730","#0f9152","#7b2ff7","#e0851b","#0d9488","#be123c"];
 document.getElementById("setGoalChips").innerHTML=[2,3,4,5,6].map(n=>
   `<label class="chip"><input type="radio" name="setgoal" value="${n}"><span>주 ${n}회</span></label>`).join("");
+document.getElementById("colorChips").innerHTML=TEAM_COLORS.map((c,i)=>
+  `<label class="chip colorchip"><input type="radio" name="tcolor" value="${c}" ${i===0?"checked":""}><span style="background:${c}"></span></label>`).join("");
 document.querySelector('input[name=hard][value=on]').closest('.chips').addEventListener("change",e=>{
   if(e.target.name==="hard") document.getElementById("penaltyField").style.display = e.target.value==="on"?"":"none";
 });
+const ownerId = () => { const ms=cache.members.filter(m=>m.role!=="guardian").slice().sort((a,b)=>a.id-b.id); return ms.length?String(ms[0].id):null; };
 function openSettings(){
   const c=cache.crew; if(!c) return;
   (document.querySelector(`input[name=setgoal][value="${c.goal}"]`)||document.querySelector('input[name=setgoal][value="3"]')).checked=true;
   document.querySelector(`input[name=hard][value=${c.hardmode?"on":"off"}]`).checked=true;
   document.getElementById("penaltyField").style.display=c.hardmode?"":"none";
   if(c.penalty){ const p=document.querySelector(`input[name=penalty][value="${c.penalty}"]`); if(p) p.checked=true; }
+  // 팀 전용
+  const isTeam=c.type==="team";
+  document.getElementById("teamSettings").style.display=isTeam?"":"none";
+  if(isTeam){
+    const cc=document.querySelector(`input[name=tcolor][value="${c.color||TEAM_COLORS[0]}"]`); if(cc) cc.checked=true; else document.querySelector('input[name=tcolor]').checked=true;
+    document.getElementById("setEmblem").value=c.emblem||"";
+    document.getElementById("setChant").value=c.chant||"";
+    const iAmOwner = String(myMember(VIEW).memberId)===ownerId();
+    document.getElementById("ownerZone").style.display=iAmOwner?"":"none";
+    if(iAmOwner){
+      const wm=cache.members.filter(m=>m.role!=="guardian");
+      document.getElementById("memberResetList").innerHTML=wm.map(m=>
+        `<div class="resetrow"><span>${esc(m.name)}${String(m.id)===ownerId()?" (주장)":""}</span><button type="button" class="minibtn" onclick="resetMemberPin('${m.id}','${esc(m.name)}')">PIN 리셋</button></div>`).join("");
+    }
+  }
   openModal("settingsModal");
+}
+async function resetMemberPin(id,name){
+  const np=prompt(`${name}님의 새 PIN (숫자 4~6자리)`);
+  if(np===null) return;
+  if(!/^\d{4,6}$/.test(np.trim())){ alert("숫자 4~6자리로 입력하세요"); return; }
+  try{ await DB.updateMember(Number(id),{pin:np.trim()}); alert(`${name}님 PIN을 ${np.trim()} 로 바꿨어요. 본인에게 알려주세요.`); }
+  catch(e){ alert("리셋 실패: "+(e.message||e)); }
 }
 document.getElementById("saveSettingsBtn").onclick=async()=>{
   const btn=document.getElementById("saveSettingsBtn"); btn.disabled=true; btn.textContent="저장 중…";
   const goal=Number(document.querySelector('input[name=setgoal]:checked').value);
   const hard=document.querySelector('input[name=hard]:checked').value==="on";
   const penalty=hard?Number(document.querySelector('input[name=penalty]:checked').value):0;
+  const patch={goal, hardmode:hard, penalty};
+  if(cache.crew.type==="team"){
+    patch.color=document.querySelector('input[name=tcolor]:checked').value;
+    patch.emblem=document.getElementById("setEmblem").value.trim();
+    patch.chant=document.getElementById("setChant").value.trim();
+  }
   try{
-    const updated=await DB.updateCrew(cache.crew.id, {goal, hardmode:hard, penalty});
+    let updated; try{ updated=await DB.updateCrew(cache.crew.id, patch); }
+    catch(e){ if(/color|chant|emblem|column|schema cache/i.test(e.message||"")){ delete patch.color; delete patch.emblem; delete patch.chant; updated=await DB.updateCrew(cache.crew.id, patch); } else throw e; }
     if(updated) cache.crew=updated;
     closeModals(); await renderCrew(VIEW);
   }catch(err){ alert("저장 실패: "+(err.message||err)); }

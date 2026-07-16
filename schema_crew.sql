@@ -61,5 +61,13 @@ alter table crews add column if not exists penalty  int default 0;
 drop policy if exists "update crews" on crews;
 create policy "update crews" on crews for update using (true) with check (true);
 
+-- v2.1: 팀 크루 PIN + 팀 컬러/구호/엠블럼 + 멤버 update(주장 PIN 리셋)
+alter table members add column if not exists pin    text;
+alter table crews   add column if not exists color  text;
+alter table crews   add column if not exists chant  text;
+alter table crews   add column if not exists emblem text;
+drop policy if exists "update members" on members;
+create policy "update members" on members for update using (true) with check (true);
+
 create index if not exists members_crew_idx  on members (crew_id);
 create index if not exists checkins_crew_idx  on checkins (crew_id, created_at desc);
