@@ -74,3 +74,7 @@ create policy "update members" on members for update using (true) with check (tr
 
 create index if not exists members_crew_idx  on members (crew_id);
 create index if not exists checkins_crew_idx  on checkins (crew_id, created_at desc);
+
+-- v3: 등번호(구단) + 훈련 거리(클럽 통산 km)
+alter table members  add column if not exists jersey_no int;      -- 팀 내 등번호(1~99)
+alter table checkins add column if not exists distance_km numeric; -- 러닝/사이클 거리(km)

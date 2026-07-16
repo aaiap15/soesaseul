@@ -163,14 +163,14 @@
   // 멤버 insert (pin/owner_key 컬럼 없는 DB면 자동으로 빼고 재시도)
   async function insertMemberSb(row) {
     let r = await sb.from("members").insert(row).select().single();
-    if (r.error && /pin|owner_key|schema cache|column/i.test(r.error.message || "")) {
-      const { pin, owner_key, ...rest } = row;
+    if (r.error && /pin|owner_key|jersey_no|schema cache|column/i.test(r.error.message || "")) {
+      const { pin, owner_key, jersey_no, ...rest } = row;
       r = await sb.from("members").insert(rest).select().single();
     }
     return r;
   }
 
-  async function createCrew({ name, goal, ownerName, userId, type, pin, ownerKey }) {
+  async function createCrew({ name, goal, ownerName, userId, type, pin, ownerKey, jersey }) {
     await ready;
     goal = Number(goal) || 3;
     type = type || "friend";
@@ -185,14 +185,14 @@
         if (!r.error) crew = r.data; else err = r.error;
       }
       if (!crew) throw err || new Error("크루 생성 실패");
-      const m = await insertMemberSb({ crew_id: crew.id, name: ownerName, role: "member", user_id: userId || null, pin: pin || null, owner_key: ownerKey || null });
+      const m = await insertMemberSb({ crew_id: crew.id, name: ownerName, role: "member", user_id: userId || null, pin: pin || null, owner_key: ownerKey || null, jersey_no: jersey || null });
       if (m.error) throw m.error;
       return { crew, member: m.data };
     }
     const crews = getLS(LS.crews);
     const crew = { id: uid(), name, code: genCode(), goal, type, created_at: new Date().toISOString() };
     crews.push(crew); setLS(LS.crews, crews);
-    const member = await addMemberLocal(crew.id, ownerName, "member", pin);
+    const member = await addMemberLocal(crew.id, ownerName, "member", pin, jersey);
     return { crew, member };
   }
 
@@ -239,23 +239,23 @@
     return getLS(LS.crews).find(c => String(c.id) === String(id)) || null;
   }
 
-  async function addMemberLocal(crewId, name, role, pin) {
+  async function addMemberLocal(crewId, name, role, pin, jersey) {
     const members = getLS(LS.members);
-    const m = { id: uid(), crew_id: crewId, name, role, pin: pin || null, created_at: new Date().toISOString() };
+    const m = { id: uid(), crew_id: crewId, name, role, pin: pin || null, jersey_no: jersey || null, created_at: new Date().toISOString() };
     members.push(m); setLS(LS.members, members);
     return m;
   }
 
-  async function joinCrew({ code, name, role, userId, pin, ownerKey }) {
+  async function joinCrew({ code, name, role, userId, pin, ownerKey, jersey }) {
     await ready;
     const crew = await getCrewByCode(code);
     if (!crew) return { error: "코드에 해당하는 크루가 없어요" };
     if (sb) {
-      const m = await insertMemberSb({ crew_id: crew.id, name, role: role || "member", user_id: userId || null, pin: pin || null, owner_key: ownerKey || null });
+      const m = await insertMemberSb({ crew_id: crew.id, name, role: role || "member", user_id: userId || null, pin: pin || null, owner_key: ownerKey || null, jersey_no: jersey || null });
       if (m.error) throw m.error;
       return { crew, member: m.data };
     }
-    const member = await addMemberLocal(crew.id, name, role || "member", pin);
+    const member = await addMemberLocal(crew.id, name, role || "member", pin, jersey);
     return { crew, member };
   }
 
@@ -279,13 +279,18 @@
     return getLS(LS.checkins).filter(c => String(c.crew_id) === String(crewId)).sort((a, b) => b.id - a.id);
   }
 
-  async function addCheckin({ crewId, memberId, name, type, part, note, photo }) {
+  async function addCheckin({ crewId, memberId, name, type, part, note, photo, distanceKm }) {
     await ready;
     const row = { crew_id: crewId, member_id: memberId, name, type: type || "workout", part: part || "", note: note || "", photo: photo || "" };
+    if (distanceKm != null && distanceKm !== "") row.distance_km = Number(distanceKm) || null;
     if (sb) {
-      const { data, error } = await sb.from("checkins").insert(row).select().single();
-      if (error) throw error;
-      return data;
+      let r = await sb.from("checkins").insert(row).select().single();
+      if (r.error && /distance_km|schema cache|column/i.test(r.error.message || "")) {
+        const { distance_km, ...rest } = row;
+        r = await sb.from("checkins").insert(rest).select().single();
+      }
+      if (r.error) throw r.error;
+      return r.data;
     }
     const rows = getLS(LS.checkins);
     row.id = uid(); row.created_at = new Date().toISOString();
