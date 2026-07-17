@@ -865,6 +865,26 @@ function currentLineup(){
 function lastLineup(){
   return parseLineups().filter(l=>Array.isArray(l.r)&&Array.isArray(l.s)).sort((a,b)=>b.id-a.id)[0]||null;
 }
+const byJerseyId=(a,b)=>{ const ja=parseJersey(a.jersey_no),jb=parseJersey(b.jersey_no);
+  if(ja!=null&&jb!=null) return ja-jb; if(ja!=null) return -1; if(jb!=null) return 1; return a.id-b.id; };
+// 스쿼드 배치(이번 주 스타팅 있으면 반영 · 없으면 자동) — 전술판/발표카드 공용
+function squadLayout(){
+  const wm=cache.members.filter(m=>m.role!=="guardian");
+  const lu=currentLineup();
+  let rows, positions=[], benchIds=[], starting=!!lu, formationLabel;
+  if(lu){
+    rows=lu.r; const used=new Set(); let idx=0;
+    rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const mid=lu.s[idx++]; positions.push({mid,ri,i,cnt}); if(mid!=null) used.add(String(mid)); } });
+    benchIds=wm.filter(m=>!used.has(String(m.id))).map(m=>m.id);
+    formationLabel=(FORMATIONS.find(f=>f.rows.join("-")===rows.join("-"))||{}).label || rows.slice(1).join("-");
+  } else {
+    const players=wm.slice().sort(byJerseyId);
+    rows=formationRows(players.length); let idx=0;
+    rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const p=players[idx++]; positions.push({mid:p?p.id:null,ri,i,cnt}); } });
+    formationLabel = players.length<=1?`${players.length}인`:(rows.slice(1).join("-")||"1");
+  }
+  return {rows, R:rows.length, positions, benchIds, starting, formationLabel};
+}
 const PITCH_LINES=`<svg class="lines" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
   <g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="0.7">
     <rect x="4" y="4" width="92" height="132" rx="1.5"/>
@@ -888,21 +908,7 @@ function pitchBoard(){
   };
   const emptyHTML=(x,y,role)=>`<div class="pp" style="left:${x}%;top:${y}%"><div class="dot empty">+</div><div class="lbl">${role}</div></div>`;
 
-  const lu=currentLineup();
-  let rows, positions=[], benchIds=[], starting=!!lu, formationLabel;
-  if(lu){
-    rows=lu.r; const used=new Set(); let idx=0;
-    rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const mid=lu.s[idx++]; positions.push({mid,ri,i,cnt}); if(mid!=null) used.add(String(mid)); } });
-    benchIds=wm.filter(m=>!used.has(String(m.id))).map(m=>m.id);
-    formationLabel=(FORMATIONS.find(f=>f.rows.join("-")===rows.join("-"))||{}).label || rows.slice(1).join("-");
-  } else {
-    const players=wm.slice().sort((a,b)=>{ const ja=parseJersey(a.jersey_no),jb=parseJersey(b.jersey_no);
-      if(ja!==null&&jb!==null) return ja-jb; if(ja!==null) return -1; if(jb!==null) return 1; return a.id-b.id; });
-    rows=formationRows(players.length); let idx=0;
-    rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const p=players[idx++]; positions.push({mid:p?p.id:null,ri,i,cnt}); } });
-    formationLabel = players.length<=1 ? `${players.length}인` : (rows.slice(1).join("-")||"1");
-  }
-  const R=rows.length;
+  const {rows,R,positions,benchIds,starting,formationLabel}=squadLayout();
   const chips=positions.map(pos=>{
     const y=R===1?50:88-(pos.ri/(R-1||1))*76, x=(pos.i+1)/(pos.cnt+1)*100;
     const p=pos.mid!=null?byId(pos.mid):null;
@@ -916,7 +922,10 @@ function pitchBoard(){
     <div class="pitch-cap">이번 주 목표 달성 <b style="color:var(--ok)">${doneCount}</b>/${wm.length}</div>
     ${benchIds.length?`<div class="subbench">벤치 ${benchIds.map(id=>{const m=byId(id);const jn=parseJersey(m.jersey_no);return `<span class="sb">${jn!=null?jn+' ':''}${esc(m.name)}</span>`;}).join("")}</div>`:""}
     ${gd.length?`<div class="subbench">${gd.map(g=>`<span class="sb">서포터 ${esc(g.name)}</span>`).join("")}</div>`:""}
-    ${canEdit?`<button class="sharebtn" style="margin-top:12px" onclick="openLineup()">스타팅 스쿼드 설정</button>`:""}
+    <div style="display:flex;gap:8px;margin-top:12px">
+      ${canEdit?`<button class="sharebtn" style="margin-top:0;flex:1" onclick="openLineup()">스타팅 설정</button>`:""}
+      <button class="sharebtn" style="margin-top:0;flex:1" onclick="shareSquadCard()">발표 카드 공유</button>
+    </div>
   </div>`;
 }
 
@@ -1522,20 +1531,48 @@ async function drawFormCard({crewName,emblem,color,cond,ovr,chain,km,photos,code
   cardFooter(g,code);
   return await blobOf(cv);
 }
-// ② 스쿼드 발표 카드 — 이번 주 달성자만 명단(등번호·이름)
-async function drawSquadCard({crewName,emblem,color,matchweek,achievers,teamTrainings,code}){
-  const cv=newCard(), g=cv.getContext("2d"); cardFrame(g,color);
-  cardEmblem(g,emblem,color,CW/2,200,68);
-  g.fillStyle="#fff"; g.font=`900 58px ${FONT}`; g.fillText(clip(crewName,14),CW/2,332);
-  g.fillStyle=color; g.font=`400 72px "Anton",sans-serif`; g.fillText(`MATCHWEEK ${matchweek} SQUAD`,CW/2,430);
-  g.fillStyle="#9A9D96"; g.font=`700 36px ${FONT}`; g.fillText(`이번 주 팀 훈련 ${teamTrainings}회 · 목표 달성 명단`,CW/2,490);
-  let y=610; const list=achievers.slice(0,11);
-  if(!list.length){ g.fillStyle="#9A9D96"; g.font=`700 44px ${FONT}`; g.fillText("아직 명단에 오른 선수가 없습니다",CW/2,760); }
-  list.forEach(a=>{
-    g.textAlign="right"; g.fillStyle=color; g.font=`400 60px "Anton",sans-serif`; g.fillText(a.no!=null?String(a.no):"–",CW/2-30,y);
-    g.textAlign="left"; g.fillStyle="#fff"; g.font=`800 52px ${FONT}`; g.fillText(clip(a.name,12),CW/2-0,y-4);
-    g.textAlign="center"; y+=104;
+// 캔버스에 축구장 + 스타팅 배치 그리기
+function drawPitchCanvas(g,px,py,pw,ph,color,layout,memberById){
+  g.save(); roundRect(g,px,py,pw,ph,24); g.clip();
+  const bands=8; for(let i=0;i<bands;i++){ g.fillStyle=i%2?"#178f43":"#1c7a46"; g.fillRect(px,py+ph*i/bands,pw,ph/bands+1); }
+  g.strokeStyle="rgba(255,255,255,.55)"; g.lineWidth=3;
+  const inx=px+16, iny=py+16, inw=pw-32, inh=ph-32;
+  g.strokeRect(inx,iny,inw,inh);
+  g.beginPath(); g.moveTo(inx,py+ph/2); g.lineTo(inx+inw,py+ph/2); g.stroke();
+  g.beginPath(); g.arc(px+pw/2,py+ph/2,pw*0.13,0,7); g.stroke();
+  const boxW=inw*0.5, boxH=inh*0.13, boxX=px+pw/2-boxW/2;
+  g.strokeRect(boxX,iny,boxW,boxH); g.strokeRect(boxX,iny+inh-boxH,boxW,boxH);
+  g.restore();
+  const R=layout.R; g.textAlign="center";
+  layout.positions.forEach(pos=>{
+    const yPct=R===1?50:88-(pos.ri/(R-1||1))*76, xPct=(pos.i+1)/(pos.cnt+1)*100;
+    const cx=px+pw*xPct/100, cy=py+ph*(yPct/100), r=46;
+    const m=pos.mid!=null?memberById(pos.mid):null;
+    if(m){
+      g.beginPath(); g.arc(cx,cy,r,0,7); g.fillStyle=color; g.fill();
+      g.lineWidth=4; g.strokeStyle="rgba(255,255,255,.85)"; g.stroke();
+      const jn=parseJersey(m.jersey_no);
+      g.fillStyle="#fff"; g.font=`400 ${jn!=null?52:40}px "Anton",sans-serif`; g.textBaseline="middle";
+      g.fillText(jn!=null?String(jn):(m.name||"?").slice(0,1),cx,cy+3); g.textBaseline="alphabetic";
+      g.fillStyle="#fff"; g.font=`800 30px ${FONT}`; g.shadowColor="rgba(0,0,0,.75)"; g.shadowBlur=6;
+      g.fillText(clip(m.name,6),cx,cy+r+34); g.shadowBlur=0;
+    } else {
+      g.beginPath(); g.arc(cx,cy,r,0,7); g.fillStyle="rgba(255,255,255,.12)"; g.fill();
+      g.setLineDash([7,6]); g.lineWidth=3; g.strokeStyle="rgba(255,255,255,.7)"; g.stroke(); g.setLineDash([]);
+    }
   });
+}
+// ② 스쿼드 발표 카드 — 실제 축구장에 이번 주 스타팅 배치
+async function drawSquadCard({crewName,emblem,color,matchweek,formationLabel,layout,memberById,benchNames,code}){
+  const cv=newCard(), g=cv.getContext("2d"); cardFrame(g,color);
+  cardEmblem(g,emblem,color,CW/2,164,58);
+  g.fillStyle="#fff"; g.font=`900 54px ${FONT}`; g.fillText(clip(crewName,14),CW/2,286);
+  g.fillStyle=color; g.font=`400 60px "Anton",sans-serif`; g.fillText(`MATCHWEEK ${matchweek} · ${formationLabel}`,CW/2,356);
+  g.fillStyle="#9A9D96"; g.font=`700 34px ${FONT}`; g.fillText("STARTING SQUAD",CW/2,404);
+  const px=90, py=444, pw=CW-180, ph=1180;
+  drawPitchCanvas(g,px,py,pw,ph,color,layout,memberById);
+  if(benchNames){ g.textAlign="center"; g.fillStyle="#9A9D96"; g.font=`700 30px ${FONT}`;
+    g.fillText("벤치 "+clip(benchNames,42), CW/2, py+ph+52); }
   cardFooter(g,code);
   return await blobOf(cv);
 }
@@ -1591,19 +1628,17 @@ async function shareCurrentCrew(){
     await shareCard(blob,"formclub.png",`'${cache.crew.name}' 팀 폼 ${CONDS[ch.cond].n} · OVR ${ovrOf(ch.level)}\n${CARD_URL} #폼클럽`);
   }catch(err){ if(err && err.name!=="AbortError") toast("공유 실패 — 다시 시도해줘"); }
 }
-// 스쿼드 발표 카드(명단에서 · 이번 주 목표 달성자)
+// 스쿼드 발표 카드(전술판 스타팅을 축구장에 그대로)
 async function shareSquadCard(){
   if(!cache.crew) return;
-  const goal=cache.crew.goal;
-  const wm=cache.members.filter(m=>m.role!=="guardian");
-  const achievers=wm.map(m=>({no:parseJersey(m.jersey_no), name:m.name, v:weekCount(VIEW,m.id)}))
-    .filter(a=>a.v>=goal).sort((a,b)=>(a.no??999)-(b.no??999));
-  const teamTrainings=wm.reduce((s,m)=>s+weekCount(VIEW,m.id),0);
+  const layout=squadLayout();
+  const byId=id=>cache.members.find(m=>String(m.id)===String(id));
+  const benchNames=layout.benchIds.map(id=>{ const m=byId(id); const jn=parseJersey(m.jersey_no); return (jn!=null?jn+" ":"")+m.name; }).join("  ");
   toast("스쿼드 발표 카드 만드는 중…");
   try{
     const blob=await drawSquadCard({crewName:cache.crew.name, emblem:cache.crew.emblem, color:crewColor(cache.crew),
-      matchweek:crewMatchweek(cache.crew), achievers, teamTrainings, code:cache.crew.code});
-    await shareCard(blob,"squad.png",`[${cache.crew.name}] MATCHWEEK ${crewMatchweek(cache.crew)} 스쿼드 발표\n${CARD_URL} #폼클럽`);
+      matchweek:crewMatchweek(cache.crew), formationLabel:layout.formationLabel, layout, memberById:byId, benchNames, code:cache.crew.code});
+    await shareCard(blob,"squad.png",`[${cache.crew.name}] MATCHWEEK ${crewMatchweek(cache.crew)} 스타팅 스쿼드 · ${layout.formationLabel}\n${CARD_URL} #폼클럽`);
   }catch(err){ if(err && err.name!=="AbortError") toast("공유 실패 — 다시 시도해줘"); }
 }
 // 주간 결과(리캡) 카드 공유
