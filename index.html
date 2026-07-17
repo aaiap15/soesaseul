@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#0e2b1e" />
+<meta name="theme-color" content="#0f1216" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="폼클럽" />
@@ -15,27 +15,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* 스타디움: 조명 켜진 축구장(피치 그린) + 팀컬러 + 거대 Anton 숫자 */
-    --bg:#0e2b1e; --card:#16392a; --card2:#1d4634; --line:#2b5745; --ink:#f1f8f3;
-    --txt:#eaf3ec; --sub:#a3c4b3; --dim:#6f9784;
-    --accent:#e5352b; --accent2:#e5352b; --blue:#3b82f6; --ok:#4ade80; --gold:#f0c24b; --chick:#f59e0b; --danger:#ef4444;
-    --line-white:rgba(255,255,255,.16);
+    /* 세련된 그래파이트 베이스 + 피치 그린 포인트(액센트) + 거대 Anton 숫자 */
+    --bg:#0f1216; --card:#171b21; --card2:#1e232b; --line:#2a2f38; --ink:#f3f5f7;
+    --txt:#eaedf1; --sub:#98a1ad; --dim:#666e79;
+    --accent:#12b76a; --accent2:#12b76a; --blue:#3b82f6; --ok:#4ade80; --gold:#e8c15a; --chick:#f59e0b; --danger:#ef4444;
+    --line-white:rgba(255,255,255,.14);
     --radius:12px; --maxw:500px;
-    --shadow:0 3px 14px rgba(0,0,0,.28);
+    --shadow:0 3px 14px rgba(0,0,0,.32);
     --font-num:"Anton",-apple-system,BlinkMacSystemFont,sans-serif;
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{background:var(--bg);color:var(--txt);line-height:1.5;padding-bottom:110px;position:relative}
-  /* 잔디 줄무늬 + 상단 조명 글로우 */
+  /* 은은한 상단 스포트라이트(그린 힌트) + 하단 비네트 — 배경은 그래파이트 유지 */
   body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
     background:
-      radial-gradient(120% 60% at 50% -8%, rgba(150,220,180,.14), transparent 60%),
-      repeating-linear-gradient(0deg, rgba(255,255,255,.020) 0 42px, rgba(0,0,0,.045) 42px 84px);}
+      radial-gradient(115% 68% at 50% -12%, rgba(18,183,106,.10), transparent 52%),
+      radial-gradient(120% 90% at 50% 118%, rgba(0,0,0,.28), transparent 44%);}
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 16px}
   a{color:inherit}
 
-  header{position:sticky;top:0;z-index:20;background:rgba(14,43,30,.86);backdrop-filter:blur(10px);
+  header{position:sticky;top:0;z-index:20;background:rgba(15,18,22,.88);backdrop-filter:blur(10px);
     padding:14px 0 12px;border-bottom:1px solid var(--line)}
   header .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .logo{font-size:20px;font-weight:900;letter-spacing:-.02em;cursor:pointer;display:flex;align-items:center;gap:6px}
@@ -179,8 +179,8 @@
   .profbtn img{width:100%;height:100%;object-fit:cover}
   .segbtns{display:flex;background:var(--card2);border-radius:12px;padding:4px;margin-bottom:4px}
   .segb{flex:1;border:none;background:transparent;font-weight:800;font-size:14px;padding:11px;border-radius:9px;cursor:pointer;color:var(--sub)}
-  .segb.on{background:#fff;color:var(--txt);box-shadow:var(--shadow)}
-  .avataredit{width:96px;height:96px;border-radius:50%;border:2px dashed #f2c99a;background:#fff8f0;color:var(--accent);
+  .segb.on{background:var(--accent);color:#06231a;box-shadow:var(--shadow)}
+  .avataredit{width:96px;height:96px;border-radius:50%;border:2px dashed var(--line);background:var(--card2);color:var(--accent);
     display:grid;place-items:center;font-weight:900;font-size:18px;margin:4px auto;cursor:pointer;overflow:hidden;line-height:1.15}
   .avataredit img{width:100%;height:100%;object-fit:cover}
   .avataredit small{font-size:11px;font-weight:700}
@@ -269,7 +269,7 @@
   .feed .fb{flex:1;min-width:0}
   .feed .fn{font-weight:800;font-size:14px}
   .feed .ft{color:var(--sub);font-size:13px;margin-top:2px}
-  .feed .ftag{display:inline-block;font-size:11.5px;font-weight:800;color:var(--accent2);background:rgba(255,90,31,.1);padding:2px 8px;border-radius:999px;margin-right:5px}
+  .feed .ftag{display:inline-block;font-size:11.5px;font-weight:800;color:var(--accent2);background:rgba(18,183,106,.12);padding:2px 8px;border-radius:999px;margin-right:5px}
   .feed .fago{color:var(--dim);font-size:11px;white-space:nowrap}
   .empty{color:var(--dim);font-size:13.5px;text-align:center;padding:24px 0}
 
@@ -306,7 +306,7 @@
   .chip{cursor:pointer}
   .chip input{position:absolute;opacity:0;pointer-events:none}
   .chip span{display:block;font-size:14px;font-weight:700;padding:10px 13px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);color:var(--sub)}
-  .chip input:checked + span{background:rgba(229,53,43,.16);border-color:var(--accent);color:#ff6a60}
+  .chip input:checked + span{background:rgba(18,183,106,.16);border-color:var(--accent);color:#4ade80}
   .chip.big span{font-size:24px;padding:12px 16px}
   .submit{width:100%;background:var(--accent);color:#fff;font-weight:850;font-size:16px;padding:16px;border:none;border-radius:12px;cursor:pointer;margin-top:24px}
   .submit:disabled{opacity:.5}
@@ -316,11 +316,11 @@
   .done h2{margin-top:10px}
   .done p{color:var(--sub);font-size:14px;margin-top:10px}
   .codebox{font-size:40px;font-weight:900;letter-spacing:.2em;color:var(--gold);margin:18px 0 6px}
-  .timerbar{background:rgba(255,90,31,.1);border:1px solid rgba(255,90,31,.3);border-radius:12px;padding:12px;margin-top:14px;text-align:center;font-weight:800;color:var(--accent2)}
+  .timerbar{background:rgba(18,183,106,.1);border:1px solid rgba(18,183,106,.32);border-radius:12px;padding:12px;margin-top:14px;text-align:center;font-weight:800;color:var(--accent2)}
 
   /* ── 인증샷 ── */
-  .photobtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed rgba(229,53,43,.45);
-    background:rgba(229,53,43,.08);color:#ff6a60;font-weight:800;font-size:14px;padding:16px;border-radius:12px;cursor:pointer}
+  .photobtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed rgba(18,183,106,.45);
+    background:rgba(18,183,106,.08);color:#4ade80;font-weight:800;font-size:14px;padding:16px;border-radius:12px;cursor:pointer}
   .photoprev{position:relative;margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
   .photoprev img{width:100%;display:block;max-height:240px;object-fit:cover}
   .photoprev .rm{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer}
@@ -381,7 +381,7 @@
   .lockerroom .feed .fphoto{border-color:rgba(0,0,0,.4)}
 
   /* ── 터널 입장 (시그니처) ── */
-  .tunnel{position:fixed;inset:0;z-index:300;background:#0a2016;display:grid;place-items:center;overflow:hidden;
+  .tunnel{position:fixed;inset:0;z-index:300;background:#0d0f13;display:grid;place-items:center;overflow:hidden;
     opacity:0;animation:tnl-in .28s ease forwards}
   .tunnel.out{animation:tnl-out .5s ease forwards}
   @keyframes tnl-in{to{opacity:1}} @keyframes tnl-out{to{opacity:0;visibility:hidden}}
@@ -397,7 +397,7 @@
     opacity:0;animation:tnl-mw .7s ease .4s forwards}
   @keyframes tnl-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   @keyframes tnl-mw{from{opacity:0;letter-spacing:.4em}to{opacity:1;letter-spacing:.18em}}
-  .tunnel .wall{position:absolute;top:0;bottom:0;width:50%;background:#05130d;z-index:2}
+  .tunnel .wall{position:absolute;top:0;bottom:0;width:50%;background:#070809;z-index:2}
   .tunnel .wall.l{left:0;animation:wall-l 1.7s cubic-bezier(.7,0,.2,1) forwards}
   .tunnel .wall.r{right:0;animation:wall-r 1.7s cubic-bezier(.7,0,.2,1) forwards}
   @keyframes wall-l{0%,18%{transform:translateX(0)}100%{transform:translateX(-100%)}}
@@ -1322,7 +1322,7 @@ async function shareCard(blob,filename,text){
   setTimeout(()=>URL.revokeObjectURL(url),4000);
   toast("이미지 저장됨! 인스타 스토리에 올려보세요 📸");
 }
-function crewColor(crew){ return (crew&&crew.color) || "#e5352b"; }
+function crewColor(crew){ return (crew&&crew.color) || "#12b76a"; }
 function crewMatchweek(crew){ return Math.max(1, Math.round((curWk()-DB.weekStartTs(crew.created_at))/WEEK_MS)+1); }
 // 팀 폼 카드 공유(훈련 완료·클럽하우스에서)
 async function shareCurrentCrew(){
