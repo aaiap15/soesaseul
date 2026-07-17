@@ -142,6 +142,11 @@
   .pp .cnt.on{color:#bbf7d0}
   .subbench{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px}
   .subbench .sb{font-size:11px;font-weight:800;color:var(--sub);background:var(--card2);border:1px solid var(--line);padding:4px 9px;border-radius:999px}
+  .pp .dot.empty{background:rgba(255,255,255,.05)!important;border:2px dashed rgba(255,255,255,.5);color:rgba(255,255,255,.6);font-family:inherit;font-weight:900}
+  .slotrow{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+  .slot-role{width:46px;flex:none;text-align:center;font-family:var(--font-num);font-size:16px;color:var(--sub)}
+  select{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:10px;color:var(--txt);padding:12px;font-size:15px;font-family:inherit;-webkit-appearance:none;appearance:none}
+  select:focus{outline:none;border-color:var(--accent)}
   .totrow{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:700;color:var(--sub)}
   .totrow:last-child{border:none}
   .totrow b{font-family:var(--font-num);font-weight:400;font-size:24px;color:var(--txt)}
@@ -582,6 +587,21 @@
   </div>
 </div>
 
+<!-- 스타팅 스쿼드 설정 -->
+<div class="modal" id="lineupModal">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h2>스타팅 스쿼드</h2>
+    <p class="desc">이번 주 경기 포메이션과 포지션별 선수를 정해요.</p>
+    <div class="field"><label>포메이션 <span class="opt">(괄호=자리 수)</span></label>
+      <div class="chips" id="fmtChips"></div></div>
+    <div class="field"><label>포지션별 선수 <span class="opt">(한 선수는 한 자리)</span></label>
+      <div id="slotList"></div></div>
+    <button class="submit" id="lineupSaveBtn">스타팅 저장</button>
+    <button type="button" class="ghost-btn" data-close>닫기</button>
+  </div>
+</div>
+
 <!-- 크루 설정 (하드모드 등 옵트인) -->
 <div class="modal" id="settingsModal">
   <div class="sheet">
@@ -810,12 +830,40 @@ function activeWorkouts(){
 }
 
 /* ===================== 전술판(스쿼드 피치) ===================== */
-// 인원수 → 포메이션 라인(맨 아래=GK/수비 … 위=공격)
+// 인원수 → 자동 포메이션 라인(맨 아래=GK/수비 … 위=공격)
 function formationRows(n){
   const T={1:[1],2:[1,1],3:[1,2],4:[1,2,1],5:[1,2,2],6:[1,3,2],7:[1,3,3],8:[1,3,3,1],9:[1,4,3,1],10:[1,4,3,2],11:[1,4,3,3]};
   if(T[n]) return T[n];
   const rows=[1]; let rem=n-1; while(rem>0){ const r=Math.min(4,rem); rows.push(r); rem-=r; }
   return rows;
+}
+// 스타팅 편집용 포메이션 프리셋(rows: GK 포함 라인, label: 아웃필드 표기)
+const FORMATIONS=[
+  {label:"2-2",     rows:[1,2,2]},
+  {label:"1-2-1",   rows:[1,1,2,1]},
+  {label:"2-2-1",   rows:[1,2,2,1]},
+  {label:"2-3-1",   rows:[1,2,3,1]},
+  {label:"3-2-1",   rows:[1,3,2,1]},
+  {label:"3-3-1",   rows:[1,3,3,1]},
+  {label:"4-4-2",   rows:[1,4,4,2]},
+  {label:"4-3-3",   rows:[1,4,3,3]},
+  {label:"3-5-2",   rows:[1,3,5,2]},
+  {label:"4-2-3-1", rows:[1,4,2,3,1]},
+];
+const fmtSlots = rows => rows.reduce((a,b)=>a+b,0);
+function slotRole(ri,R){ if(ri===0) return "GK"; if(ri===R-1) return "FW"; return ri<=Math.ceil((R-1)/2)?"DF":"MF"; }
+function parseLineups(){
+  return (cache.checkins||[]).filter(c=>c.type==="lineup"&&c.note)
+    .map(c=>{ try{ return {id:c.id, ...JSON.parse(c.note)}; }catch{ return null; } }).filter(Boolean);
+}
+// 이번 주 스타팅(있으면) · 없으면 null
+function currentLineup(){
+  const wk=curWk();
+  return parseLineups().filter(l=>l.wk===wk && Array.isArray(l.r) && Array.isArray(l.s)).sort((a,b)=>b.id-a.id)[0]||null;
+}
+// 가장 최근 스타팅(에디터 기본값)
+function lastLineup(){
+  return parseLineups().filter(l=>Array.isArray(l.r)&&Array.isArray(l.s)).sort((a,b)=>b.id-a.id)[0]||null;
 }
 const PITCH_LINES=`<svg class="lines" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
   <g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="0.7">
@@ -829,33 +877,46 @@ function pitchBoard(){
   const wm=cache.members.filter(m=>m.role!=="guardian");
   const gd=cache.members.filter(m=>m.role==="guardian");
   const active=activeWorkouts();
-  const players=wm.slice().sort((a,b)=>{
-    const ja=parseJersey(a.jersey_no), jb=parseJersey(b.jersey_no);
-    if(ja!==null&&jb!==null) return ja-jb; if(ja!==null) return -1; if(jb!==null) return 1; return a.id-b.id;
-  });
-  const rows=formationRows(players.length), R=rows.length;
-  let idx=0, chips="";
-  rows.forEach((cnt,ri)=>{
-    const y = R===1?50 : 88-(ri/(R-1))*76;
-    for(let i=0;i<cnt;i++){
-      const p=players[idx++]; if(!p) continue;
-      const x=(i+1)/(cnt+1)*100;
-      const wc=weekCount(VIEW,p.id), done=wc>=goal, jn=parseJersey(p.jersey_no);
-      const isMe=String(p.id)===String(mem.memberId);
-      const liv=active.find(a=>String(a.m.id)===String(p.id));
-      chips+=`<div class="pp" style="left:${x}%;top:${y}%">
-        <div class="dot${done?' done':''}${isMe?' me':''}${liv?' live':''}" style="background:${color}">${jn!=null?jn:esc((p.name||'?').slice(0,1))}</div>
-        <div class="lbl">${esc((p.name||'').length>5?p.name.slice(0,5):p.name)}</div>
-        <div class="cnt${done?' on':''}">${liv?'훈련중':wc+'/'+goal}</div></div>`;
-    }
-  });
-  const formation = players.length<=1 ? `${players.length}인` : (rows.slice(1).join("-")||"1");
-  const doneCount = players.filter(p=>weekCount(VIEW,p.id)>=goal).length;
+  const byId=id=>cache.members.find(m=>String(m.id)===String(id));
+  const chipHTML=(p,x,y)=>{
+    const wc=weekCount(VIEW,p.id), done=wc>=goal, jn=parseJersey(p.jersey_no);
+    const isMe=String(p.id)===String(mem.memberId), liv=active.find(a=>String(a.m.id)===String(p.id));
+    return `<div class="pp" style="left:${x}%;top:${y}%">
+      <div class="dot${done?' done':''}${isMe?' me':''}${liv?' live':''}" style="background:${color}">${jn!=null?jn:esc((p.name||'?').slice(0,1))}</div>
+      <div class="lbl">${esc((p.name||'').length>5?p.name.slice(0,5):p.name)}</div>
+      <div class="cnt${done?' on':''}">${liv?'훈련중':wc+'/'+goal}</div></div>`;
+  };
+  const emptyHTML=(x,y,role)=>`<div class="pp" style="left:${x}%;top:${y}%"><div class="dot empty">+</div><div class="lbl">${role}</div></div>`;
+
+  const lu=currentLineup();
+  let rows, positions=[], benchIds=[], starting=!!lu, formationLabel;
+  if(lu){
+    rows=lu.r; const used=new Set(); let idx=0;
+    rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const mid=lu.s[idx++]; positions.push({mid,ri,i,cnt}); if(mid!=null) used.add(String(mid)); } });
+    benchIds=wm.filter(m=>!used.has(String(m.id))).map(m=>m.id);
+    formationLabel=(FORMATIONS.find(f=>f.rows.join("-")===rows.join("-"))||{}).label || rows.slice(1).join("-");
+  } else {
+    const players=wm.slice().sort((a,b)=>{ const ja=parseJersey(a.jersey_no),jb=parseJersey(b.jersey_no);
+      if(ja!==null&&jb!==null) return ja-jb; if(ja!==null) return -1; if(jb!==null) return 1; return a.id-b.id; });
+    rows=formationRows(players.length); let idx=0;
+    rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const p=players[idx++]; positions.push({mid:p?p.id:null,ri,i,cnt}); } });
+    formationLabel = players.length<=1 ? `${players.length}인` : (rows.slice(1).join("-")||"1");
+  }
+  const R=rows.length;
+  const chips=positions.map(pos=>{
+    const y=R===1?50:88-(pos.ri/(R-1||1))*76, x=(pos.i+1)/(pos.cnt+1)*100;
+    const p=pos.mid!=null?byId(pos.mid):null;
+    return p?chipHTML(p,x,y):emptyHTML(x,y,slotRole(pos.ri,R));
+  }).join("");
+  const doneCount=wm.filter(m=>weekCount(VIEW,m.id)>=goal).length;
+  const canEdit = c.type!=="team" || String(mem.memberId)===ownerId();
   return `<div class="card">
-    <div class="sec-t">스쿼드 <span class="r">포메이션 ${formation} · 이번 주</span></div>
+    <div class="sec-t">스쿼드 <span class="r">${starting?'스타팅':'자동'} · ${formationLabel} · 이번 주</span></div>
     <div class="pitch">${PITCH_LINES}${chips||`<div class="pitch-cap" style="position:absolute;top:46%;left:0;right:0;color:#fff">아직 선수가 없어요</div>`}</div>
-    <div class="pitch-cap">이번 주 목표 달성 <b style="color:var(--ok)">${doneCount}</b>/${players.length}</div>
-    ${gd.length?`<div class="subbench">${gd.map(g=>`<span class="sb">🙌 ${esc(g.name)}</span>`).join("")}</div>`:""}
+    <div class="pitch-cap">이번 주 목표 달성 <b style="color:var(--ok)">${doneCount}</b>/${wm.length}</div>
+    ${benchIds.length?`<div class="subbench">벤치 ${benchIds.map(id=>{const m=byId(id);const jn=parseJersey(m.jersey_no);return `<span class="sb">${jn!=null?jn+' ':''}${esc(m.name)}</span>`;}).join("")}</div>`:""}
+    ${gd.length?`<div class="subbench">${gd.map(g=>`<span class="sb">서포터 ${esc(g.name)}</span>`).join("")}</div>`:""}
+    ${canEdit?`<button class="sharebtn" style="margin-top:12px" onclick="openLineup()">스타팅 스쿼드 설정</button>`:""}
   </div>`;
 }
 
@@ -1027,7 +1088,7 @@ async function renderCrew(cid){
   const board = `<div class="card"><div class="sec-t">락커룸 <span class="r">최신순</span></div>
     ${potwLast?`<div class="potw"><span class="potw-b">POTW</span>지난주 이주의 선수 · <b>${jerseyTag(potwLast.m)}${esc(potwLast.m.name)}</b> (${potwLast.v}회)</div>`:""}
     ${isTeam && wkRank[0] && wkRank[0].v>0 ? `<div class="feedhi">이번 주 최다 훈련 · <b>${jerseyTag(wkRank[0].m)}${esc(wkRank[0].m.name)}</b> (${wkRank[0].v})</div>`:""}
-    <div class="feed">${checkins.filter(c=>c.type!=="start"&&c.type!=="react").slice(0,isTeam?10:20).map(c=>{
+    <div class="feed">${checkins.filter(c=>c.type!=="start"&&c.type!=="react"&&c.type!=="lineup").slice(0,isTeam?10:20).map(c=>{
       if(c.type==="cheer") return `<div class="item"><div class="fic cheer">${esc(c.part||"응")}</div><div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--gold);font-size:11px;font-weight:800">서포터</span></div><div class="ft">${esc(c.note||"응원")}</div></div><div class="fago">${ago(c.created_at)}</div></div>`;
       const act=c.part||""; const rc=reactMap[String(c.id)]||0, rm=reactMine[String(c.id)];
       return `<div class="item"><div class="fic">${ACT_EMOJI[act]||"🏋️"}</div><div class="fb"><div class="fn">${jpfx(c)}${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">훈련</span></div><div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"></div>`:""}<div class="reactrow"><button class="clapbtn${rm?' on':''}" onclick="reactTo('${c.id}')">👏${rc?` <b>${rc}</b>`:""}</button></div></div><div class="fago">${ago(c.created_at)}</div></div>`;
@@ -1339,6 +1400,62 @@ async function reactTo(id){
   try{ await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"react", part:"👏", note:String(id)}); await renderCrew(VIEW); }
   catch(e){ toast("실패 — 다시 시도해줘"); }
 }
+
+/* ---- 스타팅 스쿼드 설정 ---- */
+let luFmtIdx=0, luSlots=[];
+const luPlayers=()=>cache.members.filter(m=>m.role!=="guardian").slice().sort((a,b)=>{
+  const ja=parseJersey(a.jersey_no),jb=parseJersey(b.jersey_no);
+  if(ja!=null&&jb!=null) return ja-jb; if(ja!=null) return -1; if(jb!=null) return 1; return a.id-b.id;
+});
+function defaultFmtIdx(cnt){ let best=0,bd=1e9; FORMATIONS.forEach((f,i)=>{ const s=fmtSlots(f.rows); const d=Math.abs(s-cnt)+(s<cnt?100:0); if(d<bd){bd=d;best=i;} }); return best; }
+function luAutofill(){
+  const used=new Set(luSlots.filter(v=>v!=null).map(String));
+  const avail=luPlayers().filter(m=>!used.has(String(m.id)));
+  let ai=0;
+  for(let i=0;i<luSlots.length;i++){ if(luSlots[i]==null && ai<avail.length){ luSlots[i]=avail[ai].id; used.add(String(avail[ai].id)); ai++; } }
+}
+function openLineup(){
+  const wm=luPlayers();
+  const cur=currentLineup()||lastLineup();
+  luFmtIdx = (cur && Array.isArray(cur.r)) ? (FORMATIONS.findIndex(f=>f.rows.join("-")===cur.r.join("-"))) : -1;
+  if(luFmtIdx<0) luFmtIdx=defaultFmtIdx(wm.length);
+  const n=fmtSlots(FORMATIONS[luFmtIdx].rows);
+  luSlots=Array(n).fill(null);
+  if(cur && Array.isArray(cur.s)) for(let i=0;i<n;i++) luSlots[i]= cur.s[i]!=null ? cur.s[i] : null;
+  luAutofill(); renderLineupEditor(); openModal("lineupModal");
+}
+function setFmt(i){ const old=luSlots.slice(); luFmtIdx=i; const n=fmtSlots(FORMATIONS[i].rows);
+  luSlots=Array(n).fill(null); for(let k=0;k<Math.min(n,old.length);k++) luSlots[k]=old[k];
+  luAutofill(); renderLineupEditor(); }
+function setSlot(si,val){ const id=val?Number(val):null;
+  if(id!=null) luSlots=luSlots.map(v=>String(v)===String(id)?null:v);
+  luSlots[si]=id; renderLineupEditor(); }
+function renderLineupEditor(){
+  const rows=FORMATIONS[luFmtIdx].rows, R=rows.length, wm=luPlayers();
+  document.getElementById("fmtChips").innerHTML=FORMATIONS.map((f,i)=>
+    `<label class="chip"><input type="radio" name="fmt" ${i===luFmtIdx?"checked":""} onclick="setFmt(${i})"><span>${f.label} <small style="opacity:.55">(${fmtSlots(f.rows)})</small></span></label>`).join("");
+  let html="", idx=0;
+  rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const si=idx++; const role=slotRole(ri,R);
+    const opts=`<option value="">— 비움 —</option>`+wm.map(m=>{
+      const usedElse=luSlots.some((v,k)=>k!==si && String(v)===String(m.id)); if(usedElse) return "";
+      const jn=parseJersey(m.jersey_no);
+      return `<option value="${m.id}" ${String(luSlots[si])===String(m.id)?"selected":""}>${jn!=null?jn+" ":""}${esc(m.name)}</option>`;
+    }).join("");
+    html+=`<div class="slotrow"><span class="slot-role">${role}</span><select class="slotsel" onchange="setSlot(${si},this.value)">${opts}</select></div>`;
+  }});
+  document.getElementById("slotList").innerHTML=html;
+}
+async function saveLineup(){
+  const btn=document.getElementById("lineupSaveBtn"); btn.disabled=true; btn.textContent="저장 중…";
+  const mem=myMember(VIEW);
+  const payload={wk:curWk(), r:FORMATIONS[luFmtIdx].rows, s:luSlots.map(v=>v!=null?Number(v):null)};
+  try{
+    await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"lineup", note:JSON.stringify(payload)});
+    closeModals(); await renderCrew(VIEW); toast("스타팅 스쿼드 저장됨");
+  }catch(e){ alert("저장 실패: "+(e.message||e)); }
+  finally{ btn.disabled=false; btn.textContent="스타팅 저장"; }
+}
+document.getElementById("lineupSaveBtn").onclick=saveLineup;
 
 /* ===================== 공유 카드 (스토리 규격 1080×1920) ===================== */
 const FONT='-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif';
