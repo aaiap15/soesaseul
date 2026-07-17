@@ -87,13 +87,19 @@
   .mrow2-top .nm{font-weight:750;font-size:14.5px}
   .jno{font-family:var(--font-num);font-weight:400;font-size:16px;color:var(--sub);min-width:22px;display:inline-block;text-align:center;letter-spacing:.02em}
   .mrow2-top .jno{color:var(--txt);font-size:18px;margin-right:2px}
+  .streak{font-size:10.5px;font-weight:800;color:var(--gold);background:rgba(232,193,90,.14);padding:2px 7px;border-radius:999px;margin-left:6px}
   .mrow2-top .cnt{margin-left:auto;font-size:12.5px;font-weight:800}
   .mrow2-top .cnt.done{color:var(--ok)} .mrow2-top .cnt.miss{color:var(--sub)}
   .wkstrip{display:flex;gap:6px}
   .wd{flex:1;height:28px;border-radius:8px;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--dim)}
   .wd.on{background:var(--ok);border-color:var(--ok);color:#fff}
   .wd.today{border-color:var(--ink)}
-  .iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:17px;cursor:pointer;box-shadow:var(--shadow)}
+  .iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:17px;cursor:pointer;box-shadow:var(--shadow);color:var(--sub);display:grid;place-items:center}
+  .ic{width:1em;height:1em;display:inline-block;vertical-align:-.14em}
+  .iconbtn .ic{width:19px;height:19px}
+  .ci-ic .ic{width:24px;height:24px;color:var(--accent)}
+  .photobtn .ic{width:19px;height:19px}
+  .ic-lg{width:52px;height:52px;color:var(--accent)}
   .teambadge{font-size:12px;font-weight:800;color:var(--gold);background:rgba(227,154,0,.12);padding:2px 8px;border-radius:999px;vertical-align:middle}
   .penaltycard{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:12px;padding:13px 16px;font-size:13px;font-weight:700;color:#f0b03e;box-shadow:var(--shadow)}
   .penaltycard b{color:#ffcf7a}
@@ -157,9 +163,21 @@
   .rankrow .rv{font-weight:800;font-size:13px;font-family:var(--font-num)}
   .myrank{margin-top:8px;font-size:11.5px;font-weight:800;color:var(--sub);border-top:1px solid var(--line);padding-top:8px}
   .feedhi{background:var(--card2);border-radius:10px;padding:10px 12px;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:10px}
+  .potw{display:flex;align-items:center;gap:8px;background:rgba(232,193,90,.1);border:1px solid rgba(232,193,90,.32);
+    border-radius:10px;padding:10px 12px;font-size:12.5px;font-weight:700;color:#f0d99a;margin-bottom:10px}
+  .potw b{color:#fff} .potw .jno{color:#f0d99a}
+  .potw-b{font-family:var(--font-num);font-size:12px;letter-spacing:.06em;color:#0f1216;background:var(--gold);padding:2px 8px;border-radius:6px;flex:none}
+  .reactrow{margin-top:9px}
+  .clapbtn{background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:800;color:var(--sub);cursor:pointer}
+  .clapbtn:active{transform:translateY(1px)}
+  .clapbtn.on{color:#f0d99a;border-color:rgba(232,193,90,.5);background:rgba(232,193,90,.12)}
+  .clapbtn b{font-family:var(--font-num);font-weight:400;margin-left:3px;font-size:14px}
   .resetrow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:700}
   .resetrow:last-child{border:none}
-  .minibtn{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:800;cursor:pointer}
+  .minibtn{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:800;cursor:pointer;color:var(--txt)}
+  .resetrow .rr-nm{font-size:13.5px}
+  .resetrow .rr-act{display:flex;gap:6px;align-items:center;flex:none}
+  .jerseyin{width:52px;padding:7px 6px;font-size:14px;text-align:center;background:var(--card);border:1.5px solid var(--line);border-radius:8px;color:var(--txt);font-family:var(--font-num)}
 
   /* home crew list */
   .crewitem{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);
@@ -445,8 +463,8 @@
   <div class="sheet">
     <div class="grip"></div>
     <form id="createForm">
-      <h2>크루 만들기 ⛓️</h2>
-      <p class="desc">같이 핏를 키워요. 만들면 초대 코드가 나와요.</p>
+      <h2>구단 만들기</h2>
+      <p class="desc">우리 팀을 구단으로. 만들면 합류 코드가 나와요.</p>
       <div class="field"><label>어떤 크루?</label>
         <div class="chips">
           <label class="chip"><input type="radio" name="ctype" value="friend" checked><span>👥 친구 크루 (2~6명)</span></label>
@@ -461,16 +479,22 @@
       <div class="field" id="createPinField" style="display:none"><label>주장 PIN <span class="opt">(4~6자리)</span></label>
         <input name="cpin" inputmode="numeric" maxlength="6" placeholder="숫자 4~6자리" autocomplete="off">
         <div class="opt" style="margin-top:6px">다른 기기에서 재접속할 때 써요. 잊으면 못 찾으니 폼·은행 PIN 재사용 금지.</div></div>
+      <div id="createTeamFields" style="display:none">
+        <div class="field"><label>팀 컬러 <span class="opt">(우리 구단 색)</span></label>
+          <div class="chips" id="createColorChips"></div></div>
+        <div class="field"><label>엠블럼 <span class="opt">(이모지 1개 · 선택)</span></label>
+          <input name="cemblem" maxlength="2" placeholder="예: ⚽ 🦁 🔥" autocomplete="off"></div>
+      </div>
       <p class="desc" id="createAs" style="margin-top:14px"></p>
       <button class="submit" type="submit" id="createBtn">팀 만들기</button>
       <button type="button" class="ghost-btn" data-close>닫기</button>
     </form>
     <div class="done" id="createDone" style="display:none">
-      <div class="ic">🎉</div>
-      <h2>크루 완성!</h2>
-      <p class="desc" style="margin-top:8px">친구를 초대하면 같이 핏를 키워요.</p>
+      <div><svg class="ic ic-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 11 4.5-3 8-6 8-11V5l-8-3z"/></svg></div>
+      <h2 style="margin-top:8px">구단 창단 완료</h2>
+      <p class="desc" style="margin-top:8px">합류 코드를 보내면 선수들이 모여요.</p>
       <div class="codebox" id="newCode">----</div>
-      <button class="submit" id="sendInviteBtn">📩 친구에게 초대 보내기</button>
+      <button class="submit" id="sendInviteBtn">선수 초대 보내기</button>
       <button type="button" class="ghost-btn" id="copyCodeBtn">코드만 복사</button>
       <button type="button" class="ghost-btn" id="enterNew" style="margin-top:0">그냥 입장하기</button>
     </div>
@@ -482,8 +506,8 @@
   <div class="sheet">
     <div class="grip"></div>
     <form id="joinForm">
-      <h2>코드로 참여 🤝</h2>
-      <p class="desc">친구가 준 4자리 코드를 넣으세요.</p>
+      <h2>코드로 합류</h2>
+      <p class="desc">주장이 준 4자리 코드를 넣으세요.</p>
       <div class="field"><label>초대 코드 <span class="opt">*</span></label>
         <input name="code" class="code-in" maxlength="4" required placeholder="ABCD" autocomplete="off"></div>
       <div class="field"><label>PIN <span class="opt">(팀 크루만 · 4~6자리, 친구 크루면 비워두기)</span></label>
@@ -506,12 +530,12 @@
   <div class="sheet">
     <div class="grip"></div>
     <form id="checkForm">
-      <h2>오늘 훈련 보고 📸</h2>
+      <h2>오늘 훈련 보고</h2>
       <p class="desc">사진 한 장이면 끝. 오늘 뛴 걸 남겨요.</p>
       <div id="checkTimer"></div>
       <div class="field"><label>훈련 사진 <span class="opt">(카메라/갤러리 · 팀에게 공유)</span></label>
         <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
-        <button type="button" class="photobtn" id="photoBtn">📷 사진 찍기 / 올리기</button>
+        <button type="button" class="photobtn" id="photoBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 사진 올리기</button>
         <div class="photoprev" id="photoPrev" style="display:none">
           <img id="photoImg" alt="훈련 사진 미리보기">
           <button type="button" class="rm" id="photoRm">✕</button>
@@ -522,8 +546,8 @@
       <button type="button" class="ghost-btn" data-close>닫기</button>
     </form>
     <div class="done" id="checkDone" style="display:none">
-      <div class="ic">⛓️</div>
-      <h2 id="checkDoneT">+1 고리!</h2>
+      <div style="color:var(--ok)"><svg class="ic ic-lg" style="color:var(--ok)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h2 id="checkDoneT">훈련 보고 완료</h2>
       <p id="checkDoneP"></p>
       <button class="submit" id="checkDoneShare" style="margin-top:20px">스토리에 자랑하기</button>
       <button class="ghost-btn" id="checkDoneOk">확인</button>
@@ -536,8 +560,8 @@
   <div class="sheet">
     <div class="grip"></div>
     <form id="cheerForm">
-      <h2>응원 보내기 🙌</h2>
-      <p class="desc">크루가 힘내게 스티커를 날리세요.</p>
+      <h2>응원 보내기</h2>
+      <p class="desc">선수들이 힘내게 스티커를 날리세요.</p>
       <div class="field"><label>스티커</label>
         <div class="chips" id="stickerChips"></div></div>
       <div class="field"><label>한마디 <span class="opt">(선택)</span></label>
@@ -548,11 +572,21 @@
   </div>
 </div>
 
+<!-- 주간 리캡 (새 주 첫 접속) -->
+<div class="modal" id="recapModal">
+  <div class="sheet">
+    <div class="grip"></div>
+    <div id="recapBody"></div>
+    <button class="submit" id="recapShareBtn" style="background:var(--card2);color:var(--txt);border:1px solid var(--line)">지난주 결과 카드 공유</button>
+    <button class="submit" id="recapCloseBtn">이번 주 시작하기</button>
+  </div>
+</div>
+
 <!-- 크루 설정 (하드모드 등 옵트인) -->
 <div class="modal" id="settingsModal">
   <div class="sheet">
     <div class="grip"></div>
-    <h2>크루 설정 ⚙️</h2>
+    <h2>구단 설정</h2>
     <div class="field"><label>주간 목표 <span class="opt">(1인당 · 주 몇 번)</span></label>
       <div class="chips" id="setGoalChips"></div></div>
     <div class="field"><label>하드모드 <span class="opt">(원하는 크루만 · 미달 시 벌금 집계)</span></label>
@@ -575,7 +609,7 @@
       <div class="field"><label>응원 구호 <span class="opt">(선택)</span></label>
         <input id="setChant" maxlength="20" placeholder="예: 죽어도 새벽 6시"></div>
       <div id="ownerZone" style="display:none">
-        <div class="field"><label>멤버 PIN 리셋 <span class="opt">(주장 전용)</span></label>
+        <div class="field"><label>선수 등번호 · PIN <span class="opt">(주장 전용)</span></label>
           <div id="memberResetList"></div></div>
       </div>
     </div>
@@ -709,6 +743,16 @@ function characterSVG(level, cond){
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">${arms}${px}${sweat}</svg>`;
 }
 
+/* ===================== 라인 아이콘(모노) ===================== */
+const IC={
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  shield:'<path d="M12 2 4 5v6c0 5 3.5 8 8 11 4.5-3 8-6 8-11V5l-8-3z"/>',
+  camera:'<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
+  send:'<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>'
+};
+const icon=(name,extra)=>`<svg class="ic${extra?' '+extra:''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[name]||''}</svg>`;
+
 /* ===================== 유틸 ===================== */
 const esc = s => (""+(s??"")).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 // 등번호: 1~99 정수만 유효(그 외 null)
@@ -729,7 +773,16 @@ function clubKm(members, checkins){
 function ago(iso){ const s=(Date.now()-new Date(iso).getTime())/1000;
   if(s<60)return"방금"; if(s<3600)return Math.floor(s/60)+"분 전"; if(s<86400)return Math.floor(s/3600)+"시간 전"; return Math.floor(s/86400)+"일 전"; }
 const curWk = () => DB.weekStartTs(Date.now());
-const weekCount = (cid,mid) => cache.checkins.filter(c=>String(c.member_id)===String(mid)&&(c.type||"workout")==="workout"&&DB.weekStartTs(c.created_at)===curWk()).length;
+const isWorkout = c => (c.type||"workout")==="workout";
+const weekCount = (cid,mid) => cache.checkins.filter(c=>String(c.member_id)===String(mid)&&isWorkout(c)&&DB.weekStartTs(c.created_at)===curWk()).length;
+// 특정 주(wkTs)의 특정 멤버 훈련 수
+const weekCountAt = (mid,wkTs) => cache.checkins.filter(c=>String(c.member_id)===String(mid)&&isWorkout(c)&&DB.weekStartTs(c.created_at)===wkTs).length;
+// 개인 연속 주 목표 달성(완료된 주 기준 · 이번 주 제외)
+function personStreak(mid, goal){
+  let s=0, wk=curWk()-WEEK_MS; const created=DB.weekStartTs(cache.crew.created_at);
+  while(wk>=created){ if(weekCountAt(mid,wk)>=goal) s++; else break; wk-=WEEK_MS; }
+  return s;
+}
 // 이번 주 요일별 인증 여부 (월~일)
 function weekDays(mid){
   const wk=curWk(), days=[false,false,false,false,false,false,false];
@@ -823,7 +876,7 @@ async function renderHome(){
     html += `<div style="padding:22px 0 10px"><h1>내 팀</h1></div>`;
     html += mine.map(m=>`
       <div class="crewitem" onclick="go('${m.crewId}')">
-        <div class="ci-ic">⛓️</div>
+        <div class="ci-ic">${icon('shield')}</div>
         <div><div class="ci-n">${esc(m.crewName)}</div>
           <div class="ci-m">${m.role==="guardian"?"서포터":"선수"} · 코드 ${esc(m.code)}</div></div>
         <div class="ci-chain"><b id="hc-${m.crewId}">–</b><span>고리</span></div>
@@ -869,7 +922,9 @@ async function renderCrew(cid){
     document.getElementById("actions").style.display="none"; return;
   }
   cache={crew,members,checkins};
-  if(enteringCrew){ enteringCrew=false; playTunnel(crew); }
+  if(enteringCrew){ enteringCrew=false; playTunnel(crew);
+    const rd=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setTimeout(()=>{ if(VIEW&&cache.crew) maybeShowRecap(); }, rd?1100:2300); }
 
   const workoutMembers=members.filter(m=>m.role!=="guardian");
   const guardians=members.filter(m=>m.role==="guardian");
@@ -917,7 +972,7 @@ async function renderCrew(cid){
           <div class="ch-mw">MATCHWEEK ${matchweek} · ${isTeam?'TEAM':'SQUAD'}</div></div>
       </div>
       <div class="ch-r">
-        <button class="iconbtn" onclick="openSettings()">⚙</button>
+        <button class="iconbtn" onclick="openSettings()">${icon('gear')}</button>
         <div class="codechip" onclick="sendInvite('${esc(crew.code)}','${esc(crew.name)}')">${esc(crew.code)}<small>합류</small></div>
       </div>
     </div>`;
@@ -935,7 +990,8 @@ async function renderCrew(cid){
 
   const squad = `<div class="card"><div class="sec-t">명단 <span class="r">이번 주</span></div>
     ${workoutMembers.map(m=>{ const c=weekCount(cid,m.id); const done=c>=goal; const liv=active.find(a=>String(a.m.id)===String(m.id)); const dd=weekDays(m.id);
-      return `<div class="mrow2"><div class="mrow2-top">${jerseyTag(m)}<span class="nm">${esc(m.name)}${String(m.id)===String(mem.memberId)?" <span style='color:var(--dim);font-weight:600'>(나)</span>":""}</span>${liv?`<span class="live">훈련 중 ${liv.mins}분</span>`:""}<span class="cnt ${done?"done":"miss"}">${c}/${goal}</span></div>
+      const stk=personStreak(m.id,goal);
+      return `<div class="mrow2"><div class="mrow2-top">${jerseyTag(m)}<span class="nm">${esc(m.name)}${String(m.id)===String(mem.memberId)?" <span style='color:var(--dim);font-weight:600'>(나)</span>":""}</span>${stk>0?`<span class="streak">🔥${stk}주</span>`:""}${liv?`<span class="live">훈련 중 ${liv.mins}분</span>`:""}<span class="cnt ${done?"done":"miss"}">${c}/${goal}</span></div>
       <div class="wkstrip">${WD.map((d,i)=>`<span class="wd${dd[i]?" on":""}${i===td?" today":""}">${d}</span>`).join("")}</div></div>`; }).join("")}
     ${guardians.length?`<div style="margin-top:10px;color:var(--dim);font-size:12px">서포터즈: ${guardians.map(g=>esc(g.name)).join(", ")}</div>`:""}
     <button class="sharebtn" style="margin-top:14px" onclick="shareSquadCard()">스쿼드 발표 카드 공유</button>
@@ -961,12 +1017,20 @@ async function renderCrew(cid){
 
   const jmap={}; members.forEach(m=>{ const n=parseJersey(m.jersey_no); if(n!==null) jmap[String(m.id)]=n; });
   const jpfx=c=>jmap[String(c.member_id)]!=null?`<span class="jno">${jmap[String(c.member_id)]}</span>`:"";
+  // 리액션(👏) 집계
+  const reactMap={}, reactMine={};
+  checkins.forEach(c=>{ if(c.type==="react"&&c.note){ reactMap[c.note]=(reactMap[c.note]||0)+1; if(String(c.member_id)===String(mem.memberId)) reactMine[c.note]=true; } });
+  // POTW(지난주 이주의 선수)
+  const prevWk=curWk()-WEEK_MS;
+  const potwLast=(DB.weekStartTs(crew.created_at)<=prevWk)
+    ? (workoutMembers.map(m=>({m,v:weekCountAt(m.id,prevWk)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v)[0]||null) : null;
   const board = `<div class="card"><div class="sec-t">락커룸 <span class="r">최신순</span></div>
+    ${potwLast?`<div class="potw"><span class="potw-b">POTW</span>지난주 이주의 선수 · <b>${jerseyTag(potwLast.m)}${esc(potwLast.m.name)}</b> (${potwLast.v}회)</div>`:""}
     ${isTeam && wkRank[0] && wkRank[0].v>0 ? `<div class="feedhi">이번 주 최다 훈련 · <b>${jerseyTag(wkRank[0].m)}${esc(wkRank[0].m.name)}</b> (${wkRank[0].v})</div>`:""}
-    <div class="feed">${checkins.filter(c=>c.type!=="start").slice(0,isTeam?10:20).map(c=>{
+    <div class="feed">${checkins.filter(c=>c.type!=="start"&&c.type!=="react").slice(0,isTeam?10:20).map(c=>{
       if(c.type==="cheer") return `<div class="item"><div class="fic cheer">${esc(c.part||"응")}</div><div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--gold);font-size:11px;font-weight:800">서포터</span></div><div class="ft">${esc(c.note||"응원")}</div></div><div class="fago">${ago(c.created_at)}</div></div>`;
-      const act=c.part||"";
-      return `<div class="item"><div class="fic">${ACT_EMOJI[act]||"🏋️"}</div><div class="fb"><div class="fn">${jpfx(c)}${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">훈련</span></div><div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"></div>`:""}</div><div class="fago">${ago(c.created_at)}</div></div>`;
+      const act=c.part||""; const rc=reactMap[String(c.id)]||0, rm=reactMine[String(c.id)];
+      return `<div class="item"><div class="fic">${ACT_EMOJI[act]||"🏋️"}</div><div class="fb"><div class="fn">${jpfx(c)}${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">훈련</span></div><div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"></div>`:""}<div class="reactrow"><button class="clapbtn${rm?' on':''}" onclick="reactTo('${c.id}')">👏${rc?` <b>${rc}</b>`:""}</button></div></div><div class="fago">${ago(c.created_at)}</div></div>`;
     }).join("")||`<div class="empty">첫 훈련 보고를 남겨보세요</div>`}</div></div>`;
 
   const reportBtn = mem.role==="guardian"
@@ -1010,6 +1074,44 @@ function playTunnel(crew){
   const hold=reduce?900:2000;
   setTimeout(()=>{ el.classList.add("out"); setTimeout(()=>el.remove(),520); }, hold);
 }
+// 주간 리캡: 새 주 첫 접속 시 지난주 결과 1회 노출
+let recapCtx=null;
+function maybeShowRecap(){
+  const crew=cache.crew, mem=myMember(VIEW); if(!crew||!mem) return;
+  const prevWk=curWk()-WEEK_MS, created=DB.weekStartTs(crew.created_at);
+  if(prevWk<created) return;                                  // 지난주가 창단 전
+  const key="sasl_recap_"+crew.id;
+  if(localStorage.getItem(key)===String(curWk())) return;     // 이번 주 이미 봄
+  const goal=Number(crew.goal)||3;
+  const wm=cache.members.filter(m=>m.role!=="guardian"); if(!wm.length){ return; }
+  const teamTot=wm.reduce((s,m)=>s+weekCountAt(m.id,prevWk),0);
+  if(teamTot===0){ localStorage.setItem(key,String(curWk())); return; }  // 지난주 활동 전무
+  const achievers=wm.filter(m=>weekCountAt(m.id,prevWk)>=goal);
+  const potw=wm.map(m=>({m,v:weekCountAt(m.id,prevWk)})).sort((a,b)=>b.v-a.v)[0];
+  const myV=weekCountAt(mem.memberId,prevWk), myMet=myV>=goal, myStreak=personStreak(mem.memberId,goal);
+  const mw=crewMatchweek(crew), rate=Math.round(achievers.length/wm.length*100);
+  recapCtx={mw:mw-1, teamTot, achievers:achievers.length, total:wm.length, rate, potw};
+  const pj=potw&&parseJersey(potw.m.jersey_no);
+  document.getElementById("recapBody").innerHTML=`
+    <div class="done" style="padding:8px 0 2px">
+      <div style="font-family:var(--font-num);font-size:15px;color:var(--sub);letter-spacing:.08em">지난주 마감 · MATCHWEEK ${mw-1} 결과</div>
+      <h2 style="margin-top:6px">${myMet?"임무 완수":"아쉬운 한 주"}</h2>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="totrow"><span>지난주 팀 훈련</span><b>${teamTot}</b></div>
+      <div class="totrow"><span>목표 달성 선수</span><b>${achievers.length}/${wm.length} · ${rate}%</b></div>
+      ${potw&&potw.v>0?`<div class="totrow"><span>이주의 선수(POTW)</span><b>${pj!=null?pj+' ':''}${esc(potw.m.name)} (${potw.v})</b></div>`:""}
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div class="totrow"><span>지난주 내 훈련</span><b style="color:${myMet?'var(--ok)':'var(--sub)'}">${myV}/${goal}</b></div>
+      <div class="totrow"><span>연속 목표 달성</span><b>${myStreak}주</b></div>
+    </div>
+    ${myStreak>=2?`<div class="fc-nudge good" style="margin-top:10px">${myStreak}주 연속 달성 중 — 이 기세 이어가요.</div>`:(myMet?"":`<div class="fc-nudge" style="margin-top:10px">이번 주 첫 훈련으로 다시 시작.</div>`)}`;
+  localStorage.setItem(key,String(curWk()));
+  openModal("recapModal");
+}
+document.getElementById("recapCloseBtn").onclick=closeModals;
+document.getElementById("recapShareBtn").onclick=shareRecapCard;
 function setTab(t){
   if(t==="today"){ const m=myMember(VIEW); if(m&&m.role==="guardian") openCheer(); else openCheck(); return; }
   crewTab=t; window.scrollTo(0,0); renderCrew(VIEW);
@@ -1077,9 +1179,14 @@ document.getElementById("goalChips").innerHTML=[2,3,4,5,6].map((n,i)=>
 function openCreate(){ document.getElementById("createForm").style.display=""; document.getElementById("createDone").style.display="none";
   document.getElementById("createForm").reset(); document.querySelector('input[name=goal][value="3"]').checked=true;
   document.getElementById("createPinField").style.display="none";
-  document.getElementById("createAs").textContent=`👤 ${ME?ME.nickname:""} 님이 크루장이 돼요`; openModal("createModal"); }
+  document.getElementById("createTeamFields").style.display="none";
+  document.getElementById("createColorChips").innerHTML=TEAM_COLORS.map((c,i)=>
+    `<label class="chip colorchip"><input type="radio" name="ccolor" value="${c}" ${i===0?"checked":""}><span style="background:${c}"></span></label>`).join("");
+  document.getElementById("createAs").textContent=`${ME?ME.nickname:""} 님이 주장이 됩니다`; openModal("createModal"); }
 document.querySelectorAll('input[name=ctype]').forEach(r=>r.addEventListener("change",()=>{
-  document.getElementById("createPinField").style.display = document.querySelector('input[name=ctype]:checked').value==="team" ? "" : "none";
+  const team=document.querySelector('input[name=ctype]:checked').value==="team";
+  document.getElementById("createPinField").style.display = team ? "" : "none";
+  document.getElementById("createTeamFields").style.display = team ? "" : "none";
 }));
 let pendingCrew=null, pendingCode=null, pendingName=null;
 document.getElementById("createForm").onsubmit=async e=>{
@@ -1091,6 +1198,11 @@ document.getElementById("createForm").onsubmit=async e=>{
   if((fd.get("cjersey")||"").trim() && cjersey===null){ alert("등번호는 1~99 사이 숫자로 입력하세요"); btn.disabled=false; btn.textContent="크루 만들기"; return; }
   try{
     const {crew,member}=await DB.createCrew({name:fd.get("cname").trim(), goal:fd.get("goal"), type, pin:type==="team"?cpin:null, ownerName:ME.nickname, userId:null, ownerKey:ME.id, jersey:cjersey});
+    if(type==="team"){
+      const color=(document.querySelector('input[name=ccolor]:checked')||{}).value;
+      const emblem=(fd.get("cemblem")||"").trim();
+      if(color||emblem){ try{ const up=await DB.updateCrew(crew.id,{color:color||null,emblem:emblem||null}); if(up){crew.color=up.color;crew.emblem=up.emblem;} }catch(_){} }
+    }
     addMe({crewId:crew.id, code:crew.code, crewName:crew.name, memberId:member.id, name:member.name, role:"member"});
     await loadMemberships();
     pendingCrew=crew.id; pendingCode=crew.code; pendingName=crew.name;
@@ -1184,8 +1296,10 @@ document.getElementById("checkDoneShare").onclick=shareCurrentCrew;
 
 // ---- 인증샷: 촬영/업로드 + 클라이언트 압축 ----
 let pendingPhoto="";
+const PHOTO_BTN_HTML=icon('camera')+" 사진 올리기";
 function clearPhoto(){ pendingPhoto=""; document.getElementById("photoInput").value="";
-  document.getElementById("photoPrev").style.display="none"; document.getElementById("photoBtn").style.display=""; }
+  document.getElementById("photoPrev").style.display="none";
+  const b=document.getElementById("photoBtn"); b.style.display=""; b.innerHTML=PHOTO_BTN_HTML; }
 document.getElementById("photoBtn").onclick=()=>document.getElementById("photoInput").click();
 document.getElementById("photoRm").onclick=clearPhoto;
 document.getElementById("photoInput").onchange=async e=>{
@@ -1196,7 +1310,7 @@ document.getElementById("photoInput").onchange=async e=>{
     document.getElementById("photoImg").src=pendingPhoto;
     document.getElementById("photoPrev").style.display=""; btn.style.display="none";
   }catch(err){ alert("사진 처리 실패: "+(err.message||err)); }
-  finally{ btn.textContent="📷 인증샷 찍기 / 올리기"; }
+  finally{ btn.innerHTML=PHOTO_BTN_HTML; }
 };
 // 캔버스로 리사이즈·JPEG 압축 → data URL (별도 저장소 없이 DB에 저장)
 function downscaleImage(file, maxDim, quality){
@@ -1217,6 +1331,14 @@ function openLightbox(id){ const c=cache.checkins.find(x=>String(x.id)===String(
   document.getElementById("lightboxCap").textContent=[c.name, c.note||c.part, ago(c.created_at)].filter(Boolean).join(" · ");
   document.getElementById("lightbox").classList.add("open"); document.body.style.overflow="hidden"; }
 function closeLightbox(){ document.getElementById("lightbox").classList.remove("open"); document.body.style.overflow=""; }
+
+/* ---- 리액션(👏) ---- */
+async function reactTo(id){
+  const mem=myMember(VIEW); if(!mem) return;
+  if(cache.checkins.some(c=>c.type==="react"&&String(c.note)===String(id)&&String(c.member_id)===String(mem.memberId))){ toast("이미 응원했어요 👏"); return; }
+  try{ await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"react", part:"👏", note:String(id)}); await renderCrew(VIEW); }
+  catch(e){ toast("실패 — 다시 시도해줘"); }
+}
 
 /* ===================== 공유 카드 (스토리 규격 1080×1920) ===================== */
 const FONT='-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif';
@@ -1312,6 +1434,20 @@ async function drawSigningCard({crewName,emblem,color,no,name,code}){
   cardFooter(g,code);
   return await blobOf(cv);
 }
+// ④ 주간 결과(리캡) 카드
+async function drawRecapCard({crewName,emblem,color,mw,teamTot,achievers,total,rate,potw,code}){
+  const cv=newCard(), g=cv.getContext("2d"); cardFrame(g,color);
+  cardEmblem(g,emblem,color,CW/2,200,68);
+  g.fillStyle="#fff"; g.font=`900 58px ${FONT}`; g.fillText(clip(crewName,14),CW/2,332);
+  g.fillStyle=color; g.font=`400 70px "Anton",sans-serif`; g.fillText(`MATCHWEEK ${mw} 결과`,CW/2,426);
+  g.fillStyle="#fff"; g.font=`400 230px "Anton",sans-serif`; g.textBaseline="middle"; g.fillText(rate+"%",CW/2,710); g.textBaseline="alphabetic";
+  g.fillStyle="#9A9D96"; g.font=`800 40px ${FONT}`; g.fillText("팀 목표 달성률",CW/2,862);
+  g.fillStyle="#fff"; g.font=`700 44px ${FONT}`; g.fillText(`달성 ${achievers}/${total} · 팀 훈련 ${teamTot}회`,CW/2,966);
+  if(potw){ g.fillStyle="#9A9D96"; g.font=`700 40px ${FONT}`; g.fillText("이주의 선수 · POTW",CW/2,1110);
+    g.fillStyle=color; g.font=`400 92px "Anton",sans-serif`; g.fillText(clip(potw,12),CW/2,1220); }
+  cardFooter(g,code);
+  return await blobOf(cv);
+}
 // 공통 공유(파일 우선 → 다운로드 폴백)
 async function shareCard(blob,filename,text){
   const file=new File([blob],filename,{type:"image/png"});
@@ -1352,6 +1488,18 @@ async function shareSquadCard(){
       matchweek:crewMatchweek(cache.crew), achievers, teamTrainings, code:cache.crew.code});
     await shareCard(blob,"squad.png",`[${cache.crew.name}] MATCHWEEK ${crewMatchweek(cache.crew)} 스쿼드 발표\n${CARD_URL} #폼클럽`);
   }catch(err){ if(err && err.name!=="AbortError") toast("공유 실패 — 다시 시도해줘"); }
+}
+// 주간 결과(리캡) 카드 공유
+async function shareRecapCard(){
+  if(!cache.crew||!recapCtx) return;
+  const p=recapCtx.potw, pj=p&&parseJersey(p.m.jersey_no);
+  const potwStr=(p&&p.v>0)?`${pj!=null?pj+' ':''}${p.m.name}`:"";
+  toast("결과 카드 만드는 중…");
+  try{
+    const blob=await drawRecapCard({crewName:cache.crew.name, emblem:cache.crew.emblem, color:crewColor(cache.crew),
+      mw:recapCtx.mw, teamTot:recapCtx.teamTot, achievers:recapCtx.achievers, total:recapCtx.total, rate:recapCtx.rate, potw:potwStr, code:cache.crew.code});
+    await shareCard(blob,"recap.png",`[${cache.crew.name}] MATCHWEEK ${recapCtx.mw} 결과 · 달성률 ${recapCtx.rate}%\n${CARD_URL} #폼클럽`);
+  }catch(err){ if(err&&err.name!=="AbortError") toast("공유 실패 — 다시 시도해줘"); }
 }
 // 영입 발표 카드(신규 합류 직후)
 async function afterJoin(crew, member, role, jersey){
@@ -1407,10 +1555,26 @@ function openSettings(){
     if(iAmOwner){
       const wm=cache.members.filter(m=>m.role!=="guardian");
       document.getElementById("memberResetList").innerHTML=wm.map(m=>
-        `<div class="resetrow"><span>${esc(m.name)}${String(m.id)===ownerId()?" (주장)":""}</span><button type="button" class="minibtn" onclick="resetMemberPin('${m.id}','${esc(m.name)}')">PIN 리셋</button></div>`).join("");
+        `<div class="resetrow"><span class="rr-nm">${esc(m.name)}${String(m.id)===ownerId()?" (주장)":""}</span>
+          <span class="rr-act">
+            <input class="jerseyin" id="jin-${m.id}" inputmode="numeric" maxlength="2" value="${parseJersey(m.jersey_no)??''}" placeholder="번호">
+            <button type="button" class="minibtn" onclick="saveJersey('${m.id}')">저장</button>
+            <button type="button" class="minibtn" onclick="resetMemberPin('${m.id}','${esc(m.name)}')">PIN</button>
+          </span></div>`).join("");
     }
   }
   openModal("settingsModal");
+}
+async function saveJersey(id){
+  const el=document.getElementById("jin-"+id); if(!el) return;
+  const raw=(el.value||"").trim(); let jn=null;
+  if(raw){ jn=parseJersey(raw); if(jn===null){ alert("등번호는 1~99 사이 숫자예요"); return; }
+    if(cache.members.some(m=>String(m.id)!==String(id)&&m.role!=="guardian"&&Number(m.jersey_no)===jn)){ alert(jn+"번은 이미 다른 선수 번호예요"); return; } }
+  try{
+    await DB.updateMember(Number(id),{jersey_no:jn});
+    const i=cache.members.findIndex(m=>String(m.id)===String(id)); if(i>=0) cache.members[i].jersey_no=jn;
+    toast(jn!=null?`등번호 ${jn}번 저장됨`:"등번호 지움");
+  }catch(e){ alert("저장 실패: "+(e.message||e)+"\n(등번호 컬럼 SQL 실행이 필요할 수 있어요)"); }
 }
 async function resetMemberPin(id,name){
   const np=prompt(`${name}님의 새 PIN (숫자 4~6자리)`);
@@ -1497,7 +1661,7 @@ function renderProfileSetup(){
   const nick = src.nickname||"", bio = src.bio||"", pin = src.pin||"";
   document.getElementById("app").innerHTML=`
     <div style="padding:26px 0 6px;text-align:center">
-      <div style="font-size:38px">${editingProfile?"✏️":"🙌"}</div>
+      <div style="color:var(--accent)">${icon('shield','ic-lg')}</div>
       <h1 style="margin-top:8px">${editingProfile?"프로필 수정":"프로필 만들기"}</h1>
       <p class="lead">닉네임 + PIN. 이거면 어느 기기서든 내 크루가 떠요.</p>
     </div>
