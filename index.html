@@ -506,29 +506,19 @@
   <div class="sheet">
     <div class="grip"></div>
     <form id="checkForm">
-      <h2>10초 인증 ✅</h2>
-      <p class="desc">오늘 운동 완료! 부위만 찍고 끝. 고리 +1 ⛓️</p>
+      <h2>오늘 훈련 보고 📸</h2>
+      <p class="desc">사진 한 장이면 끝. 오늘 뛴 걸 남겨요.</p>
       <div id="checkTimer"></div>
-      <div class="field"><label>오늘 운동 <span class="req">*</span></label>
-        <div class="chips" id="actChips"></div></div>
-      <div class="field" id="subpartField" style="display:none"><label>부위 <span class="opt">(헬스 · 여러 개 가능)</span></label>
-        <div class="chips" id="partChips"></div></div>
-      <div class="field"><label>오늘 느낌 <span class="opt">(선택)</span></label>
-        <div class="chips" id="moodChips"></div></div>
-      <div class="field"><label>인증샷 <span class="opt">(선택 · 카메라/갤러리 · 크루에게 공유)</span></label>
+      <div class="field"><label>훈련 사진 <span class="opt">(카메라/갤러리 · 팀에게 공유)</span></label>
         <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
-        <button type="button" class="photobtn" id="photoBtn">📷 인증샷 찍기 / 올리기</button>
+        <button type="button" class="photobtn" id="photoBtn">📷 사진 찍기 / 올리기</button>
         <div class="photoprev" id="photoPrev" style="display:none">
-          <img id="photoImg" alt="인증샷 미리보기">
+          <img id="photoImg" alt="훈련 사진 미리보기">
           <button type="button" class="rm" id="photoRm">✕</button>
         </div></div>
-      <div class="field"><label>거리 <span class="opt">(선택 · 러닝/사이클 · 클럽 통산 km에 합산)</span></label>
-        <input name="distance" inputmode="decimal" placeholder="예: 5 (km)" autocomplete="off"></div>
-      <div class="field"><label>기록 <span class="opt">(선택 · 시간·중량 등)</span></label>
-        <input name="record" placeholder="예: 40분 / 벤치 80kg" autocomplete="off"></div>
       <div class="field"><label>한마디 <span class="opt">(선택)</span></label>
-        <textarea name="note" placeholder="예: 데드 신기록! / 죽을뻔"></textarea></div>
-      <button class="submit" type="submit" id="checkBtn">인증하고 고리 +1</button>
+        <textarea name="note" placeholder="예: 오늘 5km, 개운 🔥"></textarea></div>
+      <button class="submit" type="submit" id="checkBtn">훈련 보고하기</button>
       <button type="button" class="ghost-btn" data-close>닫기</button>
     </form>
     <div class="done" id="checkDone" style="display:none">
@@ -976,7 +966,7 @@ async function renderCrew(cid){
     <div class="feed">${checkins.filter(c=>c.type!=="start").slice(0,isTeam?10:20).map(c=>{
       if(c.type==="cheer") return `<div class="item"><div class="fic cheer">${esc(c.part||"응")}</div><div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--gold);font-size:11px;font-weight:800">서포터</span></div><div class="ft">${esc(c.note||"응원")}</div></div><div class="fago">${ago(c.created_at)}</div></div>`;
       const act=c.part||"";
-      return `<div class="item"><div class="fic">${ACT_EMOJI[act]||"●"}</div><div class="fb"><div class="fn">${jpfx(c)}${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">훈련</span></div><div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"></div>`:""}</div><div class="fago">${ago(c.created_at)}</div></div>`;
+      return `<div class="item"><div class="fic">${ACT_EMOJI[act]||"🏋️"}</div><div class="fb"><div class="fn">${jpfx(c)}${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">훈련</span></div><div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"></div>`:""}</div><div class="fago">${ago(c.created_at)}</div></div>`;
     }).join("")||`<div class="empty">첫 훈련 보고를 남겨보세요</div>`}</div></div>`;
 
   const reportBtn = mem.role==="guardian"
@@ -1160,38 +1150,21 @@ document.getElementById("joinForm").onsubmit=async e=>{
   }catch(err){ alert("참여 실패: "+(err.message||err)); done(); }
 };
 
-/* ---- 10초 인증 ---- */
-document.getElementById("actChips").innerHTML=ACTS.map(([k,e])=>
-  `<label class="chip"><input type="radio" name="act" value="${k}"><span>${e} ${k}</span></label>`).join("");
-document.getElementById("partChips").innerHTML=PARTS.map(p=>
-  `<label class="chip"><input type="checkbox" name="subpart" value="${p}"><span>${PART_EMOJI[p]} ${p}</span></label>`).join("");
-document.getElementById("moodChips").innerHTML=MOODS.map((m,i)=>
-  `<label class="chip"><input type="radio" name="mood" value="${m}"><span>${m}</span></label>`).join("");
-// 헬스 고를 때만 부위 하위옵션 노출
-document.getElementById("actChips").addEventListener("change",e=>{
-  if(e.target.name==="act") document.getElementById("subpartField").style.display = e.target.value==="헬스" ? "" : "none";
-});
+/* ---- 오늘 훈련 보고 (사진 + 캡션) ---- */
 function openCheck(){
   document.getElementById("checkForm").style.display=""; document.getElementById("checkDone").style.display="none";
   document.getElementById("checkForm").reset(); clearPhoto();
-  document.getElementById("subpartField").style.display="none";
   const live=activeWorkouts().find(a=>String(a.m.id)===String(myMember(VIEW).memberId));
   document.getElementById("checkTimer").innerHTML = live?`<div class="timerbar">⏱ 운동 시작한 지 ${live.mins}분 — 인증하면 마무리돼요</div>`:"";
   openModal("checkModal");
 }
 document.getElementById("checkForm").onsubmit=async e=>{
-  e.preventDefault(); const btn=document.getElementById("checkBtn"); btn.disabled=true; btn.textContent="기록 중…";
+  e.preventDefault(); const btn=document.getElementById("checkBtn"); btn.disabled=true; btn.textContent="보고 중…";
   const fd=new FormData(e.target); const mem=myMember(VIEW);
-  const act=fd.get("act");
-  if(!act){ alert("오늘 한 운동을 골라주세요"); btn.disabled=false; btn.textContent="인증하고 고리 +1"; return; }
-  const sub=fd.getAll("subpart");
-  const mood=fd.get("mood")||"";
-  const record=(fd.get("record")||"").trim();
-  const distRaw=(fd.get("distance")||"").trim();
-  const dist=distRaw?(parseFloat(distRaw)||null):null;
-  const note=[ (act==="헬스"&&sub.length)?("💪 "+sub.join("·")):"", dist?("📍 "+dist+"km"):"", record?("📊 "+record):"", mood, (fd.get("note")||"").trim() ].filter(Boolean).join("  ");
+  const note=(fd.get("note")||"").trim();
+  if(!pendingPhoto && !note){ alert("사진이나 한마디, 하나는 남겨주세요"); btn.disabled=false; btn.textContent="훈련 보고하기"; return; }
   try{
-    await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"workout", part:act, note, photo:pendingPhoto, distanceKm:dist});
+    await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"workout", part:"", note, photo:pendingPhoto});
     const [crew,members,checkins]=await Promise.all([DB.getCrew(VIEW),DB.getMembers(VIEW),DB.getCheckins(VIEW)]);
     cache={crew,members,checkins};
     const r=DB.computeChain(crew,members,checkins);
@@ -1202,8 +1175,8 @@ document.getElementById("checkForm").onsubmit=async e=>{
     document.getElementById("checkDoneP").innerHTML= c>=crew.goal
       ? `MATCHWEEK ${mw} · 창단 이래 ${r.chain}번째 훈련<br>이번 주 목표 달성 (${c}/${crew.goal}) — 명단에 이름 올렸습니다.`
       : `MATCHWEEK ${mw} · 창단 이래 ${r.chain}번째 훈련<br>이번 주 ${c}/${crew.goal}회 · ${crew.goal-c}번 더 뛰면 스쿼드 승선.`;
-  }catch(err){ alert("인증 실패: "+(err.message||err)); }
-  finally{ btn.disabled=false; btn.textContent="인증하고 고리 +1"; }
+  }catch(err){ alert("보고 실패: "+(err.message||err)); }
+  finally{ btn.disabled=false; btn.textContent="훈련 보고하기"; }
 };
 // 인증 완료 → 닫으면서 크루 화면에서 새 고리가 튕겨 붙는 애니메이션 재생
 document.getElementById("checkDoneOk").onclick=()=>{ closeModals(); if(VIEW) renderCrew(VIEW); };
@@ -1241,7 +1214,7 @@ function downscaleImage(file, maxDim, quality){
 // 라이트박스(전체보기)
 function openLightbox(id){ const c=cache.checkins.find(x=>String(x.id)===String(id)); if(!c||!c.photo) return;
   document.getElementById("lightboxImg").src=c.photo;
-  document.getElementById("lightboxCap").textContent=`${c.name} · ${(c.part||"").split("/").join(" ")} · ${ago(c.created_at)}`;
+  document.getElementById("lightboxCap").textContent=[c.name, c.note||c.part, ago(c.created_at)].filter(Boolean).join(" · ");
   document.getElementById("lightbox").classList.add("open"); document.body.style.overflow="hidden"; }
 function closeLightbox(){ document.getElementById("lightbox").classList.remove("open"); document.body.style.overflow=""; }
 
