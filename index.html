@@ -837,21 +837,26 @@ function formationRows(n){
   const rows=[1]; let rem=n-1; while(rem>0){ const r=Math.min(4,rem); rows.push(r); rem-=r; }
   return rows;
 }
-// 스타팅 편집용 포메이션 프리셋(rows: GK 포함 라인, label: 아웃필드 표기)
+// 스타팅 편집용 포메이션 프리셋(rows: GK 포함 라인, roles: 각 라인 포지션)
 const FORMATIONS=[
-  {label:"2-2",     rows:[1,2,2]},
-  {label:"1-2-1",   rows:[1,1,2,1]},
-  {label:"2-2-1",   rows:[1,2,2,1]},
-  {label:"2-3-1",   rows:[1,2,3,1]},
-  {label:"3-2-1",   rows:[1,3,2,1]},
-  {label:"3-3-1",   rows:[1,3,3,1]},
-  {label:"4-4-2",   rows:[1,4,4,2]},
-  {label:"4-3-3",   rows:[1,4,3,3]},
-  {label:"3-5-2",   rows:[1,3,5,2]},
-  {label:"4-2-3-1", rows:[1,4,2,3,1]},
+  {label:"2-2",     rows:[1,2,2],     roles:["GK","DF","FW"]},
+  {label:"1-2-1",   rows:[1,1,2,1],   roles:["GK","DF","MF","FW"]},
+  {label:"2-2-1",   rows:[1,2,2,1],   roles:["GK","DF","MF","FW"]},
+  {label:"2-3-1",   rows:[1,2,3,1],   roles:["GK","DF","MF","FW"]},
+  {label:"3-2-1",   rows:[1,3,2,1],   roles:["GK","DF","MF","FW"]},
+  {label:"3-3-1",   rows:[1,3,3,1],   roles:["GK","DF","MF","FW"]},
+  {label:"4-4-2",   rows:[1,4,4,2],   roles:["GK","DF","MF","FW"]},
+  {label:"4-3-3",   rows:[1,4,3,3],   roles:["GK","DF","MF","FW"]},
+  {label:"3-5-2",   rows:[1,3,5,2],   roles:["GK","DF","MF","FW"]},
+  {label:"4-2-3-1", rows:[1,4,2,3,1], roles:["GK","DF","DM","AM","FW"]},
 ];
 const fmtSlots = rows => rows.reduce((a,b)=>a+b,0);
-function slotRole(ri,R){ if(ri===0) return "GK"; if(ri===R-1) return "FW"; return ri<=Math.ceil((R-1)/2)?"DF":"MF"; }
+const fmtByRows = rows => FORMATIONS.find(f=>f.rows.join("-")===(rows||[]).join("-"))||null;
+// 라인 포지션: 프리셋 roles 우선 · 없으면 일반 규칙(GK / 1번째=DF / 마지막=FW / 나머지=MF)
+function lineRole(ri,R,roles){
+  if(roles && roles[ri]) return roles[ri];
+  if(ri===0) return "GK"; if(ri===R-1) return "FW"; if(ri===1) return "DF"; return "MF";
+}
 function parseLineups(){
   return (cache.checkins||[]).filter(c=>c.type==="lineup"&&c.note)
     .map(c=>{ try{ return {id:c.id, ...JSON.parse(c.note)}; }catch{ return null; } }).filter(Boolean);
@@ -876,14 +881,15 @@ function squadLayout(){
     rows=lu.r; const used=new Set(); let idx=0;
     rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const mid=lu.s[idx++]; positions.push({mid,ri,i,cnt}); if(mid!=null) used.add(String(mid)); } });
     benchIds=wm.filter(m=>!used.has(String(m.id))).map(m=>m.id);
-    formationLabel=(FORMATIONS.find(f=>f.rows.join("-")===rows.join("-"))||{}).label || rows.slice(1).join("-");
+    formationLabel=(fmtByRows(rows)||{}).label || rows.slice(1).join("-");
   } else {
     const players=wm.slice().sort(byJerseyId);
     rows=formationRows(players.length); let idx=0;
     rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const p=players[idx++]; positions.push({mid:p?p.id:null,ri,i,cnt}); } });
     formationLabel = players.length<=1?`${players.length}인`:(rows.slice(1).join("-")||"1");
   }
-  return {rows, R:rows.length, positions, benchIds, starting, formationLabel};
+  const fm=fmtByRows(rows);
+  return {rows, R:rows.length, positions, benchIds, starting, formationLabel, roles:fm?fm.roles:null};
 }
 const PITCH_LINES=`<svg class="lines" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
   <g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="0.7">
@@ -908,11 +914,11 @@ function pitchBoard(){
   };
   const emptyHTML=(x,y,role)=>`<div class="pp" style="left:${x}%;top:${y}%"><div class="dot empty">+</div><div class="lbl">${role}</div></div>`;
 
-  const {rows,R,positions,benchIds,starting,formationLabel}=squadLayout();
+  const {rows,R,positions,benchIds,starting,formationLabel,roles}=squadLayout();
   const chips=positions.map(pos=>{
     const y=R===1?50:88-(pos.ri/(R-1||1))*76, x=(pos.i+1)/(pos.cnt+1)*100;
     const p=pos.mid!=null?byId(pos.mid):null;
-    return p?chipHTML(p,x,y):emptyHTML(x,y,slotRole(pos.ri,R));
+    return p?chipHTML(p,x,y):emptyHTML(x,y,lineRole(pos.ri,R,roles));
   }).join("");
   const doneCount=wm.filter(m=>weekCount(VIEW,m.id)>=goal).length;
   const canEdit = c.type!=="team" || String(mem.memberId)===ownerId();
@@ -1440,11 +1446,11 @@ function setSlot(si,val){ const id=val?Number(val):null;
   if(id!=null) luSlots=luSlots.map(v=>String(v)===String(id)?null:v);
   luSlots[si]=id; renderLineupEditor(); }
 function renderLineupEditor(){
-  const rows=FORMATIONS[luFmtIdx].rows, R=rows.length, wm=luPlayers();
+  const rows=FORMATIONS[luFmtIdx].rows, R=rows.length, roles=FORMATIONS[luFmtIdx].roles, wm=luPlayers();
   document.getElementById("fmtChips").innerHTML=FORMATIONS.map((f,i)=>
     `<label class="chip"><input type="radio" name="fmt" ${i===luFmtIdx?"checked":""} onclick="setFmt(${i})"><span>${f.label} <small style="opacity:.55">(${fmtSlots(f.rows)})</small></span></label>`).join("");
   let html="", idx=0;
-  rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const si=idx++; const role=slotRole(ri,R);
+  rows.forEach((cnt,ri)=>{ for(let i=0;i<cnt;i++){ const si=idx++; const role=lineRole(ri,R,roles);
     const opts=`<option value="">— 비움 —</option>`+wm.map(m=>{
       const usedElse=luSlots.some((v,k)=>k!==si && String(v)===String(m.id)); if(usedElse) return "";
       const jn=parseJersey(m.jersey_no);
