@@ -337,6 +337,49 @@
   .lightbox .cap{position:absolute;bottom:26px;left:0;right:0;text-align:center;color:#fff;font-weight:800;font-size:14px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
   .linkbox{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px;
     color:var(--sub);font-size:13px;text-align:center;margin:4px 0 14px;font-family:inherit}
+  /* ── 락커룸 탭 전용: 우드 + 브러시드 메탈 ── */
+  .lockerroom{margin:0 -16px;padding:16px 16px 12px;border-top:1px solid rgba(0,0,0,.55);
+    box-shadow:inset 0 10px 26px rgba(0,0,0,.45);
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,0) 140px),
+      repeating-linear-gradient(90deg, #2e2013 0 1px, #3d2c1a 1px 2px, #35261791 2px 44px, #2b1e12 44px 46px),
+      linear-gradient(180deg,#42301d,#33241596);}
+  .lockerroom>.clubhead{background:linear-gradient(180deg,#4c5155,#3a3e42);border-color:#26292c}
+  .lockerroom .ch-name,.lockerroom .ch-emblem{color:#f3f5f6}
+  .lockerroom .ch-mw{color:#c2c8cc}
+  /* 상단 명패 */
+  .lockerplate{position:relative;text-align:center;margin:2px 0 12px;padding:11px 0;border-radius:8px;
+    font-family:var(--font-num);font-size:20px;letter-spacing:.28em;color:#e9edf0;
+    background:linear-gradient(180deg,#585d62,#3f4347 55%,#4a4f53);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -3px 7px rgba(0,0,0,.45),0 3px 8px rgba(0,0,0,.5);
+    text-shadow:0 1px 2px rgba(0,0,0,.55),0 -1px 0 rgba(255,255,255,.12)}
+  .lockerplate::before,.lockerplate::after{content:"";position:absolute;top:50%;width:8px;height:8px;border-radius:50%;
+    transform:translateY(-50%);background:radial-gradient(circle at 35% 30%,#b9bec2,#4a4e52);
+    box-shadow:inset 0 -1px 1px rgba(0,0,0,.5)}
+  .lockerplate::before{left:14px} .lockerplate::after{right:14px}
+  /* 카드 = 라커(브러시드 스틸) */
+  .lockerroom .card{color:#f2f4f5;border:1px solid #2c2f32;border-radius:10px;
+    background:
+      linear-gradient(90deg,#54595e 0%,#71767b 46%,#7d8388 54%,#565b60 100%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, rgba(0,0,0,.06) 1px 3px);
+    background-blend-mode:overlay,normal;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -3px 8px rgba(0,0,0,.42),0 4px 12px rgba(0,0,0,.5)}
+  .lockerroom .sec-t{color:#f6f8f9;text-shadow:0 1px 1px rgba(0,0,0,.45)}
+  .lockerroom .sec-t .r{color:#d3d8db}
+  .lockerroom .feedhi{background:rgba(0,0,0,.26);color:#fff}
+  .lockerroom .feedhi b{color:#fff}
+  .lockerroom .feed .item{border-bottom-color:rgba(0,0,0,.3)}
+  .lockerroom .feed .fic{background:rgba(0,0,0,.32);color:#fff;box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
+  .lockerroom .feed .fic.cheer{background:rgba(240,194,75,.28)}
+  .lockerroom .feed .fn{color:#f6f8f9;text-shadow:0 1px 1px rgba(0,0,0,.4)}
+  .lockerroom .feed .ft{color:#e3e7ea}
+  .lockerroom .feed .ftag{background:rgba(0,0,0,.28);color:#ffd9d4}
+  .lockerroom .feed .fago{color:#c2c8cc}
+  .lockerroom .empty{color:#d3d8db}
+  .lockerroom .jno{color:#fff}
+  .lockerroom .gthumb{border-color:rgba(0,0,0,.4)}
+  .lockerroom .feed .fphoto{border-color:rgba(0,0,0,.4)}
+
   /* ── 터널 입장 (시그니처) ── */
   .tunnel{position:fixed;inset:0;z-index:300;background:#0a2016;display:grid;place-items:center;overflow:hidden;
     opacity:0;animation:tnl-in .28s ease forwards}
@@ -941,7 +984,7 @@ async function renderCrew(cid){
     : `<button class="btn primary" onclick="openCheck()">오늘 훈련 보고하기</button>`;
 
   let body;
-  if(crewTab==="locker") body = header + gallery + board;
+  if(crewTab==="locker") body = `<div class="lockerroom">${header}<div class="lockerplate">LOCKER ROOM</div>${gallery}${board}</div>`;
   else if(crewTab==="record") body = header + squad + rankCard + totalCard;
   else body = header + formCard + reportBtn + pitchBoard() + penalty + totalCard;
   document.getElementById("app").innerHTML = body;
