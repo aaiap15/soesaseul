@@ -257,6 +257,7 @@
   .segbtns{display:flex;background:var(--card2);border-radius:12px;padding:4px;margin-bottom:4px}
   .segb{flex:1;border:none;background:transparent;font-weight:800;font-size:14px;padding:11px;border-radius:9px;cursor:pointer;color:var(--sub)}
   .segb.on{background:var(--accent);color:#06231a;box-shadow:var(--shadow)}
+  .recnav{margin:2px 0 14px}
   .avataredit{width:96px;height:96px;border-radius:50%;border:2px dashed var(--line);background:var(--card2);color:var(--accent);
     display:grid;place-items:center;font-weight:900;font-size:18px;margin:4px auto;cursor:pointer;overflow:hidden;line-height:1.15}
   .avataredit img{width:100%;height:100%;object-fit:cover}
@@ -735,6 +736,7 @@ async function loadMemberships(){
 
 let VIEW = null;                 // null=홈, 아니면 crewId
 let crewTab = "home";            // 클럽하우스/락커룸/기록 탭
+let recTab = "match";            // 기록 탭 내부: 경기/랭킹/명단
 let enteringCrew = false;        // 홈→구단 진입 시 터널 연출 1회
 let cache = { crew:null, members:[], checkins:[] };
 const prevChain = {};            // crewId -> 직전 렌더 고리 수 (성장 애니메이션용)
@@ -1257,7 +1259,15 @@ async function renderCrew(cid){
 
   let body;
   if(crewTab==="locker") body = header + board;
-  else if(crewTab==="record") body = header + matchCard + rankCard + squad + totalCard;
+  else if(crewTab==="record"){
+    const recNav=`<div class="segbtns recnav">
+      <button class="segb ${recTab==='match'?'on':''}" onclick="setRecTab('match')">경기</button>
+      <button class="segb ${recTab==='rank'?'on':''}" onclick="setRecTab('rank')">랭킹</button>
+      <button class="segb ${recTab==='squad'?'on':''}" onclick="setRecTab('squad')">명단</button>
+    </div>`;
+    const recBody = recTab==='rank' ? (rankCard+totalCard) : recTab==='squad' ? squad : matchCard;
+    body = header + recNav + recBody;
+  }
   else if(fresh) body = header + onboard;
   else body = header + formCard + reportBtn + pitchBoard() + penalty;
   document.getElementById("app").innerHTML = body;
@@ -1332,6 +1342,7 @@ function maybeShowRecap(){
 document.getElementById("recapCloseBtn").onclick=closeModals;
 document.getElementById("recapShareBtn").onclick=shareRecapCard;
 function setTab(t){ crewTab=t; window.scrollTo(0,0); renderCrew(VIEW); }
+function setRecTab(t){ recTab=t; renderCrew(VIEW); }
 function goHome(){ VIEW=null; localStorage.removeItem("sasl_current"); window.scrollTo(0,0); render(); }
 
 async function startWorkout(){
