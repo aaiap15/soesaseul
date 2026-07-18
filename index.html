@@ -408,48 +408,28 @@
   .lightbox .cap{position:absolute;bottom:26px;left:0;right:0;text-align:center;color:#fff;font-weight:800;font-size:14px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
   .linkbox{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px;
     color:var(--sub);font-size:13px;text-align:center;margin:4px 0 14px;font-family:inherit}
-  /* ── 락커룸 탭 전용: 우드 + 브러시드 메탈 ── */
-  .lockerroom{margin:0 -16px;padding:16px 16px 12px;border-top:1px solid rgba(0,0,0,.55);
-    box-shadow:inset 0 10px 26px rgba(0,0,0,.45);
-    background:
-      linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,0) 140px),
-      repeating-linear-gradient(90deg, #2e2013 0 1px, #3d2c1a 1px 2px, #35261791 2px 44px, #2b1e12 44px 46px),
-      linear-gradient(180deg,#42301d,#33241596);}
-  .lockerroom>.clubhead{background:linear-gradient(180deg,#4c5155,#3a3e42);border-color:#26292c}
-  .lockerroom .ch-name,.lockerroom .ch-emblem{color:#f3f5f6}
-  .lockerroom .ch-mw{color:#c2c8cc}
-  /* 상단 명패 */
-  .lockerplate{position:relative;text-align:center;margin:2px 0 12px;padding:11px 0;border-radius:8px;
-    font-family:var(--font-num);font-size:20px;letter-spacing:.28em;color:#e9edf0;
-    background:linear-gradient(180deg,#585d62,#3f4347 55%,#4a4f53);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -3px 7px rgba(0,0,0,.45),0 3px 8px rgba(0,0,0,.5);
-    text-shadow:0 1px 2px rgba(0,0,0,.55),0 -1px 0 rgba(255,255,255,.12)}
-  .lockerplate::before,.lockerplate::after{content:"";position:absolute;top:50%;width:8px;height:8px;border-radius:50%;
-    transform:translateY(-50%);background:radial-gradient(circle at 35% 30%,#b9bec2,#4a4e52);
-    box-shadow:inset 0 -1px 1px rgba(0,0,0,.5)}
-  .lockerplate::before{left:14px} .lockerplate::after{right:14px}
-  /* 카드 = 라커(브러시드 스틸) */
-  .lockerroom .card{color:#f2f4f5;border:1px solid #2c2f32;border-radius:10px;
-    background:
-      linear-gradient(90deg,#54595e 0%,#71767b 46%,#7d8388 54%,#565b60 100%),
-      repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, rgba(0,0,0,.06) 1px 3px);
-    background-blend-mode:overlay,normal;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -3px 8px rgba(0,0,0,.42),0 4px 12px rgba(0,0,0,.5)}
-  .lockerroom .sec-t{color:#f6f8f9;text-shadow:0 1px 1px rgba(0,0,0,.45)}
-  .lockerroom .sec-t .r{color:#d3d8db}
-  .lockerroom .feedhi{background:rgba(0,0,0,.26);color:#fff}
-  .lockerroom .feedhi b{color:#fff}
-  .lockerroom .feed .item{border-bottom-color:rgba(0,0,0,.3)}
-  .lockerroom .feed .fic{background:rgba(0,0,0,.32);color:#fff;box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
-  .lockerroom .feed .fic.cheer{background:rgba(240,194,75,.28)}
-  .lockerroom .feed .fn{color:#f6f8f9;text-shadow:0 1px 1px rgba(0,0,0,.4)}
-  .lockerroom .feed .ft{color:#e3e7ea}
-  .lockerroom .feed .ftag{background:rgba(0,0,0,.28);color:#ffd9d4}
-  .lockerroom .feed .fago{color:#c2c8cc}
-  .lockerroom .empty{color:#d3d8db}
-  .lockerroom .jno{color:#fff}
-  .lockerroom .gthumb{border-color:rgba(0,0,0,.4)}
-  .lockerroom .feed .fphoto{border-color:rgba(0,0,0,.4)}
+  /* ── 락커룸: 깔끔한 피드 ── */
+  .lr-hi{display:flex;gap:10px;margin-bottom:14px}
+  .hicard{flex:1;min-width:0;background:var(--card2);border-radius:12px;padding:11px 13px}
+  .hilbl{display:block;font-size:11px;font-weight:800;color:var(--sub);letter-spacing:.02em}
+  .hival{display:block;font-size:14px;font-weight:800;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hival .jno{color:var(--accent)}
+  .feed .post{display:flex;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .feed .post:first-child{padding-top:4px}
+  .feed .post:last-child{border-bottom:none;padding-bottom:2px}
+  .post-av{width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;
+    background:var(--card2);color:var(--txt);font-family:var(--font-num);font-weight:400;font-size:19px;border:1px solid var(--line)}
+  .post-av.cheer{color:var(--gold)}
+  .post-av .ic{width:20px;height:20px}
+  .post-main{flex:1;min-width:0}
+  .post-h{display:flex;align-items:center;gap:8px}
+  .post-h b{font-size:14.5px;font-weight:800}
+  .post-role{font-size:10.5px;font-weight:800;color:var(--gold);background:rgba(232,193,90,.14);padding:1px 8px;border-radius:999px}
+  .post-t{margin-left:auto;font-size:11.5px;color:var(--dim);flex:none}
+  .post-x{font-size:14px;color:var(--txt);margin-top:5px;line-height:1.55;word-break:break-word}
+  .post-img{margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid var(--line);cursor:pointer}
+  .post-img img{width:100%;display:block;max-height:380px;object-fit:cover}
+  .post .clapbtn{margin-top:11px}
 
   /* ── 터널 입장 (시그니처) ── */
   .tunnel{position:fixed;inset:0;z-index:300;background:#0d0f13;display:grid;place-items:center;overflow:hidden;
@@ -1189,26 +1169,33 @@ async function renderCrew(cid){
       <div><div class="rankttl">통산 기여</div>${totRank.slice(0,3).map((x,i)=>`<div class="rankrow"><span class="rk rk${i+1}">${i+1}</span><span class="rn">${jerseyTag(x.m)}${esc(x.m.name)}</span><span class="rv">${x.v}</span></div>`).join("")||`<div class="myrank">-</div>`}<div class="myrank">내 순위 ${myTotRank}위</div></div>
     </div></div>`;
 
-  const gallery=(()=>{ const ph=checkins.filter(c=>(c.type||"workout")==="workout"&&c.photo).slice(0,15);
-    return ph.length?`<div class="card"><div class="sec-t">사진 <span class="r">${ph.length}</span></div><div class="gallery">${ph.map(c=>`<div class="gthumb" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"><div class="gn">${esc(c.name)}</div></div>`).join("")}</div></div>`:""; })();
-
   const jmap={}; members.forEach(m=>{ const n=parseJersey(m.jersey_no); if(n!==null) jmap[String(m.id)]=n; });
-  const jpfx=c=>jmap[String(c.member_id)]!=null?`<span class="jno">${jmap[String(c.member_id)]}</span>`:"";
+  const avOf=c=>{ const jn=jmap[String(c.member_id)]; return jn!=null?jn:esc((c.name||'?').slice(0,1)); };
   // 리액션(👏) 집계
   const reactMap={}, reactMine={};
   checkins.forEach(c=>{ if(c.type==="react"&&c.note){ reactMap[c.note]=(reactMap[c.note]||0)+1; if(String(c.member_id)===String(mem.memberId)) reactMine[c.note]=true; } });
-  // POTW(지난주 이주의 선수)
+  // 하이라이트: 지난주 POTW / 이번주 최다
   const prevWk=curWk()-WEEK_MS;
   const potwLast=(DB.weekStartTs(crew.created_at)<=prevWk)
     ? (workoutMembers.map(m=>({m,v:weekCountAt(m.id,prevWk)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v)[0]||null) : null;
-  const board = `<div class="card"><div class="sec-t">락커룸 <span class="r">최신순</span></div>
-    ${potwLast?`<div class="potw"><span class="potw-b">POTW</span>지난주 이주의 선수 · <b>${jerseyTag(potwLast.m)}${esc(potwLast.m.name)}</b> (${potwLast.v}회)</div>`:""}
-    ${isTeam && wkRank[0] && wkRank[0].v>0 ? `<div class="feedhi">이번 주 최다 훈련 · <b>${jerseyTag(wkRank[0].m)}${esc(wkRank[0].m.name)}</b> (${wkRank[0].v})</div>`:""}
-    <div class="feed">${checkins.filter(c=>c.type!=="start"&&c.type!=="react"&&c.type!=="lineup"&&c.type!=="match").slice(0,isTeam?10:20).map(c=>{
-      if(c.type==="cheer") return `<div class="item"><div class="fic cheer">${icon('megaphone')}</div><div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--gold);font-size:11px;font-weight:800">서포터</span></div><div class="ft">${c.part?esc(c.part)+" ":""}${esc(c.note||"응원")}</div></div><div class="fago">${ago(c.created_at)}</div></div>`;
-      const act=c.part||""; const rc=reactMap[String(c.id)]||0, rm=reactMine[String(c.id)];
-      return `<div class="item"><div class="fic">${icon('dumbbell')}</div><div class="fb"><div class="fn">${jpfx(c)}${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">훈련</span></div><div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"></div>`:""}<div class="reactrow"><button class="clapbtn${rm?' on':''}" onclick="reactTo('${c.id}')">${icon('clap')}${rc?` <b>${rc}</b>`:""}</button></div></div><div class="fago">${ago(c.created_at)}</div></div>`;
-    }).join("")||`<div class="empty">첫 훈련 보고를 남겨보세요</div>`}</div></div>`;
+  const topThis = wkRank[0] && wkRank[0].v>0 ? wkRank[0] : null;
+  const highlights = (potwLast||topThis) ? `<div class="lr-hi">
+    ${potwLast?`<div class="hicard"><span class="hilbl">지난주 MVP</span><span class="hival">${jerseyTag(potwLast.m)}${esc(potwLast.m.name)}</span></div>`:''}
+    ${topThis?`<div class="hicard"><span class="hilbl">이번주 최다</span><span class="hival">${jerseyTag(topThis.m)}${esc(topThis.m.name)} · ${topThis.v}회</span></div>`:''}
+  </div>`:'';
+  const board = `<div class="card">
+    <div class="sec-t">락커룸</div>
+    ${highlights}
+    <div class="feed">${checkins.filter(c=>c.type!=="start"&&c.type!=="react"&&c.type!=="lineup"&&c.type!=="match").slice(0,isTeam?12:24).map(c=>{
+      if(c.type==="cheer") return `<div class="post"><div class="post-av cheer">${icon('megaphone')}</div><div class="post-main"><div class="post-h"><b>${esc(c.name)}</b><span class="post-role">서포터</span><span class="post-t">${ago(c.created_at)}</span></div><div class="post-x">${c.part?esc(c.part)+" ":""}${esc(c.note||"응원")}</div></div></div>`;
+      const rc=reactMap[String(c.id)]||0, rm=reactMine[String(c.id)];
+      return `<div class="post"><div class="post-av">${avOf(c)}</div><div class="post-main">
+        <div class="post-h"><b>${esc(c.name)}</b><span class="post-t">${ago(c.created_at)}</span></div>
+        ${c.note?`<div class="post-x">${esc(c.note)}</div>`:''}
+        ${c.photo?`<div class="post-img" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"></div>`:''}
+        <button class="clapbtn${rm?' on':''}" onclick="reactTo('${c.id}')">${icon('clap')} 응원${rc?` <b>${rc}</b>`:''}</button>
+      </div></div>`;
+    }).join("")||`<div class="empty">아직 훈련 보고가 없어요.<br>오늘 훈련을 남겨보세요.</div>`}</div></div>`;
 
   // 경기 기록 카드(기록 탭)
   const canEditMatch = !isTeam || String(mem.memberId)===ownerId();
@@ -1259,7 +1246,7 @@ async function renderCrew(cid){
     </div>`;
 
   let body;
-  if(crewTab==="locker") body = `<div class="lockerroom">${header}<div class="lockerplate">LOCKER ROOM</div>${gallery}${board}</div>`;
+  if(crewTab==="locker") body = header + board;
   else if(crewTab==="record") body = header + matchCard + rankCard + squad + totalCard;
   else if(fresh) body = header + onboard;
   else body = header + formCard + reportBtn + pitchBoard() + penalty;
