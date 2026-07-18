@@ -1,0 +1,17 @@
+{
+  "name": "폼클럽 · 우리 팀이 구단이 되는 곳",
+  "short_name": "폼클럽",
+  "description": "축구 구단처럼 매주 훈련·경기 기록을 쌓는 팀 운동 앱",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#12151c",
+  "theme_color": "#12151c",
+  "lang": "ko",
+  "icons": [
+    { "src": "icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "maskable" }
+  ]
+}

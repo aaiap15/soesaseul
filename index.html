@@ -4,13 +4,18 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#12151c" />
+<meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="폼클럽" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" type="image/png" href="icon-192.png" />
 <title>폼클럽 · 우리 팀이 구단이 되는 곳</title>
-<meta name="description" content="친구 크루랑 같이 키우는 운동 마스코트. 인증하면 벌크업, 방치하면 시들." />
-<meta property="og:title" content="폼클럽 · 같이 키우는 운동 마스코트" />
-<meta property="og:description" content="크루로 쌓는 운동 역사. 인증하면 마스코트가 자란다." />
+<meta name="description" content="축구 구단처럼 매주 훈련·경기 기록을 쌓는 팀 운동 앱." />
+<meta property="og:title" content="폼클럽 · 우리 팀이 구단이 되는 곳" />
+<meta property="og:description" content="팀 만들고 매주 훈련 보고. 스쿼드·경기 기록·랭킹이 쌓입니다." />
+<meta property="og:image" content="icon-512.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <style>
@@ -2144,6 +2149,8 @@ async function bootstrap(){
   await bootstrap();
   setInterval(()=>{ if(VIEW && ME && !document.querySelector(".modal.open")) renderCrew(VIEW); }, 25000);
 })();
+// PWA: 설치형 앱(홈 화면 추가) + 오프라인. 네트워크 우선이라 최신본이 항상 우선.
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
 </script>
 </body>
 </html>
