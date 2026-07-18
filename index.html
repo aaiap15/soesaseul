@@ -119,6 +119,12 @@
   .fc-ovr span{font-size:12px;font-weight:800;letter-spacing:.2em;color:var(--sub)}
   .fc-sub{margin-top:6px;font-size:13px;font-weight:700;color:var(--sub)}
   .fc-sub b{font-family:var(--font-num);font-weight:400;font-size:17px;color:var(--txt);vertical-align:-1px;margin:0 1px}
+  .fc-recent{display:flex;gap:5px;justify-content:center;align-items:center;margin-top:12px}
+  .fc-rlbl{font-size:11px;font-weight:800;color:var(--dim);margin-right:3px}
+  .rp{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:900;flex:none}
+  .rp-win{background:var(--ok);color:#06231a}
+  .rp-draw{background:var(--card2);color:var(--sub)}
+  .rp-loss{background:#3a2530;color:#e8899c}
   .fc-nudge{margin-top:14px;background:var(--card2);color:var(--sub);font-weight:700;font-size:12px;padding:9px 12px;border-radius:10px}
   .fc-nudge.good{color:var(--ok)}
   .fc-week{display:flex;flex-direction:column;gap:8px;margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
@@ -1114,6 +1120,13 @@ async function renderCrew(cid){
     : ch.cond<=1 ? `구단, 최근 훈련량 저조에 "아직 아니다" 공식입장`
     : ch.cond>=4 ? `구단, 폼 절정 공식 인정` : "";
   const matchweek = Math.max(1, Math.round((curWk()-DB.weekStartTs(crew.created_at))/WEEK_MS)+1);
+  // 경기 기록(폼 카드·기록 탭 공용)
+  const matches=parseMatches(), ss=seasonStats(matches);
+  const mById=id=>members.find(x=>String(x.id)===String(id));
+  const resCls=m=>(m.gf||0)>(m.ga||0)?'win':(m.gf||0)<(m.ga||0)?'loss':'draw';
+  const resTxt=m=>(m.gf||0)>(m.ga||0)?'승':(m.gf||0)<(m.ga||0)?'패':'무';
+  const recent5=matches.slice(0,5).reverse();
+  const formPills=recent5.length?`<div class="fc-recent"><span class="fc-rlbl">최근</span>${recent5.map(m=>`<span class="rp rp-${resCls(m)}">${resTxt(m)}</span>`).join("")}</div>`:"";
   const emblem = crew.emblem || "";
   const WD=["월","화","수","목","금","토","일"], td=todayDow();
   const teamDays=[0,0,0,0,0,0,0];
@@ -1142,6 +1155,7 @@ async function renderCrew(cid){
       <div class="fc-form" style="color:${cd.c}">${cd.e} ${cd.n}</div>
       <div class="fc-ovr"><b>${ovrTeam(ch)}</b><span>OVR</span></div>
       <div class="fc-sub">창단 이래 <b id="chainNum">${animStart}</b>회${km>0?` · ${km.toLocaleString()}km`:``}</div>
+      ${formPills}
       ${nudge?`<div class="fc-nudge${!fresh&&ch.cond>=4?' good':''}">${nudge}</div>`:``}
       <div class="fc-week"><span>이번 주 <b>${thisWeekTotal}</b>회 · D-${daysLeft}</span>${crewStrip}</div>
     </div>`;
@@ -1199,10 +1213,6 @@ async function renderCrew(cid){
 
   // 경기 기록 카드(기록 탭)
   const canEditMatch = !isTeam || String(mem.memberId)===ownerId();
-  const matches=parseMatches(), ss=seasonStats(matches);
-  const mById=id=>members.find(x=>String(x.id)===String(id));
-  const resCls=m=>(m.gf||0)>(m.ga||0)?'win':(m.gf||0)<(m.ga||0)?'loss':'draw';
-  const resTxt=m=>(m.gf||0)>(m.ga||0)?'승':(m.gf||0)<(m.ga||0)?'패':'무';
   const matchCard = `<div class="card">
     <div class="sec-t">경기 기록 <span class="r">${matches.length?`${ss.w}승 ${ss.d}무 ${ss.l}패`:'아직 없음'}</span></div>
     ${matches.length?`
@@ -1636,8 +1646,9 @@ async function saveMatch(){
     gf:mGf, ga:mGa, scorers:mScorers.map(s=>({id:Number(s.id),g:s.g})), mvp:mMvpId?Number(mMvpId):null,
     memo:(document.getElementById("mMemo").value||"").trim()};
   try{
-    await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"match", note:JSON.stringify(payload)});
+    const row=await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"match", note:JSON.stringify(payload)});
     closeModals(); await renderCrew(VIEW); toast("경기 기록 저장됨");
+    if(row&&row.id) shareMatchCard(row.id);   // 감정 피크에서 바로 공유(마찰 0)
   }catch(e){ alert("저장 실패: "+(e.message||e)); }
   finally{ btn.disabled=false; btn.textContent="경기 저장"; }
 }
@@ -1687,9 +1698,9 @@ function cardEmblem(g,emblem,color,cx,cy,r){
   g.fillText(emblem||"●",cx,cy+2); g.textBaseline="alphabetic";
 }
 function cardFooter(g,code){
-  g.fillStyle="#9A9D96"; g.font=`700 34px ${FONT}`; g.fillText("우리 팀이 구단이 되는 곳 · 폼클럽",CW/2,1788);
-  if(code){ g.fillStyle="#fff"; g.font=`900 48px ${FONT}`; g.fillText(`코드 ${code} 로 합류`,CW/2,1846); }
-  g.fillStyle="#9A9D96"; g.font=`600 30px ${FONT}`; g.fillText(CARD_URL,CW/2,1892);
+  g.fillStyle="#7f857e"; g.font=`italic 700 32px ${FONT}`; g.fillText("훈련량은 거짓말하지 않는다",CW/2,1782);
+  if(code){ g.fillStyle="#fff"; g.font=`900 48px ${FONT}`; g.fillText(`코드 ${code} 로 합류`,CW/2,1844); }
+  g.fillStyle="#9A9D96"; g.font=`600 30px ${FONT}`; g.fillText(`폼클럽 · ${CARD_URL}`,CW/2,1890);
 }
 const clip = (s,n)=> (s&&s.length>n)?s.slice(0,n)+"…":s;
 async function blobOf(cv){ return await new Promise(res=>cv.toBlob(res,"image/png",.92)); }
@@ -1745,7 +1756,7 @@ async function drawSquadCard({crewName,emblem,color,matchweek,formationLabel,lay
   cardEmblem(g,emblem,color,CW/2,164,58);
   g.fillStyle="#fff"; g.font=`900 54px ${FONT}`; g.fillText(clip(crewName,14),CW/2,286);
   g.fillStyle=color; g.font=`400 60px "Anton",sans-serif`; g.fillText(`MATCHWEEK ${matchweek} · ${formationLabel}`,CW/2,356);
-  g.fillStyle="#9A9D96"; g.font=`700 34px ${FONT}`; g.fillText("STARTING SQUAD",CW/2,404);
+  g.fillStyle="#9A9D96"; g.font=`700 34px ${FONT}`; g.fillText("OFFICIAL STARTING XI",CW/2,404);
   const px=90, py=444, pw=CW-180, ph=1180;
   drawPitchCanvas(g,px,py,pw,ph,color,layout,memberById);
   if(benchNames){ g.textAlign="center"; g.fillStyle="#9A9D96"; g.font=`700 30px ${FONT}`;
@@ -1784,7 +1795,7 @@ async function drawMatchCard({crewName,emblem,color,mw,opp,gf,ga,scorers,mvpName
   const cv=newCard(), g=cv.getContext("2d"); cardFrame(g,color);
   cardEmblem(g,emblem,color,CW/2,168,56);
   g.fillStyle="#fff"; g.font=`900 50px ${FONT}`; g.fillText(clip(crewName,14),CW/2,282);
-  g.fillStyle="#9A9D96"; g.font=`400 42px "Anton",sans-serif`; g.fillText(`MATCHWEEK ${mw||''} · RESULT`,CW/2,344);
+  g.fillStyle="#9A9D96"; g.font=`400 42px "Anton",sans-serif`; g.fillText(`OFFICIAL · MATCHWEEK ${mw||''} · RESULT`,CW/2,344);
   g.fillStyle="#fff"; g.font=`400 210px "Anton",sans-serif`; g.textBaseline="middle"; g.fillText(`${gf} : ${ga}`,CW/2,560); g.textBaseline="alphabetic";
   g.fillStyle=color; g.font=`900 62px ${FONT}`; g.fillText(resultTxt,CW/2,700);
   g.fillStyle="#9A9D96"; g.font=`700 44px ${FONT}`; g.fillText(`vs ${clip(opp||'상대팀',14)}`,CW/2,768);
