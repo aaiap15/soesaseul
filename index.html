@@ -148,6 +148,36 @@
   .slot-role{width:46px;flex:none;text-align:center;font-family:var(--font-num);font-size:16px;color:var(--sub)}
   select{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:10px;color:var(--txt);padding:12px;font-size:15px;font-family:inherit;-webkit-appearance:none;appearance:none}
   select:focus{outline:none;border-color:var(--accent)}
+  /* ── 경기 기록 ── */
+  .scorerow{display:flex;align-items:center;justify-content:center;gap:16px}
+  .scoreside{text-align:center}
+  .scoreside>span{display:block;font-size:12px;color:var(--sub);font-weight:700;margin-bottom:8px}
+  .scoredash{font-family:var(--font-num);font-size:26px;color:var(--dim);align-self:flex-end;padding-bottom:6px}
+  .stepper{display:flex;align-items:center;gap:12px}
+  .stepper button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:18px;font-weight:800;cursor:pointer}
+  .stepper button:active{transform:translateY(1px)}
+  .stepper b{font-family:var(--font-num);font-weight:400;font-size:30px;min-width:26px;text-align:center}
+  .stepper.sm button{width:28px;height:28px;font-size:14px;border-radius:8px}
+  .stepper.sm b{font-size:18px;min-width:18px}
+  .scorerline{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
+  .scorerline:last-child{border:none}
+  .scorerline>span{font-size:14px;font-weight:700}
+  .seasonrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
+  .sstat{background:var(--card2);border-radius:12px;padding:12px 4px;text-align:center}
+  .sstat b{display:block;font-family:var(--font-num);font-weight:400;font-size:26px;color:var(--txt)}
+  .sstat span{font-size:11px;color:var(--sub);font-weight:700}
+  .matchlist{margin-top:8px}
+  .matchrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+  .mres{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:900;font-size:13px;flex:none}
+  .mres.win{background:var(--ok);color:#06231a}
+  .mres.draw{background:var(--card2);color:var(--sub)}
+  .mres.loss{background:#3a2530;color:#e8899c}
+  .mr-body{flex:1;min-width:0}
+  .mr-top{display:flex;align-items:baseline;gap:8px}
+  .mr-score{font-family:var(--font-num);font-weight:400;font-size:20px}
+  .mr-opp{font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt)}
+  .mr-mw{margin-left:auto;font-family:var(--font-num);font-size:11px;color:var(--dim);flex:none}
+  .mr-sub{font-size:12px;color:var(--sub);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .totrow{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:700;color:var(--sub)}
   .totrow:last-child{border:none}
   .totrow b{font-family:var(--font-num);font-weight:400;font-size:24px;color:var(--txt)}
@@ -620,6 +650,34 @@
   </div>
 </div>
 
+<!-- 경기 기록 -->
+<div class="modal" id="matchModal">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h2>경기 기록</h2>
+    <p class="desc">이번 경기 스코어·득점자·MVP를 남겨요.</p>
+    <div class="field"><label>상대</label>
+      <input id="mOpp" placeholder="예: FC 라이벌" maxlength="20" autocomplete="off"></div>
+    <div class="field"><label>스코어</label>
+      <div class="scorerow">
+        <div class="scoreside"><span>우리</span>
+          <div class="stepper"><button type="button" onclick="mScore('gf',-1)">−</button><b id="mGf">0</b><button type="button" onclick="mScore('gf',1)">＋</button></div></div>
+        <span class="scoredash">:</span>
+        <div class="scoreside"><span>상대</span>
+          <div class="stepper"><button type="button" onclick="mScore('ga',-1)">−</button><b id="mGa">0</b><button type="button" onclick="mScore('ga',1)">＋</button></div></div>
+      </div></div>
+    <div class="field"><label>득점자 <span class="opt">(선택)</span></label>
+      <div id="mScorers"></div>
+      <select id="mScorerAdd" onchange="mAddScorer(this.value)"></select></div>
+    <div class="field"><label>MVP <span class="opt">(선택)</span></label>
+      <select id="mMvp" onchange="mMvpId=this.value"></select></div>
+    <div class="field"><label>메모 <span class="opt">(선택)</span></label>
+      <input id="mMemo" placeholder="예: 후반 역전승" maxlength="30" autocomplete="off"></div>
+    <button class="submit" id="matchSaveBtn">경기 저장</button>
+    <button type="button" class="ghost-btn" data-close>닫기</button>
+  </div>
+</div>
+
 <!-- 크루 설정 (하드모드 등 옵트인) -->
 <div class="modal" id="settingsModal">
   <div class="sheet">
@@ -900,6 +958,21 @@ function lastLineup(){
 }
 const byJerseyId=(a,b)=>{ const ja=parseJersey(a.jersey_no),jb=parseJersey(b.jersey_no);
   if(ja!=null&&jb!=null) return ja-jb; if(ja!=null) return -1; if(jb!=null) return 1; return a.id-b.id; };
+// 경기 기록(checkins type=match, note=JSON) · 최신순
+function parseMatches(){
+  return (cache.checkins||[]).filter(c=>c.type==="match"&&c.note)
+    .map(c=>{ try{ return {id:c.id, ...JSON.parse(c.note)}; }catch{ return null; } }).filter(Boolean)
+    .sort((a,b)=>b.id-a.id);
+}
+function seasonStats(matches){
+  let w=0,d=0,l=0,gf=0,ga=0; const goals={};
+  matches.forEach(m=>{ gf+=m.gf||0; ga+=m.ga||0;
+    if((m.gf||0)>(m.ga||0)) w++; else if((m.gf||0)<(m.ga||0)) l++; else d++;
+    (m.scorers||[]).forEach(s=>{ goals[s.id]=(goals[s.id]||0)+(s.g||0); });
+  });
+  let top=null; Object.keys(goals).forEach(id=>{ if(goals[id]>0 && (!top||goals[id]>top.g)) top={id,g:goals[id]}; });
+  return {w,d,l,gf,ga,top};
+}
 // 스쿼드 배치(이번 주 스타팅 있으면 반영 · 없으면 자동) — 전술판/발표카드 공용
 function squadLayout(){
   const wm=cache.members.filter(m=>m.role!=="guardian");
@@ -1131,11 +1204,40 @@ async function renderCrew(cid){
   const board = `<div class="card"><div class="sec-t">락커룸 <span class="r">최신순</span></div>
     ${potwLast?`<div class="potw"><span class="potw-b">POTW</span>지난주 이주의 선수 · <b>${jerseyTag(potwLast.m)}${esc(potwLast.m.name)}</b> (${potwLast.v}회)</div>`:""}
     ${isTeam && wkRank[0] && wkRank[0].v>0 ? `<div class="feedhi">이번 주 최다 훈련 · <b>${jerseyTag(wkRank[0].m)}${esc(wkRank[0].m.name)}</b> (${wkRank[0].v})</div>`:""}
-    <div class="feed">${checkins.filter(c=>c.type!=="start"&&c.type!=="react"&&c.type!=="lineup").slice(0,isTeam?10:20).map(c=>{
+    <div class="feed">${checkins.filter(c=>c.type!=="start"&&c.type!=="react"&&c.type!=="lineup"&&c.type!=="match").slice(0,isTeam?10:20).map(c=>{
       if(c.type==="cheer") return `<div class="item"><div class="fic cheer">${icon('megaphone')}</div><div class="fb"><div class="fn">${esc(c.name)} <span style="color:var(--gold);font-size:11px;font-weight:800">서포터</span></div><div class="ft">${c.part?esc(c.part)+" ":""}${esc(c.note||"응원")}</div></div><div class="fago">${ago(c.created_at)}</div></div>`;
       const act=c.part||""; const rc=reactMap[String(c.id)]||0, rm=reactMine[String(c.id)];
       return `<div class="item"><div class="fic">${icon('dumbbell')}</div><div class="fb"><div class="fn">${jpfx(c)}${esc(c.name)} <span style="color:var(--ok);font-size:11px;font-weight:800">훈련</span></div><div class="ft">${act?`<span class="ftag">${esc(act)}</span>`:""}${esc(c.note||"")}</div>${c.photo?`<div class="fphoto" onclick="openLightbox('${c.id}')"><img src="${c.photo}" loading="lazy"></div>`:""}<div class="reactrow"><button class="clapbtn${rm?' on':''}" onclick="reactTo('${c.id}')">${icon('clap')}${rc?` <b>${rc}</b>`:""}</button></div></div><div class="fago">${ago(c.created_at)}</div></div>`;
     }).join("")||`<div class="empty">첫 훈련 보고를 남겨보세요</div>`}</div></div>`;
+
+  // 경기 기록 카드(기록 탭)
+  const canEditMatch = !isTeam || String(mem.memberId)===ownerId();
+  const matches=parseMatches(), ss=seasonStats(matches);
+  const mById=id=>members.find(x=>String(x.id)===String(id));
+  const resCls=m=>(m.gf||0)>(m.ga||0)?'win':(m.gf||0)<(m.ga||0)?'loss':'draw';
+  const resTxt=m=>(m.gf||0)>(m.ga||0)?'승':(m.gf||0)<(m.ga||0)?'패':'무';
+  const matchCard = `<div class="card">
+    <div class="sec-t">경기 기록 <span class="r">${matches.length?`${ss.w}승 ${ss.d}무 ${ss.l}패`:'아직 없음'}</span></div>
+    ${matches.length?`
+      <div class="seasonrow">
+        <div class="sstat"><b>${ss.w}</b><span>승</span></div>
+        <div class="sstat"><b>${ss.d}</b><span>무</span></div>
+        <div class="sstat"><b>${ss.l}</b><span>패</span></div>
+        <div class="sstat"><b>${ss.gf}-${ss.ga}</b><span>득실</span></div>
+      </div>
+      ${ss.top?(()=>{const p=mById(ss.top.id);return `<div class="totrow"><span>득점왕</span><b>${jerseyTag(p)}${esc(p?p.name:'?')} ${ss.top.g}골</b></div>`;})():''}
+      <div class="matchlist">${matches.slice(0,10).map(m=>{
+        const mvp=m.mvp?mById(m.mvp):null;
+        const sc=(m.scorers||[]).map(s=>{const p=mById(s.id);return p?`${esc(p.name)}${s.g>1?" "+s.g:""}`:"";}).filter(Boolean).join(", ");
+        const sub=[mvp?`MVP ${esc(mvp.name)}`:"", sc?`득점 ${sc}`:"", m.memo?esc(m.memo):""].filter(Boolean).join(" · ");
+        return `<div class="matchrow" onclick="shareMatchCard(${m.id})">
+          <span class="mres ${resCls(m)}">${resTxt(m)}</span>
+          <div class="mr-body"><div class="mr-top"><b class="mr-score">${m.gf} : ${m.ga}</b><span class="mr-opp">vs ${esc(m.opp||'상대팀')}</span><span class="mr-mw">MW${m.mw||''}</span></div>
+          ${sub?`<div class="mr-sub">${sub}</div>`:''}</div></div>`;
+      }).join("")}</div>`
+    :`<div class="empty">첫 경기 결과를 기록해보세요</div>`}
+    ${canEditMatch?`<button class="sharebtn" onclick="openMatch()">＋ 경기 기록 추가</button>`:''}
+  </div>`;
 
   const reportBtn = mem.role==="guardian"
     ? `<button class="btn primary" onclick="openCheer()">응원 보내기</button>`
@@ -1158,7 +1260,7 @@ async function renderCrew(cid){
 
   let body;
   if(crewTab==="locker") body = `<div class="lockerroom">${header}<div class="lockerplate">LOCKER ROOM</div>${gallery}${board}</div>`;
-  else if(crewTab==="record") body = header + squad + rankCard + totalCard;
+  else if(crewTab==="record") body = header + matchCard + rankCard + squad + totalCard;
   else if(fresh) body = header + onboard;
   else body = header + formCard + reportBtn + pitchBoard() + penalty;
   document.getElementById("app").innerHTML = body;
@@ -1513,6 +1615,47 @@ async function saveLineup(){
 }
 document.getElementById("lineupSaveBtn").onclick=saveLineup;
 
+/* ---- 경기 기록 ---- */
+let mGf=0, mGa=0, mScorers=[], mMvpId="";
+function openMatch(){
+  mGf=0; mGa=0; mScorers=[]; mMvpId="";
+  document.getElementById("mOpp").value=""; document.getElementById("mMemo").value="";
+  document.getElementById("mGf").textContent="0"; document.getElementById("mGa").textContent="0";
+  const wm=luPlayers();
+  document.getElementById("mMvp").innerHTML=`<option value="">MVP 없음</option>`+wm.map(m=>{const jn=parseJersey(m.jersey_no);return `<option value="${m.id}">${jn!=null?jn+" ":""}${esc(m.name)}</option>`;}).join("");
+  renderMatchScorers(); openModal("matchModal");
+}
+function mScore(side,delta){
+  if(side==="gf") mGf=Math.max(0,Math.min(99,mGf+delta)); else mGa=Math.max(0,Math.min(99,mGa+delta));
+  document.getElementById("mGf").textContent=mGf; document.getElementById("mGa").textContent=mGa;
+}
+function renderMatchScorers(){
+  const wm=luPlayers();
+  document.getElementById("mScorers").innerHTML=mScorers.map(s=>{
+    const m=cache.members.find(x=>String(x.id)===String(s.id)); const jn=parseJersey(m&&m.jersey_no);
+    return `<div class="scorerline"><span>${jn!=null?jn+" ":""}${esc(m?m.name:'?')}</span>
+      <div class="stepper sm"><button type="button" onclick="mGoal('${s.id}',-1)">−</button><b>${s.g}</b><button type="button" onclick="mGoal('${s.id}',1)">＋</button></div></div>`;
+  }).join("");
+  document.getElementById("mScorerAdd").innerHTML=`<option value="">＋ 득점자 추가</option>`+
+    wm.filter(m=>!mScorers.some(s=>String(s.id)===String(m.id))).map(m=>{const jn=parseJersey(m.jersey_no);return `<option value="${m.id}">${jn!=null?jn+" ":""}${esc(m.name)}</option>`;}).join("");
+  document.getElementById("mScorerAdd").value="";
+}
+function mAddScorer(id){ if(!id) return; if(!mScorers.some(s=>String(s.id)===String(id))) mScorers.push({id:Number(id),g:1}); renderMatchScorers(); }
+function mGoal(id,delta){ const s=mScorers.find(s=>String(s.id)===String(id)); if(!s) return; s.g+=delta; if(s.g<=0) mScorers=mScorers.filter(x=>String(x.id)!==String(id)); renderMatchScorers(); }
+async function saveMatch(){
+  const btn=document.getElementById("matchSaveBtn"); btn.disabled=true; btn.textContent="저장 중…";
+  const mem=myMember(VIEW);
+  const payload={wk:curWk(), mw:crewMatchweek(cache.crew), opp:(document.getElementById("mOpp").value||"").trim()||"상대팀",
+    gf:mGf, ga:mGa, scorers:mScorers.map(s=>({id:Number(s.id),g:s.g})), mvp:mMvpId?Number(mMvpId):null,
+    memo:(document.getElementById("mMemo").value||"").trim()};
+  try{
+    await DB.addCheckin({crewId:VIEW, memberId:mem.memberId, name:mem.name, type:"match", note:JSON.stringify(payload)});
+    closeModals(); await renderCrew(VIEW); toast("경기 기록 저장됨");
+  }catch(e){ alert("저장 실패: "+(e.message||e)); }
+  finally{ btn.disabled=false; btn.textContent="경기 저장"; }
+}
+document.getElementById("matchSaveBtn").onclick=saveMatch;
+
 /* ===================== 공유 카드 (스토리 규격 1080×1920) ===================== */
 const FONT='-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif';
 function loadImg(src){ return new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=()=>rej(new Error("img")); i.src=src; }); }
@@ -1649,6 +1792,24 @@ async function drawRecapCard({crewName,emblem,color,mw,teamTot,achievers,total,r
   cardFooter(g,code);
   return await blobOf(cv);
 }
+// ⑤ 경기 결과 카드 — 스코어·득점자·MVP
+async function drawMatchCard({crewName,emblem,color,mw,opp,gf,ga,scorers,mvpName,resultTxt,code}){
+  const cv=newCard(), g=cv.getContext("2d"); cardFrame(g,color);
+  cardEmblem(g,emblem,color,CW/2,168,56);
+  g.fillStyle="#fff"; g.font=`900 50px ${FONT}`; g.fillText(clip(crewName,14),CW/2,282);
+  g.fillStyle="#9A9D96"; g.font=`400 42px "Anton",sans-serif`; g.fillText(`MATCHWEEK ${mw||''} · RESULT`,CW/2,344);
+  g.fillStyle="#fff"; g.font=`400 210px "Anton",sans-serif`; g.textBaseline="middle"; g.fillText(`${gf} : ${ga}`,CW/2,560); g.textBaseline="alphabetic";
+  g.fillStyle=color; g.font=`900 62px ${FONT}`; g.fillText(resultTxt,CW/2,700);
+  g.fillStyle="#9A9D96"; g.font=`700 44px ${FONT}`; g.fillText(`vs ${clip(opp||'상대팀',14)}`,CW/2,768);
+  let y=900;
+  g.fillStyle="#9A9D96"; g.font=`700 36px ${FONT}`; g.fillText("득점",CW/2,y); y+=62;
+  g.fillStyle="#fff"; g.font=`800 42px ${FONT}`;
+  (scorers&&scorers.length?scorers.slice(0,5):["—"]).forEach(s=>{ g.fillText(clip(s,18),CW/2,y); y+=60; });
+  if(mvpName){ y+=28; g.fillStyle="#9A9D96"; g.font=`700 36px ${FONT}`; g.fillText("MAN OF THE MATCH",CW/2,y); y+=66;
+    g.fillStyle=color; g.font=`400 76px "Anton",sans-serif`; g.fillText(clip(mvpName,12),CW/2,y); }
+  cardFooter(g,code);
+  return await blobOf(cv);
+}
 // 공통 공유(파일 우선 → 다운로드 폴백)
 async function shareCard(blob,filename,text){
   const file=new File([blob],filename,{type:"image/png"});
@@ -1686,6 +1847,20 @@ async function shareSquadCard(){
     const blob=await drawSquadCard({crewName:cache.crew.name, emblem:cache.crew.emblem, color:crewColor(cache.crew),
       matchweek:crewMatchweek(cache.crew), formationLabel:layout.formationLabel, layout, memberById:byId, benchNames, code:cache.crew.code});
     await shareCard(blob,"squad.png",`[${cache.crew.name}] MATCHWEEK ${crewMatchweek(cache.crew)} 스타팅 스쿼드 · ${layout.formationLabel}\n${CARD_URL} #폼클럽`);
+  }catch(err){ if(err && err.name!=="AbortError") toast("공유 실패 — 다시 시도해줘"); }
+}
+// 경기 결과 카드 공유(경기 기록 탭 · 행 탭)
+async function shareMatchCard(id){
+  const m=parseMatches().find(x=>x.id===id); if(!m||!cache.crew) return;
+  const byId=i=>cache.members.find(x=>String(x.id)===String(i));
+  const scorers=(m.scorers||[]).map(s=>{ const p=byId(s.id); return p?`${p.name}${s.g>1?" "+s.g:""}`:""; }).filter(Boolean);
+  const mvp=m.mvp?byId(m.mvp):null;
+  const rt=(m.gf||0)>(m.ga||0)?'승리':(m.gf||0)<(m.ga||0)?'패배':'무승부';
+  toast("경기 카드 만드는 중…");
+  try{
+    const blob=await drawMatchCard({crewName:cache.crew.name, emblem:cache.crew.emblem, color:crewColor(cache.crew),
+      mw:m.mw, opp:m.opp, gf:m.gf, ga:m.ga, scorers, mvpName:mvp?mvp.name:'', resultTxt:rt, code:cache.crew.code});
+    await shareCard(blob,"match.png",`[${cache.crew.name}] ${m.gf}-${m.ga} ${rt} vs ${m.opp||'상대팀'} · MW${m.mw||''}\n${CARD_URL} #폼클럽`);
   }catch(err){ if(err && err.name!=="AbortError") toast("공유 실패 — 다시 시도해줘"); }
 }
 // 주간 결과(리캡) 카드 공유
